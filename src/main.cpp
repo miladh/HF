@@ -14,10 +14,10 @@ double kineticIntegral(const double p, const double q, rowvec Rp, rowvec Rq);
 double nuclearAttarctionIntegral(const double p, const double q, const int Z, const int Rp, const int Rq, const mat R);
 double overlapIntegral(const double p, const double q, rowvec Rp, rowvec Rq);
 double errorFunction(double arg);
-vec normalize(vec C);
+vec normalize(vec C, mat S);
 double electronInteractionIntegral(const int p, const int r, const int q, const int s,
-                                   rowvec Rp, rowvec Rr, rowvec Rq, rowvec Rs,
-                                   vec alpha, mat S);
+                                   const int  Rp, const int  Rr, const int  Rq, const int  Rs,
+                                   vec alpha,mat R, mat S);
 
 int main()
 {
@@ -29,7 +29,6 @@ int main()
 
     uint nBasisFunc = 4;
     uint nNuclei    = 2;
-    uint nElectrons = 1;
     uint nSteps     = 20;
 
     uint Z = 1;
@@ -48,7 +47,7 @@ int main()
     mat S = zeros(nOrbitals,nOrbitals);
     mat F = zeros(nOrbitals,nOrbitals);
     mat R = zeros(nNuclei,3);
-    vec C = ones(nOrbitals)*0.125;
+    vec C = zeros(nOrbitals);
 
     double ****Q;
     Q = new double***[nOrbitals];
@@ -86,7 +85,6 @@ int main()
     }
 
     /*-----------------------------------------------------------------------------------------------------------*/
-
     //Set up the Q array:
     for(uint Rp = 0; Rp < R.n_rows; Rp++){
         for(uint Rr = 0; Rr < R.n_rows; Rr++){
@@ -98,7 +96,7 @@ int main()
                             for(uint q=0; q <alpha.size(); q++){
                                 for(uint s=0; s <alpha.size(); s++){
 
-                                    Q[p+Rp*4][r+Rr*4][q+Rq*4][s+Rs*4] = electronInteractionIntegral(p,r,q,s,R.row(Rp),R.row(Rr),R.row(Rq),R.row(Rs),alpha,S);
+                                    Q[p+Rp*4][r+Rr*4][q+Rq*4][s+Rs*4] = electronInteractionIntegral(p,r,q,s,Rp,Rr,Rq,Rs,alpha,R,S);
                                 }
                             }
                         }
@@ -131,6 +129,7 @@ int main()
         //Set up the F matrix
         F = h + G;
 
+
         /*-----------------------------------------------------------------------------------------------------------*/
         //Diagonalize S:
 
@@ -148,9 +147,9 @@ int main()
         eig_sym(eps, Cmat, F);
 
         C = V*Cmat.col(0);
-        C = normalize(C);
+        C = normalize(C,S);
 
-        cout << C << endl;
+
         /*-----------------------------------------------------------------------------------------------------------*/
         //Calculate energy:
 
@@ -173,7 +172,10 @@ int main()
             }
         }
 
-        cout <<"Energy: " << Eg <<" step: " << step << endl;
+        Eg +=1/sqrt(dot(R.row(0) - R.row(1),R.row(0)- R.row(1)));
+
+                cout <<"Energy: " << Eg <<" step: " << step << endl;
+
 
     }
 
@@ -206,30 +208,36 @@ double nuclearRepulsion(){
 }
 
 /*-----------------------------------------------------------------------------------------------------------*/
-vec normalize(vec C){
+vec normalize(vec C, mat S){
+    double normFactor= 0.0;
 
-    double normFactor = norm(C,2);
+    for(uint i= 0; i < C.n_elem; i++){
+        for(uint j= 0; j < C.n_elem; j++){
+            normFactor += C(i)*S(i,j)*C(j);
+        }
+    }
 
-    return C/normFactor;
+
+    return C/sqrt(normFactor);
 
 }
 
 /*-----------------------------------------------------------------------------------------------------------*/
 double electronInteractionIntegral(const int p, const int r, const int q, const int s,
-                                   rowvec Rp,rowvec Rr,rowvec Rq,rowvec Rs,
-                                   vec alpha, mat S){
+                                   const int Rp, const int Rr, const int Rq, const int Rs,
+                                   vec alpha, mat R, mat S){
 
 
     double A = alpha[p] + alpha[q];
     double B = alpha[r] + alpha[s];
 
-    rowvec Ra = (alpha[p]*Rp + alpha[q]*Rq)/(alpha[p]+alpha[q]);
-    rowvec Rb = (alpha[r]*Rr + alpha[s]*Rs)/(alpha[r]+alpha[s]);
+    rowvec Ra = (alpha[p]*R.row(Rp) + alpha[q]*R.row(Rq))/A;
+    rowvec Rb = (alpha[r]*R.row(Rr) + alpha[s]*R.row(Rs))/B;
 
 
-    double t = (alpha[p]+alpha[q])*(alpha[r]+alpha[s])/ (alpha[p]+alpha[q]+alpha[r]+alpha[s]) * dot(Ra-Rb,Ra-Rb);
+    double t = (A*B/(A + B))*dot(Ra-Rb,Ra-Rb);
 
-    double arg = 2*sqrt(A*B/(acos(-1)*(A+B)))*errorFunction(t)* S(p,q)*S(s,r);
+    double arg = 2*sqrt(A*B/(acos(-1)*(A+B)))*errorFunction(t)*S(p+Rp*4,q+Rq*4)*S(s+Rs*4,r+Rr*4);
 
     return arg;
 
@@ -240,7 +248,7 @@ double electronInteractionIntegral(const int p, const int r, const int q, const 
 /*-----------------------------------------------------------------------------------------------------------*/
 double errorFunction(double arg){
 
-    if (arg <= 1e-6){
+    if (arg < 1.0E-6){
         return 1.0;
     }
 
