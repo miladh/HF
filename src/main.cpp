@@ -9,7 +9,7 @@ using namespace arma;
 using namespace std;
 
 
-double nuclearRepulsion();
+double nuclearRepulsion(const mat R);
 double kineticIntegral(const double p, const double q, rowvec Rp, rowvec Rq);
 double nuclearAttarctionIntegral(const double p, const double q, const int Z, const int Rp, const int Rq, const mat R);
 double overlapIntegral(const double p, const double q, rowvec Rp, rowvec Rq);
@@ -172,9 +172,9 @@ int main()
             }
         }
 
-        Eg +=1/sqrt(dot(R.row(0) - R.row(1),R.row(0)- R.row(1)));
-
-                cout <<"Energy: " << Eg <<" step: " << step << endl;
+        Eg +=nuclearRepulsion(R);
+        cout.precision(8);
+        cout <<"Energy: " << Eg <<" step: " << step << endl;
 
 
     }
@@ -201,10 +201,10 @@ int main()
 
 
 /*-----------------------------------------------------------------------------------------------------------*/
-double nuclearRepulsion(){
+double nuclearRepulsion(const mat R){
 
 
-    return 1;
+    return 1/sqrt(dot(R.row(0) - R.row(1),R.row(0)- R.row(1)));
 }
 
 /*-----------------------------------------------------------------------------------------------------------*/
