@@ -1,9 +1,6 @@
-#include <cmath>
-#include <stdlib.h>
-#include <stdio.h>
 #include <iostream>
 #include <armadillo>
-#include <iomanip>
+#include<src/system/system.h>
 
 using namespace arma;
 using namespace std;
