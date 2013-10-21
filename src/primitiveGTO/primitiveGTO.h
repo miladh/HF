@@ -11,20 +11,17 @@ using namespace std;
 class PrimitiveGTO
 {
 public:
-    PrimitiveGTO(double alpha, double coff, string type);
-    double alpha() const;
-    double coff() const;
+    PrimitiveGTO(double exponent, double weight);
 
-    void setAlpha(double alpha);
-    void setCoff(double coff);
+    double exponent() const;
+    void setExponent(double exponent);
 
-    string type() const;
-    void setType(string type);
+    double weight() const;
+    void setWeight(double weight);
 
 private:
-    double m_alpha;
-    double m_coff;
-    string m_type;
+    double m_exponent;
+    double m_weight;
 
 };
 #endif // PRIMITIVEGTO_H

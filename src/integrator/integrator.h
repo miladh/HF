@@ -14,14 +14,39 @@ class Integrator
 public:
     Integrator();
 
-    int l = 2;
-    int tmax;
-    vector <PrimitiveGTO *> primitives;
-    void setE();
-    cube E[3];
-    mat R = zeros<mat>(2,3);
+    void setupE();
 
-    mat index = zeros<mat>(3,2);
+    rowvec corePositionA() const;
+    void setCorePositionA(const rowvec &corePositionA);
+
+    rowvec corePositionB() const;
+    void setCorePositionB(const rowvec &corePositionB);
+
+    uint maxAngularMomentum() const;
+    void setMaxAngularMomentum(const uint &maxAngularMomentum);
+
+    void addPrimitives(PrimitiveGTO *primitive);
+
+    double overlapIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
+    double kineticIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
+
+private:
+    rowvec m_corePositionA;
+    rowvec m_corePositionB;
+
+    vector<PrimitiveGTO *> m_primitives;
+
+    uint m_maxAngularMomentum;
+
+    cube m_E[3]; // x,y,z cube
+
+    vector<urowvec> m_combinationsA;
+    vector<urowvec> m_combinationsB;
+
+    bool interiorPoint(int iA, int iB, int t);
+
+    double overlapIntegral(int cor, int iA, int iB);
+    double kineticIntegral(int dim, int iA, int iB);
 };
 
 #endif // INTEGRATOR_H

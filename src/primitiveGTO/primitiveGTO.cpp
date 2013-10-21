@@ -1,42 +1,29 @@
 #include "primitiveGTO.h"
 
-PrimitiveGTO::PrimitiveGTO(double alpha, double coff, string type):
-    m_alpha(alpha),
-    m_coff(coff),
-    m_type(type)
+PrimitiveGTO::PrimitiveGTO(double exponent, double weight)
 {
-    setAlpha(m_alpha);
-    setCoff(m_coff);
-    setType(m_type);
+    setExponent(exponent);
+    setWeight(weight);
 }
 
-double PrimitiveGTO::coff() const
+double PrimitiveGTO::exponent() const
 {
-    return m_coff;
+    return m_exponent;
 }
 
-void PrimitiveGTO::setCoff(double coff)
+void PrimitiveGTO::setExponent(double exponent)
 {
-    m_coff = coff;
+    m_exponent = exponent;
+}
+
+double PrimitiveGTO::weight() const
+{
+    return m_weight;
+}
+
+void PrimitiveGTO::setWeight(double weight)
+{
+    m_weight = weight;
 }
 
 
-double PrimitiveGTO::alpha() const
-{
-    return m_alpha;
-}
-
-void PrimitiveGTO::setAlpha(double alpha)
-{
-    m_alpha = alpha;
-}
-
-string PrimitiveGTO::type() const
-{
-    return m_type;
-}
-
-void PrimitiveGTO::setType(string type)
-{
-    m_type = type;
-}

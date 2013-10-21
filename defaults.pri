@@ -1,4 +1,8 @@
-INCLUDEPATH += $$PWD
+# Directories
+ROOT_DIR = $$PWD
+SRC_DIR = $$PWD/src
+INCLUDEPATH += $$ROOT_DIR
+
 LIBS += -llapack -larmadillo -lconfig++
 
 QMAKE_CXXFLAGS += -std=c++0x

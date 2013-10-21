@@ -1,16 +1,14 @@
-LIBS += -lunittest++
 TEMPLATE = app
+
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+LIBS += -lunittest++
+
 include(../defaults.pri)
 
-SOURCES += main.cpp
-#    ../src/Jastrow/padejastrow.cpp \
-
-
-
-HEADERS +=
-#    ../src/Jastrow/padejastrow.h \
+SOURCES += main.cpp \
+    ../src/integrator/integrator.cpp\
+    ../src/primitiveGTO/primitiveGTO.cpp
 

@@ -9,8 +9,10 @@ using namespace std;
 
 int main()
 {
-    Integrator solver;
-    solver.setE();
+//    Integrator solver;
+//    solver.addPrimitives(new PrimitiveGTO(0.2, 1.0));
+//    solver.addPrimitives(new PrimitiveGTO(0.3, 1.0));
+//    solver.setupE();
 
     return 0;
 }
