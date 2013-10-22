@@ -30,6 +30,8 @@ public:
     double overlapIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
     double kineticIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
 
+    double boysFunction(double arg, int n);
+    int factorial(int num);
 private:
     rowvec m_corePositionA;
     rowvec m_corePositionB;
@@ -47,6 +49,8 @@ private:
 
     double overlapIntegral(int cor, int iA, int iB);
     double kineticIntegral(int dim, int iA, int iB);
+
+    double taylorExpandendBoys(double arg, int n, int nterms);
 };
 
 #endif // INTEGRATOR_H

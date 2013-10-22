@@ -56,9 +56,9 @@ bool Integrator::interiorPoint(int iA, int iB, int t)
 
 void Integrator::setupE()
 {
-    int tmax  = m_maxAngularMomentum + 3;
     int iAmax = m_maxAngularMomentum + 3;
     int iBmax = m_maxAngularMomentum + 3;
+    int tmax  = 2*(iAmax +iBmax);
 
     for(int cor = 0; cor < 3; cor++){
         m_E[cor] = zeros(iAmax, iBmax, tmax);
@@ -86,10 +86,12 @@ void Integrator::setupE()
 
     for(int cor=0; cor < 3; cor++){ //Loop for x,y,z
 
+
+        // p = previous, n = next
+        // E(t,i,j) = 1 / (2*p) * E(t-1,i,j-1) + XPA * E(t,i,j-1) + (t + 1)*E(t+1,i,j-1)
         for(int iB = 1; iB < iBmax; iB++){
             for(int t = 0; t < tmax-1; t++){
-                // p = previous, n = next
-                // E(t,i,j) = 1 / (2*p) * E(t-1,i,j-1) + XPA * E(t,i,j-1) + (t + 1)*E(t+1,i,j-1)
+
                 int iA = 0;
                 int iBp = iB - 1;
                 int tp = t - 1;
@@ -116,12 +118,12 @@ void Integrator::setupE()
 
 
 
-
+        // p = previous, n = next
+        // E(t,i,j) = 1 / (2*p) * E(t-1,i-1,j) + XPA * E(t,i-1,j) + (t + 1)*E(t+1,i-1,j)
         for(int iA = 1; iA < iAmax; iA++) {
             for(int iB = 0; iB < iBmax; iB++) {
                 for(int t = 0; t < tmax - 1; t++) {
-                    // p = previous, n = next
-                    // E(t,i,j) = 1 / (2*p) * E(t-1,i-1,j) + XPA * E(t,i-1,j) + (t + 1)*E(t+1,i-1,j)
+
                     int iAp = iA - 1;
                     int tp = t - 1;
                     int tn = t + 1;
@@ -146,25 +148,23 @@ void Integrator::setupE()
             }
         }
 
-
-
     }//End of cor=(x,y,z) loop
 
 
-//    cout <<"p " << p << endl;
-//    cout <<"mu "<< mu << endl;
-//    cout <<"P"<< P << endl;
-//    cout <<"ab"<< AB <<endl;
-//    cout <<"pa"<< PA <<endl;
-//    cout <<"pb"<< PB <<endl;
-//    cout <<"kab"<< Kab <<endl;
+    //    cout <<"p " << p << endl;
+    //    cout <<"mu "<< mu << endl;
+    //    cout <<"P"<< P << endl;
+    //    cout <<"ab"<< AB <<endl;
+    //    cout <<"pa"<< PA <<endl;
+    //    cout <<"pb"<< PB <<endl;
+    //    cout <<"kab"<< Kab <<endl;
 
 
-//    cout << m_E[0] << endl;
-//    cout << "-----------------------------------" <<endl;
-//    cout << m_E[1] << endl;
-//    cout << "-----------------------------------" <<endl;
-    cout << m_E[2] << endl;
+    //    cout << m_E[0] << endl;
+    //    cout << "-----------------------------------" <<endl;
+    //    cout << m_E[1] << endl;
+    //    cout << "-----------------------------------" <<endl;
+    //    cout << m_E[2] << endl;
 
 }
 
@@ -211,6 +211,7 @@ double Integrator::kineticIntegral(int iA, int jA, int kA, int iB, int jB, int k
     result *= -0.5;
     return result;
 }
+
 
 
 

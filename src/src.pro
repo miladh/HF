@@ -9,11 +9,13 @@ SOURCES += main.cpp \
     primitiveGTO/primitiveGTO.cpp \
     contractedGTO/contractedGTO.cpp \
     system/system.cpp \
-    integrator/integrator.cpp
+    integrator/integrator.cpp \
+    math/boys.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
     contractedGTO/contractedGTO.h \
     system/system.h \
-    integrator/integrator.h
+    integrator/integrator.h \
+    math/boys.h
 
