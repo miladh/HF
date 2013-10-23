@@ -4,9 +4,7 @@ Boys::Boys()
 {
 }
 
-
-
-double Boys::boysFunction(double arg, int n)
+double Boys::boysFunction(double arg, uint n)
 {
     double F;
 
@@ -19,7 +17,7 @@ double Boys::boysFunction(double arg, int n)
         F = 0.0;
     }
 
-    //        cout <<setprecision(10) <<F <<endl;
+    //        cout <<setprecision(10) << F <<endl;
     return F;
 
 
@@ -35,7 +33,7 @@ double Boys::boysFunction(double arg, int n)
 }
 
 
-double Boys::taylorExpandendBoys(double arg, int n, int nterms){
+double Boys::taylorExpandendBoys(double arg, uint n, int nterms){
 
     double F = 0.0;
 
@@ -44,6 +42,16 @@ double Boys::taylorExpandendBoys(double arg, int n, int nterms){
     }
 
     return F;
+
+}
+
+double Boys::downwardRecursion(double arg, uint n){
+
+    // p = previous, n = next
+    double Fn = boysFunction(arg, n);
+    double Fp = (2* arg * Fn + exp(-arg)) / (2*n -1);
+
+    return Fp;
 
 }
 

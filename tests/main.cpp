@@ -65,7 +65,68 @@ TEST(BoysfactorialFunctions)
     CHECK_EQUAL(boys.doubleFactorial(-1),1);
 }
 
-TEST(boysfunction)
+
+TEST(BoysDownwardrecursionFunction)
+{
+    Boys boys;
+    double Fp, x;
+    vec xvec, Fpvec;
+
+
+    //test for Fn(0):
+    x = 0;
+    for(int n = 10; n > 0; n--){
+        Fp = boys.downwardRecursion(x,n);
+    }
+    CHECK_CLOSE(Fp, 1.0, 1e-10);
+
+
+    //test for F0(x) for small x:
+    xvec = linspace(0.01,0.09,10);
+    Fpvec = zeros(10);
+    for(uint i = 0; i < 10; i++){
+        for(uint n = 10; n > 0; n--){
+            Fpvec[i] = boys.downwardRecursion(xvec[i],n);
+        }
+    }
+    CHECK_CLOSE(Fpvec[0], 0.996676642903, 1e-10);
+    CHECK_CLOSE(Fpvec[1], 0.993739222842, 1e-10);
+    CHECK_CLOSE(Fpvec[2], 0.990817393658, 1e-10);
+    CHECK_CLOSE(Fpvec[3], 0.987911056819, 1e-10);
+    CHECK_CLOSE(Fpvec[4], 0.985020114475, 1e-10);
+    CHECK_CLOSE(Fpvec[5], 0.982144469445, 1e-10);
+    CHECK_CLOSE(Fpvec[6], 0.97928402522, 1e-10);
+    CHECK_CLOSE(Fpvec[7], 0.976438685953, 1e-10);
+    CHECK_CLOSE(Fpvec[8], 0.973608356454, 1e-10);
+    CHECK_CLOSE(Fpvec[9], 0.97079294219, 1e-10);
+
+
+    //test for F0(x) for intermediate x:
+
+
+    //test for F0(x) for large x:
+    xvec = linspace(20,100,10);
+    Fpvec = zeros(10);
+    for(uint i = 0; i < 10; i++){
+      for(uint n = 100; n > 0; n--){
+               Fpvec[i] = boys.downwardRecursion(xvec[i],n);
+    }
+      }
+    CHECK_CLOSE(Fpvec[0], 0.19816636483, 1e-8);
+    CHECK_CLOSE(Fpvec[1], 0.164884382227, 1e-10);
+    CHECK_CLOSE(Fpvec[2], 0.144187209502, 1e-10);
+    CHECK_CLOSE(Fpvec[3], 0.12973033818, 1e-10);
+    CHECK_CLOSE(Fpvec[4], 0.118899818928, 1e-10);
+    CHECK_CLOSE(Fpvec[5], 0.110395710425, 1e-10);
+    CHECK_CLOSE(Fpvec[6], 0.103489008863, 1e-10);
+    CHECK_CLOSE(Fpvec[7], 0.0977350491129, 1e-10);
+    CHECK_CLOSE(Fpvec[8], 0.0928451600494, 1e-10);
+    CHECK_CLOSE(Fpvec[9], 0.0886226925453, 1e-10);
+
+}
+
+
+TEST(boysFunction)
 {
     Boys boys;
 
@@ -95,7 +156,7 @@ TEST(boysfunction)
 
 
     //test for F0(x) for intermediate x:
-//    CHECK_CLOSE(boys.boysFunction(0.1,0), 1.0, 1e-10);
+    //    CHECK_CLOSE(boys.boysFunction(0.1,0), 1.0, 1e-10);
 
     //test for F0(x) for large x:
     CHECK_CLOSE(boys.boysFunction(20.0,0), 0.19816636483, 1e-10);

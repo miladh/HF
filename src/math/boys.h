@@ -14,10 +14,10 @@ public:
 
     int factorial(int n);
     int doubleFactorial(int n);
-    double boysFunction(double arg, int n);
-
+    double boysFunction(double arg, uint n);
+    double downwardRecursion(double arg, uint n);
 private:
-    double taylorExpandendBoys(double arg, int n, int nterms);
+    double taylorExpandendBoys(double arg, uint n, int nterms);
 };
 
 #endif // BOYSFUNCTION_H
