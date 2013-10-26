@@ -10,14 +10,25 @@ using namespace std;
 class Boys
 {
 public:
-    Boys();
+    Boys(uint highestOrder);
 
-    int factorial(int n);
-    int doubleFactorial(int n);
-    double boysFunction(double arg, uint n);
-    double downwardRecursion(double arg, uint n);
+    rowvec getBoysFunctions() const;
+    void evaluateBoysFunctions(const double &arg);
+
+    static double factorial(const int &n);
+    static double doubleFactorial(const int &n);
+
 private:
-    double taylorExpandendBoys(double arg, uint n, int nterms);
+    double m_arg;
+    uint m_highestOrder;
+    rowvec m_results;
+    mat m_Ftabulated;
+
+    void results();
+    void downwardRecursion();
+    void readBoysForSmallArguments();
+    double taylorExpandendBoys(uint nterms = 6, double dxt = 50.0/999) const;
+    double asymptoticBoys() const;
 };
 
 #endif // BOYSFUNCTION_H

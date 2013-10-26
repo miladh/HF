@@ -8,6 +8,17 @@ Integrator::Integrator():
 }
 
 
+void Integrator::setCorePositions(const mat corePositions){
+
+    m_corePositions = corePositions;
+}
+
+mat Integrator::corePositions() const
+{
+    return m_corePositions;
+}
+
+
 rowvec Integrator::corePositionA() const
 {
     return m_corePositionA;
@@ -51,6 +62,56 @@ bool Integrator::interiorPoint(int iA, int iB, int t)
     } else {
         return true;
     }
+}
+
+
+void Integrator::setupR(const rowvec &C){
+
+//    uint iAmax = m_maxAngularMomentum + 3;
+//    uint iBmax = m_maxAngularMomentum + 3;
+//    uint tmax  = 2*(iAmax +iBmax);
+
+//    for(uint n = 0; n < 6*tmax; n++){
+//        m_R.push_back(zeros(tmax, tmax, tmax));
+//    }
+
+
+//    uint nMax = 3 * tmax;
+//    const rowvec &A = m_corePositionA;
+//    const rowvec &B = m_corePositionB;
+
+//    double a = m_primitives[0]->exponent();
+//    double b = m_primitives[1]->exponent();
+
+//    double p = a + b;
+//    rowvec P  = (a*A + b*B)/p;
+//    rowvec PC = P - C;
+//    Boys boys(p*dot(PC,PC),nMax);
+//    rowvec Fn = boys.getBoysFunctions();
+
+
+//    for(uint n = 0; n < nMax; n++){
+//        m_R.at(n)(0,0,0) = pow(-2*p,n)*Fn[n];
+//    }
+
+//    for(uint tuvSum = 1; tuvSum <= nMax; tuvSum++){
+//        for(uint n = 0; n <= tuvSum; n++){
+
+//            for(uint t = 0; t < tuvSum; t++){
+//                for(uint u = 0; u < tuvSum; u++){
+//                    for(uint v = 0; v < tuvSum; v++){
+//                        if(t+u+v == tuvSum){
+
+//                            m_R.at(n)(t+1,u,v) = t*m_R.at(n+1)(t-1,u,v) + PC(0) * m_R.at(n+1)(t,u,v);
+//                            m_R.at(n)(t,u+1,v) = u*m_R.at(n+1)(t,u-1,v) + PC(1) * m_R.at(n+1)(t,u,v);
+//                            m_R.at(n)(t,u,v+1) = v*m_R.at(n+1)(t,u,v-1) + PC(2) * m_R.at(n+1)(t,u,v);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 }
 
 

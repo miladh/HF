@@ -5,6 +5,7 @@
 #include <armadillo>
 
 #include<src/primitiveGTO/primitiveGTO.h>
+#include<src/math/boys.h>
 
 using namespace arma;
 using namespace std;
@@ -15,12 +16,16 @@ public:
     Integrator();
 
     void setupE();
+    void setupR(const rowvec &C);
 
     rowvec corePositionA() const;
     void setCorePositionA(const rowvec &corePositionA);
 
     rowvec corePositionB() const;
     void setCorePositionB(const rowvec &corePositionB);
+
+    mat corePositions() const;
+    void setCorePositions(const mat corePostions);
 
     uint maxAngularMomentum() const;
     void setMaxAngularMomentum(const uint &maxAngularMomentum);
@@ -32,18 +37,23 @@ public:
 
     double boysFunction(double arg, int n);
     int factorial(int num);
+
 private:
     rowvec m_corePositionA;
     rowvec m_corePositionB;
+    mat m_corePositions;
 
     vector<PrimitiveGTO *> m_primitives;
 
     uint m_maxAngularMomentum;
 
     cube m_E[3]; // x,y,z cube
+//    double ****m_R;
 
-    vector<urowvec> m_combinationsA;
-    vector<urowvec> m_combinationsB;
+    vector<cube> m_R;
+
+
+
 
     bool interiorPoint(int iA, int iB, int t);
 
