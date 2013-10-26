@@ -73,11 +73,11 @@ TEST(boysFunction)
     //Recursion relation is not used!
     Boys boysF0_small(0);
     mat F0; rowvec xvec;
-    xvec = linspace(0.01,50,20);
+    xvec = linspace<rowvec>(0.01,50,20);
     F0 = zeros(20,1);
     for(uint i = 0; i < 20; i++){
-      boysF0_small.evaluateBoysFunctions(xvec[i]);
-      F0.row(i) =  boysF0_small.getBoysFunctions();
+        boysF0_small.evaluateBoysFunctions(xvec[i]);
+        F0.row(i) =  boysF0_small.getBoysFunctions();
     }
 
     CHECK_CLOSE(F0(0,0), 9.9667664290336333e-01, 1e-10);
@@ -107,11 +107,11 @@ TEST(boysFunction)
     //test for F0(x) for large x > 50:
     //Recursion relation is not used!
     Boys boysF0_large(0);
-    xvec = linspace(51,100,20);
+    xvec = linspace<rowvec>(51,100,20);
     F0 = zeros(20,1);
     for(uint i = 0; i < 20; i++){
-     boysF0_large.evaluateBoysFunctions(xvec[i]);
-     F0.row(i) = boysF0_large.getBoysFunctions();
+        boysF0_large.evaluateBoysFunctions(xvec[i]);
+        F0.row(i) = boysF0_large.getBoysFunctions();
     }
 
     CHECK_CLOSE(F0(0,0), 1.2409659136408727e-01, 1e-10);
@@ -173,11 +173,11 @@ TEST(BoysDownwardrecursionFunction)
     // n goes from nMax to 0
     Boys boysF0_small(15);
     mat F0; rowvec xvec;
-    xvec = linspace(0.01,50,20);
-    F0 = zeros(20,15);
+    xvec = linspace<rowvec>(0.01,50,20);
+    F0 = zeros(20,16);
     for(uint i = 0; i < 20; i++){
-      boysF0_small.evaluateBoysFunctions(xvec[i]);
-      F0.row(i) =  boysF0_small.getBoysFunctions();
+        boysF0_small.evaluateBoysFunctions(xvec[i]);
+        F0.row(i) =  boysF0_small.getBoysFunctions();
     }
 
     CHECK_CLOSE(F0(0,0), 9.9667664290336333e-01, 1e-10);
@@ -208,14 +208,14 @@ TEST(BoysDownwardrecursionFunction)
     //test for F0(x) for large x > 50:
     // n goes from nMax to 0
     Boys boysF0_large(15);
-    xvec = linspace(51,100,20);
-    F0 = zeros(20,15);
+    xvec = linspace<rowvec>(51,100,20);
+    F0 = zeros(20,16);
     for(uint i = 0; i < 20; i++){
      boysF0_large.evaluateBoysFunctions(xvec[i]);
      F0.row(i) = boysF0_large.getBoysFunctions();
     }
 
-    CHECK_CLOSE(F0(0,0), 1.2409659136408727e-01, 1e-9); //OBS!
+    CHECK_CLOSE(F0(0,0), 1.2409659136408727e-01, 1e-9); //OBS!!
     CHECK_CLOSE(F0(1,0), 1.2107315290425182e-01, 1e-10);
     CHECK_CLOSE(F0(2,0), 1.1826045114934411e-01, 1e-10);
     CHECK_CLOSE(F0(3,0), 1.1563509029711123e-01, 1e-10);
