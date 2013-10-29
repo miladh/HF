@@ -7,18 +7,6 @@ Integrator::Integrator():
     setMaxAngularMomentum(0);
 }
 
-
-void Integrator::setCorePositions(const mat corePositions){
-
-    m_corePositions = corePositions;
-}
-
-mat Integrator::corePositions() const
-{
-    return m_corePositions;
-}
-
-
 rowvec Integrator::corePositionA() const
 {
     return m_corePositionA;
@@ -38,6 +26,28 @@ void Integrator::setCorePositionB(const rowvec &corePositionB)
 {
     m_corePositionB = corePositionB;
 }
+
+
+rowvec Integrator::corePositionC() const
+{
+    return m_corePositionC;
+}
+
+void Integrator::setCorePositionC(const rowvec &corePositionC)
+{
+    m_corePositionC = corePositionC;
+}
+
+rowvec Integrator::corePositionD() const
+{
+    return m_corePositionD;
+}
+
+void Integrator::setCorePositionD(const rowvec &corePositionD)
+{
+    m_corePositionD = corePositionD;
+}
+
 
 uint Integrator::maxAngularMomentum() const
 {
@@ -65,61 +75,103 @@ bool Integrator::interiorPoint(int iA, int iB, int t)
 }
 
 
-void Integrator::setupR(const rowvec &C){
+void Integrator::setupR(const rowvec &PQ, const double &alpha){
 
-//    uint iAmax = m_maxAngularMomentum + 3;
-//    uint iBmax = m_maxAngularMomentum + 3;
-//    uint tmax  = 2*(iAmax +iBmax);
+    uint tMax  = 2 * m_maxAngularMomentum + 1;
+    uint uMax  = 2 * m_maxAngularMomentum + 1;
+    uint vMax  = 2 * m_maxAngularMomentum + 1;
+    uint nMax  = 2 * m_maxAngularMomentum + 1;
 
-//    for(uint n = 0; n < 6*tmax; n++){
-//        m_R.push_back(zeros(tmax, tmax, tmax));
-//    }
+    for(uint n = 0; n < nMax; n++){
+        m_R.push_back(zeros(tMax, tMax, tMax));
+    }
 
-
-//    uint nMax = 3 * tmax;
-//    const rowvec &A = m_corePositionA;
-//    const rowvec &B = m_corePositionB;
-
-//    double a = m_primitives[0]->exponent();
-//    double b = m_primitives[1]->exponent();
-
-//    double p = a + b;
-//    rowvec P  = (a*A + b*B)/p;
-//    rowvec PC = P - C;
-//    Boys boys(p*dot(PC,PC),nMax);
-//    rowvec Fn = boys.getBoysFunctions();
+    Boys boys(nMax);
+    boys.evaluateBoysFunctions(alpha*dot(PQ,PQ));
+    rowvec Fn = boys.getBoysFunctions();
 
 
-//    for(uint n = 0; n < nMax; n++){
-//        m_R.at(n)(0,0,0) = pow(-2*p,n)*Fn[n];
-//    }
+    for(uint n = 0; n < nMax; n++){
+        m_R.at(n)(0,0,0) = pow(-2*alpha,n)*Fn[n];
+    }
 
-//    for(uint tuvSum = 1; tuvSum <= nMax; tuvSum++){
-//        for(uint n = 0; n <= tuvSum; n++){
 
-//            for(uint t = 0; t < tuvSum; t++){
-//                for(uint u = 0; u < tuvSum; u++){
-//                    for(uint v = 0; v < tuvSum; v++){
-//                        if(t+u+v == tuvSum){
+    // p = previous
+    // R(n,t,u,v) = (v-1) * R(n+1,t,u,v-2) + PQz * R(n+1,t,u,v-1)
+    for(uint v = 1; v < vMax; v++){
+        for(uint n = 0; n < nMax-v; n++){
+            int t = 0.0; int u = 0.0;
+            int vpp = v - 2;
+            uint vp = v - 1;
 
-//                            m_R.at(n)(t+1,u,v) = t*m_R.at(n+1)(t-1,u,v) + PC(0) * m_R.at(n+1)(t,u,v);
-//                            m_R.at(n)(t,u+1,v) = u*m_R.at(n+1)(t,u-1,v) + PC(1) * m_R.at(n+1)(t,u,v);
-//                            m_R.at(n)(t,u,v+1) = v*m_R.at(n+1)(t,u,v-1) + PC(2) * m_R.at(n+1)(t,u,v);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+            double R_t_u_vpp = 0.0;
+            if(!(vpp < 0)){
+                R_t_u_vpp = m_R.at(n+1)(t,u,vpp);
+            }
+
+            double R_t_u_vp = m_R.at(n+1)(t,u,vp);
+
+            m_R.at(n)(t,u,v) = (v-1) * R_t_u_vpp + PQ(2) * R_t_u_vp;
+        }
+    }
+
+
+    // p = previous
+    // R(n,t,u,v) = (u-1) * R(n+1,t,u-2,v) + PQy * R(n+1,t,u-1,v)
+    for(uint u = 1; u < uMax; u++){
+        for(uint n = 0; n < nMax-u; n++){
+            int t = 0.0; int v = 0.0;
+            int upp = u - 2.0;
+            uint up = u - 1.0;
+
+
+            double R_t_upp_v = 0.0;
+            if(!(upp < 0)){
+                R_t_upp_v = m_R.at(n+1)(t,upp,v);
+            }
+
+            double R_t_up_v = m_R.at(n+1)(t,up,v);
+
+            m_R.at(n)(t,u,v) = (u-1) * R_t_upp_v + PQ(1) * R_t_up_v;
+        }
+    }
+
+
+
+    // p = previous
+    // R(n,t,u,v) = (t-1) * R(n+1,t-2,u,v) + PQx * R(n+1,t-1,u,v)
+    for(uint t = 1; t < tMax; t++){
+        for(uint u = 0; u < uMax; u++){
+            for(uint v = 0; v < vMax; v++){
+                for(uint n = 0; n < nMax-t; n++){
+                    int tpp = t - 2.0;
+                    uint tp = t - 1.0;
+
+                    double R_tpp_u_v = 0.0;
+                    if(!(tpp < 0)){
+                        R_tpp_u_v = m_R.at(n+1)(tpp,u,v);
+                    }
+
+                    double R_tp_u_v = m_R.at(n+1)(tp,u,v);
+
+                    m_R.at(n)(t,u,v) = (t-1) * R_tpp_u_v + PQ(0) * R_tp_u_v;
+                }
+            }
+        }
+    }
+
+
+
 
 }
+
 
 
 void Integrator::setupE()
 {
     int iAmax = m_maxAngularMomentum + 3;
     int iBmax = m_maxAngularMomentum + 3;
-    int tmax  = 2*(iAmax +iBmax);
+    int tmax  = 2*(m_maxAngularMomentum + 2) + 1;
 
     for(int cor = 0; cor < 3; cor++){
         m_E[cor] = zeros(iAmax, iBmax, tmax);
@@ -151,7 +203,7 @@ void Integrator::setupE()
         // p = previous, n = next
         // E(t,i,j) = 1 / (2*p) * E(t-1,i,j-1) + XPA * E(t,i,j-1) + (t + 1)*E(t+1,i,j-1)
         for(int iB = 1; iB < iBmax; iB++){
-            for(int t = 0; t < tmax-1; t++){
+            for(int t = 0; t < tmax; t++){
 
                 int iA = 0;
                 int iBp = iB - 1;
@@ -173,7 +225,7 @@ void Integrator::setupE()
                     E_iA_iBp_tn = m_E[cor](iA, iBp, tn);
                 }
 
-                m_E[cor](iA,iB,t) = 1 / (2*p) * E_iA_iBp_tp + PB(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
+                m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + PB(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
             }
         }
 
@@ -183,7 +235,7 @@ void Integrator::setupE()
         // E(t,i,j) = 1 / (2*p) * E(t-1,i-1,j) + XPA * E(t,i-1,j) + (t + 1)*E(t+1,i-1,j)
         for(int iA = 1; iA < iAmax; iA++) {
             for(int iB = 0; iB < iBmax; iB++) {
-                for(int t = 0; t < tmax - 1; t++) {
+                for(int t = 0; t < tmax; t++) {
 
                     int iAp = iA - 1;
                     int tp = t - 1;
@@ -204,7 +256,7 @@ void Integrator::setupE()
                         E_iAp_iB_tn = m_E[cor](iAp, iB, tn);
                     }
 
-                    m_E[cor](iA,iB,t) = 1 / (2*p) * E_iAp_iB_tp + PA(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
+                    m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp + PA(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
                 }
             }
         }
@@ -221,11 +273,11 @@ void Integrator::setupE()
     //    cout <<"kab"<< Kab <<endl;
 
 
-    //    cout << m_E[0] << endl;
-    //    cout << "-----------------------------------" <<endl;
-    //    cout << m_E[1] << endl;
-    //    cout << "-----------------------------------" <<endl;
-    //    cout << m_E[2] << endl;
+    //        cout << m_E[0] << endl;
+    //        cout << "-----------------------------------" <<endl;
+    //        cout << m_E[1] << endl;
+    //        cout << "-----------------------------------" <<endl;
+    //        cout << m_E[2] << endl;
 
 }
 
@@ -245,14 +297,14 @@ double Integrator::overlapIntegral(int iA, int jA, int kA, int iB, int jB, int k
 }
 
 
-double Integrator::kineticIntegral(int dim, int iA, int iB) {
+double Integrator::kineticIntegral(int cor, int iA, int iB) {
     double b = m_primitives[1]->exponent();
 
-    double S_iA_iBnn = overlapIntegral(dim, iA, iB + 2);
-    double S_iA_iB = overlapIntegral(dim, iA, iB);
+    double S_iA_iBnn = overlapIntegral(cor, iA, iB + 2);
+    double S_iA_iB = overlapIntegral(cor, iA, iB);
     double S_iA_iBpp;
     if(iB - 2 >= 0) {
-        S_iA_iBpp= overlapIntegral(dim, iA, iB - 2);
+        S_iA_iBpp= overlapIntegral(cor, iA, iB - 2);
     } else {
         S_iA_iBpp = 0;
     }
@@ -274,12 +326,171 @@ double Integrator::kineticIntegral(int iA, int jA, int kA, int iB, int jB, int k
 }
 
 
+double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int jB, int kB)
+{
+
+
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+
+    double a = m_primitives[0]->exponent();
+    double b = m_primitives[1]->exponent();
+
+    double p = a + b;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec PC = P - C;
+
+    setupR(PC,p);
+
+    double result = 0.0;
+
+    uint tMax = iA + iB + 1;
+    uint uMax = jA + jB + 1;
+    uint vMax = kA + kB + 1;
+
+    for(uint t = 0; t < tMax; t++){
+        for(uint u = 0; u < uMax; u++){
+            for(uint v = 0; v < vMax; v++){
+                result += m_E[0](iA, iB, t) * m_E[1](jA, jB, u) * m_E[2](kA, kB, v) * m_R.at(0)(t,u,v);
+            }
+        }
+    }
+
+    return 2 * result * M_PI / p;
+}
+
+
+
+double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
+                                             int iC, int jC, int kC, int iD, int jD, int kD)
+{
+
+
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+    const rowvec &D = m_corePositionD;
+
+    double a = m_primitives[0]->exponent();
+    double b = m_primitives[1]->exponent();
+    double c = m_primitives[2]->exponent();
+    double d = m_primitives[3]->exponent();
+
+    double p = a + b;
+    double q = c + d;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec Q  = (c*C + d*D)/q;
+
+    double alpha = p*q/(p+q);
+    rowvec PQ = P - Q;
+
+    setupR(PQ,alpha);
+
+    double result = 0.0;
+    uint tMax = iA + iB + 1;
+    uint uMax = jA + jB + 1;
+    uint vMax = kA + kB + 1;
+    uint kMax = iC + iD + 1;
+    uint lMax = jC + jD + 1;
+    uint mMax = kC + kD + 1;
+
+    for(uint t = 0; t < tMax; t++){
+        for(uint u = 0; u < uMax; u++){
+            for(uint v = 0; v < vMax; v++){
+
+                double Etuv= m_E[0](iA, iB, t) * m_E[1](jA, jB, u) * m_E[2](kA, kB, v);
+
+                for(uint k = 0; k < kMax; k++){
+                    for(uint l = 0; l < lMax; l++){
+                        for(uint m = 0; m < mMax; m++){
+
+                            double Eklm= m_E[0](iC, iD, k) * m_E[1](jC, jD, l) * m_E[2](kC, kD, m);
+                            result += Etuv * Eklm * m_R.at(0)(t+k,u+l,v+m) * pow(-1, k+l+m);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
+
+    return result;
+
+}
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    for(uint tuvSum = 0; tuvSum < nMax; tuvSum++){
+//        for(uint n = 0; n < nMax-1; n++){
+
+//            for(uint t = 0; t < tMax-1; t++){
+//                for(uint u = 0; u < tMax-1; u++){
+//                    for(uint v = 0; v < tMax-1; v++){
+
+//                        if(t+u+v == tuvSum){
+//                            int tp = t - 1;
+//                            int up = u - 1;
+//                            int vp = v - 1;
+
+//                            double R_tp_u_v = 0.0;
+//                            if(!(tp < 0)){
+//                                R_tp_u_v = m_R.at(n+1)(tp,u,v);
+//                            }
+
+//                            double R_t_up_v = 0;
+//                            if(!(up < 0)) {
+//                                R_t_up_v = m_R.at(n+1)(t,up,v);
+//                            }
+
+//                            double R_t_u_vp = 0;
+//                            if(!(vp < 0)) {
+//                                R_t_u_vp = m_R.at(n+1)(t,u,vp);
+//                            }
+
+//                            double R_t_u_v = m_R.at(n+1)(t,u,v);
+
+//                            m_R.at(n)(t+1,u,v) = t * R_tp_u_v + PQ(0) * R_t_u_v;
+//                            m_R.at(n)(t,u+1,v) = u * R_t_up_v + PQ(1) * R_t_u_v;
+//                            m_R.at(n)(t,u,v+1) = v * R_t_u_vp + PQ(2) * R_t_u_v;
+
+////                            cout << n << t+1 << u << v << endl;
+////                            cout << n << t << u+1 << v << endl;
+////                            cout << n << t << u << v+1 << endl;
+
+////                            cout <<  m_R.at(n)(t+1,u,v) << m_R.at(n)(t,u+1,v) << m_R.at(n)(t,u,v+1)<<endl;
+
+//                        }
+//                    }
+//                }
+//            }
+////            cout << "----" <<endl;
+////            sleep(3);
+
+
+//        }
+//    }
+
+
+//    cout  << m_R.at(0) <<endl;
 
 
 

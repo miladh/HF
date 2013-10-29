@@ -16,7 +16,7 @@ public:
     Integrator();
 
     void setupE();
-    void setupR(const rowvec &C);
+    void setupR(const rowvec &PQ, const double &alpha);
 
     rowvec corePositionA() const;
     void setCorePositionA(const rowvec &corePositionA);
@@ -24,8 +24,11 @@ public:
     rowvec corePositionB() const;
     void setCorePositionB(const rowvec &corePositionB);
 
-    mat corePositions() const;
-    void setCorePositions(const mat corePostions);
+    rowvec corePositionC() const;
+    void setCorePositionC(const rowvec &corePositionC);
+
+    rowvec corePositionD() const;
+    void setCorePositionD(const rowvec &corePositionD);
 
     uint maxAngularMomentum() const;
     void setMaxAngularMomentum(const uint &maxAngularMomentum);
@@ -33,34 +36,29 @@ public:
     void addPrimitives(PrimitiveGTO *primitive);
 
     double overlapIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
-    double kineticIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
-
-    double boysFunction(double arg, int n);
-    int factorial(int num);
+    double kineticIntegral(int iA, int jA, int kA, int iB, int jB, int kB);  
+    double nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
+    double electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
+                                     int iC, int jC, int kC, int iD, int jD, int kD);
 
 private:
     rowvec m_corePositionA;
     rowvec m_corePositionB;
-    mat m_corePositions;
+    rowvec m_corePositionC;
+    rowvec m_corePositionD;
 
     vector<PrimitiveGTO *> m_primitives;
 
     uint m_maxAngularMomentum;
 
     cube m_E[3]; // x,y,z cube
-//    double ****m_R;
-
     vector<cube> m_R;
-
-
 
 
     bool interiorPoint(int iA, int iB, int t);
 
     double overlapIntegral(int cor, int iA, int iB);
-    double kineticIntegral(int dim, int iA, int iB);
-
-    double taylorExpandendBoys(double arg, int n, int nterms);
+    double kineticIntegral(int cor, int iA, int iB);
 };
 
 #endif // INTEGRATOR_H
