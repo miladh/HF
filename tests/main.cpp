@@ -120,8 +120,6 @@ TEST(GTOoverlapIntegral)
     CHECK_CLOSE(1.072551272228e-02, integrator.overlapIntegral(2,0,0,1,1,0), 1e-5);
     CHECK_CLOSE(2.979309089521e-01, integrator.overlapIntegral(2,0,0,2,0,0), 1e-5);
 }
-
-
 TEST(GTOkineticIntegral)
 {
     Integrator integrator;
@@ -134,35 +132,110 @@ TEST(GTOkineticIntegral)
     integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
     integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
 
-    integrator.setMaxAngularMomentum(1);
+    integrator.setMaxAngularMomentum(2);
 
     integrator.setupE();
 
-
-    CHECK_CLOSE(-0.0967870268058250, integrator.kineticIntegral(0,0,0,0,0,0), 1e-5);
-    CHECK_CLOSE(-0.158190730147696, integrator.kineticIntegral(0,0,0,0,0,1), 1e-5);
-    CHECK_CLOSE(-0.0245468374367114, integrator.kineticIntegral(0,0,0,0,1,0), 1e-5);
-    CHECK_CLOSE(-0.0330608009181156, integrator.kineticIntegral(0,0,0,0,1,1), 1e-5);
-    CHECK_CLOSE(-0.0681856595464203, integrator.kineticIntegral(0,0,0,1,0,0), 1e-5);
-    CHECK_CLOSE(-0.0918355581058773, integrator.kineticIntegral(0,0,0,1,0,1), 1e-5);
-    CHECK_CLOSE(-0.0142503452233260, integrator.kineticIntegral(0,0,0,1,1,0), 1e-5);
-    CHECK_CLOSE(-0.00917293898306074, integrator.kineticIntegral(0,0,0,1,1,1), 1e-5);
-    CHECK_CLOSE(0.251402082662018, integrator.kineticIntegral(0,0,1,0,0,1), 1e-5);
-    CHECK_CLOSE(0.0495912013771734, integrator.kineticIntegral(0,0,1,0,1,0), 1e-5);
-    CHECK_CLOSE(0.0176714824377215, integrator.kineticIntegral(0,0,1,0,1,1), 1e-5);
-    CHECK_CLOSE(0.137753337158815, integrator.kineticIntegral(0,0,1,1,0,0), 1e-5);
-    CHECK_CLOSE(0.0490874512158928, integrator.kineticIntegral(0,0,1,1,0,1), 1e-5);
-    CHECK_CLOSE(0.0137594084745900, integrator.kineticIntegral(0,0,1,1,1,0), 1e-5);
-    CHECK_CLOSE(-0.0551617848828804, integrator.kineticIntegral(0,0,1,1,1,1), 1e-5);
-    CHECK_CLOSE(-0.0604904731258242, integrator.kineticIntegral(0,1,0,0,1,0), 1e-5);
-    CHECK_CLOSE(-0.0868821710550227, integrator.kineticIntegral(0,1,0,0,1,1), 1e-5);
-    CHECK_CLOSE(0.0213755178349884, integrator.kineticIntegral(0,1,0,1,0,0), 1e-5);
-    CHECK_CLOSE(0.0137594084745909, integrator.kineticIntegral(0,1,0,1,0,1), 1e-5);
-    CHECK_CLOSE(-0.0374492116616455, integrator.kineticIntegral(0,1,0,1,1,0), 1e-5);
-    CHECK_CLOSE(-0.0334264444581330, integrator.kineticIntegral(0,1,0,1,1,1), 1e-5);
-    CHECK_CLOSE(0.0788748150526478, integrator.kineticIntegral(0,1,1,0,1,1), 1e-5);
-    CHECK_CLOSE(-0.0206391127118871, integrator.kineticIntegral(0,1,1,1,0,0), 1e-5);
-    CHECK_CLOSE(0.0827426773243232, integrator.kineticIntegral(0,1,1,1,0,1), 1e-5);
+    CHECK_CLOSE(-9.678702680582e-02, integrator.kineticIntegral(0,0,0,0,0,0), 1e-5);
+    CHECK_CLOSE(-1.581907301477e-01, integrator.kineticIntegral(0,0,0,0,0,1), 1e-5);
+    CHECK_CLOSE(-3.289130997844e-01, integrator.kineticIntegral(0,0,0,0,0,2), 1e-5);
+    CHECK_CLOSE(-2.454683743671e-02, integrator.kineticIntegral(0,0,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-3.306080091812e-02, integrator.kineticIntegral(0,0,0,0,1,1), 1e-5);
+    CHECK_CLOSE(-1.209847292592e-01, integrator.kineticIntegral(0,0,0,0,2,0), 1e-5);
+    CHECK_CLOSE(-6.818565954642e-02, integrator.kineticIntegral(0,0,0,1,0,0), 1e-5);
+    CHECK_CLOSE(-9.183555810588e-02, integrator.kineticIntegral(0,0,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-1.425034522333e-02, integrator.kineticIntegral(0,0,0,1,1,0), 1e-5);
+    CHECK_CLOSE(-1.554388972658e-01, integrator.kineticIntegral(0,0,0,2,0,0), 1e-5);
+    CHECK_CLOSE(2.372860952215e-01, integrator.kineticIntegral(0,0,1,0,0,0), 1e-5);
+    CHECK_CLOSE(2.514020826620e-01, integrator.kineticIntegral(0,0,1,0,0,1), 1e-5);
+    CHECK_CLOSE(3.256885959785e-01, integrator.kineticIntegral(0,0,1,0,0,2), 1e-5);
+    CHECK_CLOSE(4.959120137717e-02, integrator.kineticIntegral(0,0,1,0,1,0), 1e-5);
+    CHECK_CLOSE(1.767148243772e-02, integrator.kineticIntegral(0,0,1,0,1,1), 1e-5);
+    CHECK_CLOSE(3.085946543142e-01, integrator.kineticIntegral(0,0,1,0,2,0), 1e-5);
+    CHECK_CLOSE(1.377533371588e-01, integrator.kineticIntegral(0,0,1,1,0,0), 1e-5);
+    CHECK_CLOSE(4.908745121589e-02, integrator.kineticIntegral(0,0,1,1,0,1), 1e-5);
+    CHECK_CLOSE(1.375940847459e-02, integrator.kineticIntegral(0,0,1,1,1,0), 1e-5);
+    CHECK_CLOSE(3.418618463595e-01, integrator.kineticIntegral(0,0,1,2,0,0), 1e-5);
+    CHECK_CLOSE(-6.190706910076e-01, integrator.kineticIntegral(0,0,2,0,0,0), 1e-5);
+    CHECK_CLOSE(-2.907944812827e-01, integrator.kineticIntegral(0,0,2,0,0,1), 1e-5);
+    CHECK_CLOSE(1.109128468812e-01, integrator.kineticIntegral(0,0,2,0,0,2), 1e-5);
+    CHECK_CLOSE(-8.787431724837e-02, integrator.kineticIntegral(0,0,2,0,1,0), 1e-5);
+    CHECK_CLOSE(1.368298260464e-01, integrator.kineticIntegral(0,0,2,0,1,1), 1e-5);
+    CHECK_CLOSE(-8.520922147503e-01, integrator.kineticIntegral(0,0,2,0,2,0), 1e-5);
+    CHECK_CLOSE(-2.440953256899e-01, integrator.kineticIntegral(0,0,2,1,0,0), 1e-5);
+    CHECK_CLOSE(3.800828501289e-01, integrator.kineticIntegral(0,0,2,1,0,1), 1e-5);
+    CHECK_CLOSE(4.711681426600e-02, integrator.kineticIntegral(0,0,2,1,1,0), 1e-5);
+    CHECK_CLOSE(-7.381742282583e-01, integrator.kineticIntegral(0,0,2,2,0,0), 1e-5);
+    CHECK_CLOSE(3.682025615507e-02, integrator.kineticIntegral(0,1,0,0,0,0), 1e-5);
+    CHECK_CLOSE(4.959120137717e-02, integrator.kineticIntegral(0,1,0,0,0,1), 1e-5);
+    CHECK_CLOSE(7.903857602951e-02, integrator.kineticIntegral(0,1,0,0,0,2), 1e-5);
+    CHECK_CLOSE(-6.049047312582e-02, integrator.kineticIntegral(0,1,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-8.688217105502e-02, integrator.kineticIntegral(0,1,0,0,1,1), 1e-5);
+    CHECK_CLOSE(1.938468694693e-02, integrator.kineticIntegral(0,1,0,0,2,0), 1e-5);
+    CHECK_CLOSE(2.137551783499e-02, integrator.kineticIntegral(0,1,0,1,0,0), 1e-5);
+    CHECK_CLOSE(1.375940847459e-02, integrator.kineticIntegral(0,1,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-3.744921166165e-02, integrator.kineticIntegral(0,1,0,1,1,0), 1e-5);
+    CHECK_CLOSE(5.304752788336e-02, integrator.kineticIntegral(0,1,0,2,0,0), 1e-5);
+    CHECK_CLOSE(-7.438680206576e-02, integrator.kineticIntegral(0,1,1,0,0,0), 1e-5);
+    CHECK_CLOSE(-2.650722365658e-02, integrator.kineticIntegral(0,1,1,0,0,1), 1e-5);
+    CHECK_CLOSE(9.550382489858e-02, integrator.kineticIntegral(0,1,1,0,0,2), 1e-5);
+    CHECK_CLOSE(1.303232565825e-01, integrator.kineticIntegral(0,1,1,0,1,0), 1e-5);
+    CHECK_CLOSE(7.887481505265e-02, integrator.kineticIntegral(0,1,1,0,1,1), 1e-5);
+    CHECK_CLOSE(-7.840890648636e-02, integrator.kineticIntegral(0,1,1,0,2,0), 1e-5);
+    CHECK_CLOSE(-2.063911271189e-02, integrator.kineticIntegral(0,1,1,1,0,0), 1e-5);
+    CHECK_CLOSE(8.274267732432e-02, integrator.kineticIntegral(0,1,1,1,0,1), 1e-5);
+    CHECK_CLOSE(5.013966668721e-02, integrator.kineticIntegral(0,1,1,1,1,0), 1e-5);
+    CHECK_CLOSE(-7.711001832636e-02, integrator.kineticIntegral(0,1,1,2,0,0), 1e-5);
+    CHECK_CLOSE(-1.512318573258e-01, integrator.kineticIntegral(0,2,0,0,0,0), 1e-5);
+    CHECK_CLOSE(-2.651535687867e-01, integrator.kineticIntegral(0,2,0,0,0,1), 1e-5);
+    CHECK_CLOSE(-5.921817515938e-01, integrator.kineticIntegral(0,2,0,0,0,2), 1e-5);
+    CHECK_CLOSE(1.606516375488e-03, integrator.kineticIntegral(0,2,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-3.708290533872e-02, integrator.kineticIntegral(0,2,0,0,1,1), 1e-5);
+    CHECK_CLOSE(-2.565122085492e-01, integrator.kineticIntegral(0,2,0,0,2,0), 1e-5);
+    CHECK_CLOSE(-1.142903313736e-01, integrator.kineticIntegral(0,2,0,1,0,0), 1e-5);
+    CHECK_CLOSE(-1.794492285775e-01, integrator.kineticIntegral(0,2,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-1.598401092187e-02, integrator.kineticIntegral(0,2,0,1,1,0), 1e-5);
+    CHECK_CLOSE(-2.532083467153e-01, integrator.kineticIntegral(0,2,0,2,0,0), 1e-5);
+    CHECK_CLOSE(1.022784893196e-01, integrator.kineticIntegral(1,0,0,0,0,0), 1e-5);
+    CHECK_CLOSE(1.377533371588e-01, integrator.kineticIntegral(1,0,0,0,0,1), 1e-5);
+    CHECK_CLOSE(2.195516000820e-01, integrator.kineticIntegral(1,0,0,0,0,2), 1e-5);
+    CHECK_CLOSE(2.137551783499e-02, integrator.kineticIntegral(1,0,0,0,1,0), 1e-5);
+    CHECK_CLOSE(1.375940847459e-02, integrator.kineticIntegral(1,0,0,0,1,1), 1e-5);
+    CHECK_CLOSE(1.330149372044e-01, integrator.kineticIntegral(1,0,0,0,2,0), 1e-5);
+    CHECK_CLOSE(-8.809221115897e-03, integrator.kineticIntegral(1,0,0,1,0,0), 1e-5);
+    CHECK_CLOSE(-5.361497900979e-02, integrator.kineticIntegral(1,0,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-8.319565708416e-03, integrator.kineticIntegral(1,0,0,1,1,0), 1e-5);
+    CHECK_CLOSE(6.818565954642e-02, integrator.kineticIntegral(1,0,0,2,0,0), 1e-5);
+    CHECK_CLOSE(-2.066300057382e-01, integrator.kineticIntegral(1,0,1,0,0,0), 1e-5);
+    CHECK_CLOSE(-7.363117682384e-02, integrator.kineticIntegral(1,0,1,0,0,1), 1e-5);
+    CHECK_CLOSE(2.652884024961e-01, integrator.kineticIntegral(1,0,1,0,0,2), 1e-5);
+    CHECK_CLOSE(-2.063911271189e-02, integrator.kineticIntegral(1,0,1,0,1,0), 1e-5);
+    CHECK_CLOSE(8.274267732432e-02, integrator.kineticIntegral(1,0,1,0,1,1), 1e-5);
+    CHECK_CLOSE(-2.942436762098e-01, integrator.kineticIntegral(1,0,1,0,2,0), 1e-5);
+    CHECK_CLOSE(8.042246851468e-02, integrator.kineticIntegral(1,0,1,1,0,0), 1e-5);
+    CHECK_CLOSE(2.789282215612e-01, integrator.kineticIntegral(1,0,1,1,0,1), 1e-5);
+    CHECK_CLOSE(4.686798511658e-02, integrator.kineticIntegral(1,0,1,1,1,0), 1e-5);
+    CHECK_CLOSE(-1.377533371588e-01, integrator.kineticIntegral(1,0,1,2,0,0), 1e-5);
+    CHECK_CLOSE(-3.206327675248e-02, integrator.kineticIntegral(1,1,0,0,0,0), 1e-5);
+    CHECK_CLOSE(-2.063911271189e-02, integrator.kineticIntegral(1,1,0,0,0,1), 1e-5);
+    CHECK_CLOSE(2.930388273683e-02, integrator.kineticIntegral(1,1,0,0,0,2), 1e-5);
+    CHECK_CLOSE(5.617381749247e-02, integrator.kineticIntegral(1,1,0,0,1,0), 1e-5);
+    CHECK_CLOSE(5.013966668720e-02, integrator.kineticIntegral(1,1,0,0,1,1), 1e-5);
+    CHECK_CLOSE(-3.379694245101e-02, integrator.kineticIntegral(1,1,0,0,2,0), 1e-5);
+    CHECK_CLOSE(1.247934856262e-02, integrator.kineticIntegral(1,1,0,1,0,0), 1e-5);
+    CHECK_CLOSE(4.686798511658e-02, integrator.kineticIntegral(1,1,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-1.583728636544e-02, integrator.kineticIntegral(1,1,0,1,1,0), 1e-5);
+    CHECK_CLOSE(-2.137551783499e-02, integrator.kineticIntegral(1,1,0,2,0,0), 1e-5);
+    CHECK_CLOSE(-2.287537353407e-01, integrator.kineticIntegral(2,0,0,0,0,0), 1e-5);
+    CHECK_CLOSE(-3.150543568546e-01, integrator.kineticIntegral(2,0,0,0,0,1), 1e-5);
+    CHECK_CLOSE(-5.213314751101e-01, integrator.kineticIntegral(2,0,0,0,0,2), 1e-5);
+    CHECK_CLOSE(-4.888774502915e-02, integrator.kineticIntegral(2,0,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-3.578401717871e-02, integrator.kineticIntegral(2,0,0,0,1,1), 1e-5);
+    CHECK_CLOSE(-2.962760567236e-01, integrator.kineticIntegral(2,0,0,0,2,0), 1e-5);
+    CHECK_CLOSE(-1.704641488661e-02, integrator.kineticIntegral(2,0,0,1,0,0), 1e-5);
+    CHECK_CLOSE(-2.295888952647e-02, integrator.kineticIntegral(2,0,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-3.562586305832e-03, integrator.kineticIntegral(2,0,0,1,1,0), 1e-5);
+    CHECK_CLOSE(-3.468392469657e-01, integrator.kineticIntegral(2,0,0,2,0,0), 1e-5);
 }
 TEST(GTOnuclearAttractionIntegral)
 {

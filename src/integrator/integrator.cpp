@@ -89,6 +89,8 @@ void Integrator::setupR(const rowvec &PQ, const double &alpha, const int &type){
     int vMax  = d * m_maxAngularMomentum;
     int nMax  = d * m_maxAngularMomentum;
 
+
+    m_R.clear();
     for(int n = 0; n < nMax+1; n++){
         m_R.push_back(zeros(tMax+1, uMax+1, vMax+1));
     }
@@ -309,7 +311,7 @@ double Integrator::kineticIntegral(int cor, int iA, int iB) {
     } else {
         S_iA_iBpp = 0;
     }
-    return 4 * b * b * S_iA_iBnn - 2*b * (2*iB + 1) * S_iA_iB + iB * (iB + 1) * S_iA_iBpp;
+    return 4 * b * b * S_iA_iBnn - 2*b * (2*iB + 1) * S_iA_iB + iB * (iB - 1) * S_iA_iBpp;
 }
 
 double Integrator::kineticIntegral(int iA, int jA, int kA, int iB, int jB, int kB) {
