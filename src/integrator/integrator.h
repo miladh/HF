@@ -16,7 +16,7 @@ public:
     Integrator();
 
     void setupE();
-    void setupR(const rowvec &PQ, const double &alpha);
+    void setupR(const rowvec &PQ, const double &alpha, const int &type);
 
     rowvec corePositionA() const;
     void setCorePositionA(const rowvec &corePositionA);

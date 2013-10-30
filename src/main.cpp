@@ -20,7 +20,7 @@ int main()
     solver.setCorePositionB(posB);
     solver.setCorePositionC(posC);
     solver.setCorePositionD(posD);
-    solver.setMaxAngularMomentum(2);
+    solver.setMaxAngularMomentum(3);
 
     solver.addPrimitives(new PrimitiveGTO(0.2, 1.0));
     solver.addPrimitives(new PrimitiveGTO(0.3, 1.0));
@@ -29,11 +29,11 @@ int main()
     solver.setupE();
 
 
-    double Ven = solver.nuclearAttractionIntegral(1,0,0,1,0,0);
-    cout << Ven <<endl;
+//    double Ven = solver.nuclearAttractionIntegral(2,1,0,1,1,0);
+//    cout << scientific << setprecision(10) << Ven << endl;
 
-//    double Vee = solver.electronRepulsionIntegral(1,0,0,1,0,0,0,0,0,0,0,0);
-//    cout << Vee <<endl;
+    double Vee = solver.electronRepulsionIntegral(1,2,0,1,0,0,0,0,0,0,0,3);
+    cout << Vee <<endl;
 
     return 0;
 }
