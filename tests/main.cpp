@@ -3,7 +3,7 @@
 #include <src/math/boys.h>
 
 
-TEST(GTOIntegration)
+TEST(GTOoverlapIntegral)
 {
     Integrator integrator;
 
@@ -19,11 +19,125 @@ TEST(GTOIntegration)
 
     integrator.setupE();
 
-    CHECK_CLOSE(integrator.overlapIntegral(0,0,0,0,0,0), 0.119172363580852, 1e-5);
-    CHECK_CLOSE(integrator.overlapIntegral(0,0,0,0,0,1), 0.276479883507577, 1e-5);
-    CHECK_CLOSE(integrator.overlapIntegral(0,0,0,0,0,2), 0.760605693318432, 1e-5);
-    CHECK_CLOSE(integrator.overlapIntegral(0,0,0,0,1,0), 0.0429020508891068, 1e-5);
-    CHECK_CLOSE(integrator.overlapIntegral(0,0,0,0,1,1), 0.0995327580627279, 1e-5);
+    CHECK_CLOSE(1.191723635809e-01, integrator.overlapIntegral(0,0,0,0,0,0), 1e-5);
+    CHECK_CLOSE(2.764798835076e-01, integrator.overlapIntegral(0,0,0,0,0,1), 1e-5);
+    CHECK_CLOSE(7.606056933184e-01, integrator.overlapIntegral(0,0,0,0,0,2), 1e-5);
+    CHECK_CLOSE(4.290205088911e-02, integrator.overlapIntegral(0,0,0,0,1,0), 1e-5);
+    CHECK_CLOSE(9.953275806273e-02, integrator.overlapIntegral(0,0,0,0,1,1), 1e-5);
+    CHECK_CLOSE(1.346171019009e-01, integrator.overlapIntegral(0,0,0,0,2,0), 1e-5);
+    CHECK_CLOSE(1.191723635809e-01, integrator.overlapIntegral(0,0,0,1,0,0), 1e-5);
+    CHECK_CLOSE(2.764798835076e-01, integrator.overlapIntegral(0,0,0,1,0,1), 1e-5);
+    CHECK_CLOSE(4.290205088911e-02, integrator.overlapIntegral(0,0,0,1,1,0), 1e-5);
+    CHECK_CLOSE(2.383447271617e-01, integrator.overlapIntegral(0,0,0,2,0,0), 1e-5);
+    CHECK_CLOSE(-4.147198252614e-01, integrator.overlapIntegral(0,0,1,0,0,0), 1e-5);
+    CHECK_CLOSE(-8.429776310255e-01, integrator.overlapIntegral(0,0,1,0,0,1), 1e-5);
+    CHECK_CLOSE(-2.093948045733e+00, integrator.overlapIntegral(0,0,1,0,0,2), 1e-5);
+    CHECK_CLOSE(-1.492991370941e-01, integrator.overlapIntegral(0,0,1,0,1,0), 1e-5);
+    CHECK_CLOSE(-3.034719471692e-01, integrator.overlapIntegral(0,0,1,0,1,1), 1e-5);
+    CHECK_CLOSE(-4.684675146152e-01, integrator.overlapIntegral(0,0,1,0,2,0), 1e-5);
+    CHECK_CLOSE(-4.147198252614e-01, integrator.overlapIntegral(0,0,1,1,0,0), 1e-5);
+    CHECK_CLOSE(-8.429776310255e-01, integrator.overlapIntegral(0,0,1,1,0,1), 1e-5);
+    CHECK_CLOSE(-1.492991370941e-01, integrator.overlapIntegral(0,0,1,1,1,0), 1e-5);
+    CHECK_CLOSE(-8.294396505227e-01, integrator.overlapIntegral(0,0,1,2,0,0), 1e-5);
+    CHECK_CLOSE(1.562397355490e+00, integrator.overlapIntegral(0,0,2,0,0,0), 1e-5);
+    CHECK_CLOSE(2.795322214215e+00, integrator.overlapIntegral(0,0,2,0,0,1), 1e-5);
+    CHECK_CLOSE(6.361589630418e+00, integrator.overlapIntegral(0,0,2,0,0,2), 1e-5);
+    CHECK_CLOSE(5.624630479765e-01, integrator.overlapIntegral(0,0,2,0,1,0), 1e-5);
+    CHECK_CLOSE(1.006315997117e+00, integrator.overlapIntegral(0,0,2,0,1,1), 1e-5);
+    CHECK_CLOSE(1.764884052762e+00, integrator.overlapIntegral(0,0,2,0,2,0), 1e-5);
+    CHECK_CLOSE(1.562397355490e+00, integrator.overlapIntegral(0,0,2,1,0,0), 1e-5);
+    CHECK_CLOSE(2.795322214215e+00, integrator.overlapIntegral(0,0,2,1,0,1), 1e-5);
+    CHECK_CLOSE(5.624630479765e-01, integrator.overlapIntegral(0,0,2,1,1,0), 1e-5);
+    CHECK_CLOSE(3.124794710981e+00, integrator.overlapIntegral(0,0,2,2,0,0), 1e-5);
+    CHECK_CLOSE(-6.435307633366e-02, integrator.overlapIntegral(0,1,0,0,0,0), 1e-5);
+    CHECK_CLOSE(-1.492991370941e-01, integrator.overlapIntegral(0,1,0,0,0,1), 1e-5);
+    CHECK_CLOSE(-4.107270743920e-01, integrator.overlapIntegral(0,1,0,0,0,2), 1e-5);
+    CHECK_CLOSE(9.600525610073e-02, integrator.overlapIntegral(0,1,0,0,1,0), 1e-5);
+    CHECK_CLOSE(2.227321941537e-01, integrator.overlapIntegral(0,1,0,0,1,1), 1e-5);
+    CHECK_CLOSE(1.311086675171e-02, integrator.overlapIntegral(0,1,0,0,2,0), 1e-5);
+    CHECK_CLOSE(-6.435307633366e-02, integrator.overlapIntegral(0,1,0,1,0,0), 1e-5);
+    CHECK_CLOSE(-1.492991370941e-01, integrator.overlapIntegral(0,1,0,1,0,1), 1e-5);
+    CHECK_CLOSE(9.600525610073e-02, integrator.overlapIntegral(0,1,0,1,1,0), 1e-5);
+    CHECK_CLOSE(-1.287061526673e-01, integrator.overlapIntegral(0,1,0,2,0,0), 1e-5);
+    CHECK_CLOSE(2.239487056411e-01, integrator.overlapIntegral(0,1,1,0,0,0), 1e-5);
+    CHECK_CLOSE(4.552079207538e-01, integrator.overlapIntegral(0,1,1,0,0,1), 1e-5);
+    CHECK_CLOSE(1.130731944696e+00, integrator.overlapIntegral(0,1,1,0,0,2), 1e-5);
+    CHECK_CLOSE(-3.340982912306e-01, integrator.overlapIntegral(0,1,1,0,1,0), 1e-5);
+    CHECK_CLOSE(-6.791027795542e-01, integrator.overlapIntegral(0,1,1,0,1,1), 1e-5);
+    CHECK_CLOSE(-4.562581629595e-02, integrator.overlapIntegral(0,1,1,0,2,0), 1e-5);
+    CHECK_CLOSE(2.239487056411e-01, integrator.overlapIntegral(0,1,1,1,0,0), 1e-5);
+    CHECK_CLOSE(4.552079207538e-01, integrator.overlapIntegral(0,1,1,1,0,1), 1e-5);
+    CHECK_CLOSE(-3.340982912306e-01, integrator.overlapIntegral(0,1,1,1,1,0), 1e-5);
+    CHECK_CLOSE(4.478974112823e-01, integrator.overlapIntegral(0,1,1,2,0,0), 1e-5);
+    CHECK_CLOSE(1.539230248010e-01, integrator.overlapIntegral(0,2,0,0,0,0), 1e-5);
+    CHECK_CLOSE(3.571014175384e-01, integrator.overlapIntegral(0,2,0,0,0,1), 1e-5);
+    CHECK_CLOSE(9.823983134901e-01, integrator.overlapIntegral(0,2,0,0,0,2), 1e-5);
+    CHECK_CLOSE(-7.329386373895e-02, integrator.overlapIntegral(0,2,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-1.700417638744e-01, integrator.overlapIntegral(0,2,0,0,1,1), 1e-5);
+    CHECK_CLOSE(3.195477460565e-01, integrator.overlapIntegral(0,2,0,0,2,0), 1e-5);
+    CHECK_CLOSE(1.539230248010e-01, integrator.overlapIntegral(0,2,0,1,0,0), 1e-5);
+    CHECK_CLOSE(3.571014175384e-01, integrator.overlapIntegral(0,2,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-7.329386373895e-02, integrator.overlapIntegral(0,2,0,1,1,0), 1e-5);
+    CHECK_CLOSE(3.078460496021e-01, integrator.overlapIntegral(0,2,0,2,0,0), 1e-5);
+    CHECK_CLOSE(-1.787585453713e-01, integrator.overlapIntegral(1,0,0,0,0,0), 1e-5);
+    CHECK_CLOSE(-4.147198252614e-01, integrator.overlapIntegral(1,0,0,0,0,1), 1e-5);
+    CHECK_CLOSE(-1.140908539978e+00, integrator.overlapIntegral(1,0,0,0,0,2), 1e-5);
+    CHECK_CLOSE(-6.435307633366e-02, integrator.overlapIntegral(1,0,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-1.492991370941e-01, integrator.overlapIntegral(1,0,0,0,1,1), 1e-5);
+    CHECK_CLOSE(-2.019256528514e-01, integrator.overlapIntegral(1,0,0,0,2,0), 1e-5);
+    CHECK_CLOSE(-5.958618179043e-02, integrator.overlapIntegral(1,0,0,1,0,0), 1e-5);
+    CHECK_CLOSE(-1.382399417538e-01, integrator.overlapIntegral(1,0,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-2.145102544455e-02, integrator.overlapIntegral(1,0,0,1,1,0), 1e-5);
+    CHECK_CLOSE(-1.191723635809e-01, integrator.overlapIntegral(1,0,0,2,0,0), 1e-5);
+    CHECK_CLOSE(6.220797378920e-01, integrator.overlapIntegral(1,0,1,0,0,0), 1e-5);
+    CHECK_CLOSE(1.264466446538e+00, integrator.overlapIntegral(1,0,1,0,0,1), 1e-5);
+    CHECK_CLOSE(3.140922068599e+00, integrator.overlapIntegral(1,0,1,0,0,2), 1e-5);
+    CHECK_CLOSE(2.239487056411e-01, integrator.overlapIntegral(1,0,1,0,1,0), 1e-5);
+    CHECK_CLOSE(4.552079207538e-01, integrator.overlapIntegral(1,0,1,0,1,1), 1e-5);
+    CHECK_CLOSE(7.027012719229e-01, integrator.overlapIntegral(1,0,1,0,2,0), 1e-5);
+    CHECK_CLOSE(2.073599126307e-01, integrator.overlapIntegral(1,0,1,1,0,0), 1e-5);
+    CHECK_CLOSE(4.214888155128e-01, integrator.overlapIntegral(1,0,1,1,0,1), 1e-5);
+    CHECK_CLOSE(7.464956854705e-02, integrator.overlapIntegral(1,0,1,1,1,0), 1e-5);
+    CHECK_CLOSE(4.147198252614e-01, integrator.overlapIntegral(1,0,1,2,0,0), 1e-5);
+    CHECK_CLOSE(9.652961450049e-02, integrator.overlapIntegral(1,1,0,0,0,0), 1e-5);
+    CHECK_CLOSE(2.239487056411e-01, integrator.overlapIntegral(1,1,0,0,0,1), 1e-5);
+    CHECK_CLOSE(6.160906115879e-01, integrator.overlapIntegral(1,1,0,0,0,2), 1e-5);
+    CHECK_CLOSE(-1.440078841511e-01, integrator.overlapIntegral(1,1,0,0,1,0), 1e-5);
+    CHECK_CLOSE(-3.340982912306e-01, integrator.overlapIntegral(1,1,0,0,1,1), 1e-5);
+    CHECK_CLOSE(-1.966630012757e-02, integrator.overlapIntegral(1,1,0,0,2,0), 1e-5);
+    CHECK_CLOSE(3.217653816683e-02, integrator.overlapIntegral(1,1,0,1,0,0), 1e-5);
+    CHECK_CLOSE(7.464956854705e-02, integrator.overlapIntegral(1,1,0,1,0,1), 1e-5);
+    CHECK_CLOSE(-4.800262805037e-02, integrator.overlapIntegral(1,1,0,1,1,0), 1e-5);
+    CHECK_CLOSE(6.435307633366e-02, integrator.overlapIntegral(1,1,0,2,0,0), 1e-5);
+    CHECK_CLOSE(3.873101816378e-01, integrator.overlapIntegral(2,0,0,0,0,0), 1e-5);
+    CHECK_CLOSE(8.985596213996e-01, integrator.overlapIntegral(2,0,0,0,0,1), 1e-5);
+    CHECK_CLOSE(2.471968503285e+00, integrator.overlapIntegral(2,0,0,0,0,2), 1e-5);
+    CHECK_CLOSE(1.394316653896e-01, integrator.overlapIntegral(2,0,0,0,1,0), 1e-5);
+    CHECK_CLOSE(3.234814637039e-01, integrator.overlapIntegral(2,0,0,0,1,1), 1e-5);
+    CHECK_CLOSE(4.375055811780e-01, integrator.overlapIntegral(2,0,0,0,2,0), 1e-5);
+    CHECK_CLOSE(2.979309089521e-02, integrator.overlapIntegral(2,0,0,1,0,0), 1e-5);
+    CHECK_CLOSE(6.911997087690e-02, integrator.overlapIntegral(2,0,0,1,0,1), 1e-5);
+    CHECK_CLOSE(1.072551272228e-02, integrator.overlapIntegral(2,0,0,1,1,0), 1e-5);
+    CHECK_CLOSE(2.979309089521e-01, integrator.overlapIntegral(2,0,0,2,0,0), 1e-5);
+}
+
+
+TEST(GTOkineticIntegral)
+{
+    Integrator integrator;
+
+    rowvec posA = {1.2,2.3,3.4};
+    rowvec posB = {-1.3,1.4,-2.4};
+    integrator.setCorePositionA(posA);
+    integrator.setCorePositionB(posB);
+
+    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
+    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
+
+    integrator.setMaxAngularMomentum(1);
+
+    integrator.setupE();
+
 
     CHECK_CLOSE(-0.0967870268058250, integrator.kineticIntegral(0,0,0,0,0,0), 1e-5);
     CHECK_CLOSE(-0.158190730147696, integrator.kineticIntegral(0,0,0,0,0,1), 1e-5);
@@ -50,9 +164,7 @@ TEST(GTOIntegration)
     CHECK_CLOSE(-0.0206391127118871, integrator.kineticIntegral(0,1,1,1,0,0), 1e-5);
     CHECK_CLOSE(0.0827426773243232, integrator.kineticIntegral(0,1,1,1,0,1), 1e-5);
 }
-
-
-TEST(GTOIntegrationCoulomb)
+TEST(GTOnuclearAttractionIntegral)
 {
     Integrator integrator;
 
@@ -173,11 +285,6 @@ TEST(GTOIntegrationCoulomb)
     CHECK_CLOSE(6.422210627967e-02, integrator.nuclearAttractionIntegral(2,0,0,2,0,0), 1e-5);
 
 }
-
-
-
-
-
 TEST(BoysfactorialFunctions)
 {
     Boys boys(0);
@@ -192,8 +299,6 @@ TEST(BoysfactorialFunctions)
     CHECK_EQUAL(boys.doubleFactorial(5),15);
     CHECK_EQUAL(boys.doubleFactorial(-1),1);
 }
-
-
 TEST(boysFunction)
 {
     //test for F0(x) for small x <= 50:
@@ -262,8 +367,6 @@ TEST(boysFunction)
     CHECK_CLOSE(F0(18,0), 8.9788048355705335e-02, 1e-10);
     CHECK_CLOSE(F0(19,0), 8.8622692545275800e-02, 1e-10);
 }
-
-
 TEST(BoysDownwardrecursionFunction)
 {
 
