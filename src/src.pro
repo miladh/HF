@@ -11,12 +11,14 @@ SOURCES += main.cpp \
     contractedGTO/contractedGTO.cpp \
     system/system.cpp \
     integrator/integrator.cpp \
-    math/boys.cpp
+    math/boys.cpp \
+    hfSolver/hfsolver.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
     contractedGTO/contractedGTO.h \
     system/system.h \
     integrator/integrator.h \
-    math/boys.h
+    math/boys.h \
+    hfSolver/hfsolver.h
 

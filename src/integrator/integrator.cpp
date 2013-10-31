@@ -49,6 +49,46 @@ void Integrator::setCorePositionD(const rowvec &corePositionD)
 }
 
 
+double Integrator::exponentA() const
+{
+    return m_exponentA;
+}
+
+void Integrator::setExponentA(double exponentA)
+{
+    m_exponentA = exponentA;
+}
+double Integrator::exponentB() const
+{
+    return m_exponentB;
+}
+
+void Integrator::setExponentB(double exponentB)
+{
+    m_exponentB = exponentB;
+}
+double Integrator::exponentC() const
+{
+    return m_exponentC;
+}
+
+void Integrator::setExponentC(double exponentC)
+{
+    m_exponentC = exponentC;
+}
+double Integrator::exponentD() const
+{
+    return m_exponentD;
+}
+
+void Integrator::setExponentD(double exponentD)
+{
+    m_exponentD = exponentD;
+}
+
+
+
+
 uint Integrator::maxAngularMomentum() const
 {
     return m_maxAngularMomentum;
@@ -64,6 +104,8 @@ void Integrator::addPrimitives(PrimitiveGTO *primitive)
     m_primitives.push_back(primitive);
 
 }
+
+
 
 bool Integrator::interiorPoint(int iA, int iB, int t)
 {
@@ -183,8 +225,8 @@ void Integrator::setupE()
     const rowvec &A = m_corePositionA;
     const rowvec &B = m_corePositionB;
 
-    double a = m_primitives[0]->exponent();
-    double b = m_primitives[1]->exponent();
+    double a = m_exponentA;
+    double b = m_exponentB;
 
     double p = a + b;
     double mu = a * b / p;
@@ -287,8 +329,8 @@ void Integrator::setupE()
 
 double Integrator::overlapIntegral(int cor, int iA, int iB)
 {
-    double a = m_primitives[0]->exponent();
-    double b = m_primitives[1]->exponent();
+    double a = m_exponentA;
+    double b = m_exponentB;
     double p = a + b;
     return m_E[cor](iA,iB,0) * sqrt(M_PI / p);
 }
@@ -301,7 +343,7 @@ double Integrator::overlapIntegral(int iA, int jA, int kA, int iB, int jB, int k
 
 
 double Integrator::kineticIntegral(int cor, int iA, int iB) {
-    double b = m_primitives[1]->exponent();
+    double b = m_exponentB;
 
     double S_iA_iBnn = overlapIntegral(cor, iA, iB + 2);
     double S_iA_iB = overlapIntegral(cor, iA, iB);
@@ -337,8 +379,8 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
     const rowvec &B = m_corePositionB;
     const rowvec &C = m_corePositionC;
 
-    double a = m_primitives[0]->exponent();
-    double b = m_primitives[1]->exponent();
+    double a = m_exponentA;
+    double b = m_exponentB;
 
     double p = a + b;
     rowvec P  = (a*A + b*B)/p;
@@ -375,10 +417,10 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
     const rowvec &C = m_corePositionC;
     const rowvec &D = m_corePositionD;
 
-    double a = m_primitives[0]->exponent();
-    double b = m_primitives[1]->exponent();
-    double c = m_primitives[2]->exponent();
-    double d = m_primitives[3]->exponent();
+    double a = m_exponentA;
+    double b = m_exponentB;
+    double c = m_exponentC;
+    double d = m_exponentD;
 
     double p = a + b;
     double q = c + d;
@@ -423,6 +465,11 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
     return result;
 
 }
+
+
+
+
+
 
 
 

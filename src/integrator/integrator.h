@@ -41,11 +41,28 @@ public:
     double electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
                                      int iC, int jC, int kC, int iD, int jD, int kD);
 
+    double exponentA() const;
+    void setExponentA(double exponentA);
+
+    double exponentB() const;
+    void setExponentB(double exponentB);
+
+    double exponentC() const;
+    void setExponentC(double exponentC);
+
+    double exponentD() const;
+    void setExponentD(double exponentD);
+
 private:
     rowvec m_corePositionA;
     rowvec m_corePositionB;
     rowvec m_corePositionC;
     rowvec m_corePositionD;
+
+    double m_exponentA;
+    double m_exponentB;
+    double m_exponentC;
+    double m_exponentD;
 
     vector<PrimitiveGTO *> m_primitives;
 

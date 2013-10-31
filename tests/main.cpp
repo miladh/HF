@@ -11,9 +11,11 @@ TEST(GTOoverlapIntegral)
     rowvec posB = {-1.3,1.4,-2.4};
     integrator.setCorePositionA(posA);
     integrator.setCorePositionB(posB);
+    integrator.setExponentA(0.2);
+    integrator.setExponentB(0.3);
 
-    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
-    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
+//    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
+//    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
 
     integrator.setMaxAngularMomentum(1);
 
@@ -128,9 +130,11 @@ TEST(GTOkineticIntegral)
     rowvec posB = {-1.3,1.4,-2.4};
     integrator.setCorePositionA(posA);
     integrator.setCorePositionB(posB);
+    integrator.setExponentA(0.2);
+    integrator.setExponentB(0.3);
 
-    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
-    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
+//    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
+//    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
 
     integrator.setMaxAngularMomentum(2);
 
@@ -248,9 +252,11 @@ TEST(GTOnuclearAttractionIntegral)
     integrator.setCorePositionB(posB);
     integrator.setCorePositionC(posC);
 
-    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
-    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
+//    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
+//    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
 
+    integrator.setExponentA(0.2);
+    integrator.setExponentB(0.3);
     integrator.setMaxAngularMomentum(2);
 
     integrator.setupE();
