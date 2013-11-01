@@ -15,25 +15,26 @@ void Boys::readBoysForSmallArguments(){
 void Boys::evaluateBoysFunctions(const double &arg)
 {
     m_arg = arg;
-    results();
+
+    if(m_arg <= 50){
+        m_results(m_highestOrder) = taylorExpandendBoys();
+    }else{
+        m_results(m_highestOrder) = asymptoticBoys();
+    }
+    downwardRecursion();
+
+}
+
+
+double Boys::getBoysFunctions(const int &n) const
+{
+    return m_results[n];
 }
 
 rowvec Boys::getBoysFunctions() const
 {
     return m_results;
 }
-
-void Boys::results()
-{
-    if(m_arg <= 50){
-        m_results(m_highestOrder) = taylorExpandendBoys();
-    }else{
-        m_results(m_highestOrder) = asymptoticBoys();
-    }
-
-    downwardRecursion();
-}
-
 
 double Boys::taylorExpandendBoys(uint nterms, double dxt) const
 {

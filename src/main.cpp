@@ -14,7 +14,7 @@ int main()
     int nBasisFunc = 4;
     int nNuclei    = 2;
     int nSteps     = 20;
-    int maxAngularMomentum = 1;
+    int maxAngularMomentum = 2;
 
     int nOrbitals = nBasisFunc * nNuclei;
     vec exponent = {13.00773, 1.962079, 0.444529, 0.1219492};
@@ -26,7 +26,7 @@ int main()
     system.addPrimitives(new PrimitiveGTO(exponent[3],1.0));
 
     system.setupOneParticleMatrix();
-//    system.setupTwoParticleMatrix();
+    system.setupTwoParticleMatrix();
 
 
     HFsolver solver(system,nOrbitals,nSteps);

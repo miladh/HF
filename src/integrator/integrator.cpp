@@ -4,7 +4,7 @@ Integrator::Integrator():
     m_corePositionA(zeros<rowvec>(3)),
     m_corePositionB(zeros<rowvec>(3))
 {
-    setMaxAngularMomentum(0);
+    //    setMaxAngularMomentum(0);
 }
 
 rowvec Integrator::corePositionA() const
@@ -87,8 +87,6 @@ void Integrator::setExponentD(double exponentD)
 }
 
 
-
-
 uint Integrator::maxAngularMomentum() const
 {
     return m_maxAngularMomentum;
@@ -97,6 +95,21 @@ uint Integrator::maxAngularMomentum() const
 void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
 {
     m_maxAngularMomentum = maxAngularMomentum;
+
+    int nMax_en = 2 * m_maxAngularMomentum + 1;
+    m_Ren.set_size(nMax_en);
+    for(int n = 0; n < nMax_en; n++){
+        m_Ren(n) = zeros(nMax_en, nMax_en, nMax_en);
+    }
+
+    int nMax_ee  = 4 * m_maxAngularMomentum + 1;
+    m_Ree.set_size(nMax_ee);
+    for(int n = 0; n < nMax_ee; n++){
+        m_Ree(n) = zeros(nMax_ee, nMax_ee, nMax_ee);
+    }
+
+    m_boys = new Boys(nMax_ee - 1);
+
 }
 
 void Integrator::addPrimitives(PrimitiveGTO *primitive)
@@ -117,37 +130,19 @@ bool Integrator::interiorPoint(int iA, int iB, int t)
 }
 
 
-void Integrator::setupR(const rowvec &PQ, const double &alpha, const int &type){
-
-    int d;
-    if(type == 1){
-        d = 2;
-    }else{d = 4;}
+void Integrator::setupR(const rowvec &PQ, const double &alpha, field<cube> &R){
 
 
+    int tMax  = R(0).n_rows   - 1;
+    int uMax  = R(0).n_cols   - 1;
+    int vMax  = R(0).n_slices - 1;
+    int nMax  = R.n_elem      - 1;
 
-    int tMax  = d * m_maxAngularMomentum;
-    int uMax  = d * m_maxAngularMomentum;
-    int vMax  = d * m_maxAngularMomentum;
-    int nMax  = d * m_maxAngularMomentum;
-
-
-    m_R.clear();
-    for(int n = 0; n < nMax+1; n++){
-        m_R.push_back(zeros(tMax+1, uMax+1, vMax+1));
-    }
-
-    Boys boys(nMax);
-    boys.evaluateBoysFunctions(alpha*dot(PQ,PQ));
-    rowvec Fn = boys.getBoysFunctions();
-
+    m_boys->evaluateBoysFunctions(alpha*dot(PQ,PQ));
 
     for(int n = 0; n < nMax+1; n++){
-        m_R.at(n)(0,0,0) = pow(-2*alpha,n)*Fn[n];
+        R(n)(0,0,0) = pow(-2*alpha,n)*m_boys->getBoysFunctions(n);
     }
-
-
-
 
     // p = previous
     // R(n,t,u,v+1) = v * R(n+1,t,u,v-1) + PQz * R(n+1,t,u,v)
@@ -158,12 +153,12 @@ void Integrator::setupR(const rowvec &PQ, const double &alpha, const int &type){
 
             double R_t_u_vp = 0.0;
             if(!(vp < 0)){
-                R_t_u_vp = m_R.at(n+1)(t,u,vp);
+                R_t_u_vp = R.at(n+1)(t,u,vp);
             }
 
-            double R_t_u_v = m_R.at(n+1)(t,u,v);
+            double R_t_u_v = R.at(n+1)(t,u,v);
 
-            m_R.at(n)(t,u,v+1) = v * R_t_u_vp + PQ(2) * R_t_u_v;
+            R.at(n)(t,u,v+1) = v * R_t_u_vp + PQ(2) * R_t_u_v;
         }
     }
 
@@ -178,12 +173,12 @@ void Integrator::setupR(const rowvec &PQ, const double &alpha, const int &type){
 
                 double R_t_up_v = 0.0;
                 if(!(up < 0)){
-                    R_t_up_v = m_R.at(n+1)(t,up,v);
+                    R_t_up_v = R.at(n+1)(t,up,v);
                 }
 
-                double R_t_u_v = m_R.at(n+1)(t,u,v);
+                double R_t_u_v = R.at(n+1)(t,u,v);
 
-                m_R.at(n)(t,u+1,v) = u * R_t_up_v + PQ(1) * R_t_u_v;
+                R.at(n)(t,u+1,v) = u * R_t_up_v + PQ(1) * R_t_u_v;
             }
         }
     }
@@ -199,12 +194,12 @@ void Integrator::setupR(const rowvec &PQ, const double &alpha, const int &type){
 
                     double R_tp_u_v = 0.0;
                     if(!(tp < 0)){
-                        R_tp_u_v = m_R.at(n+1)(tp,u,v);
+                        R_tp_u_v = R.at(n+1)(tp,u,v);
                     }
 
-                    double R_t_u_v = m_R.at(n+1)(t,u,v);
+                    double R_t_u_v = R.at(n+1)(t,u,v);
 
-                    m_R.at(n)(t+1,u,v) = t * R_tp_u_v + PQ(0) * R_t_u_v;
+                    R.at(n)(t+1,u,v) = t * R_tp_u_v + PQ(0) * R_t_u_v;
                 }
             }
         }
@@ -373,8 +368,6 @@ double Integrator::kineticIntegral(int iA, int jA, int kA, int iB, int jB, int k
 
 double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int jB, int kB)
 {
-
-
     const rowvec &A = m_corePositionA;
     const rowvec &B = m_corePositionB;
     const rowvec &C = m_corePositionC;
@@ -386,7 +379,7 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
     rowvec P  = (a*A + b*B)/p;
     rowvec PC = P - C;
 
-    setupR(PC,p,1);
+    setupR(PC,p, m_Ren);
 
     double result = 0.0;
 
@@ -397,7 +390,7 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
     for(uint t = 0; t < tMax; t++){
         for(uint u = 0; u < uMax; u++){
             for(uint v = 0; v < vMax; v++){
-                result += m_E[0](iA, iB, t) * m_E[1](jA, jB, u) * m_E[2](kA, kB, v) * m_R.at(0)(t,u,v);
+                result += m_E[0](iA, iB, t) * m_E[1](jA, jB, u) * m_E[2](kA, kB, v) * m_Ren.at(0)(t,u,v);
             }
         }
     }
@@ -410,8 +403,6 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
 double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
                                              int iC, int jC, int kC, int iD, int jD, int kD)
 {
-
-
     const rowvec &A = m_corePositionA;
     const rowvec &B = m_corePositionB;
     const rowvec &C = m_corePositionC;
@@ -430,7 +421,7 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
     double alpha = p*q/(p+q);
     rowvec PQ = P - Q;
 
-    setupR(PQ,alpha,2);
+    setupR(PQ,alpha, m_Ree);
 
 
     double result = 0.0;
@@ -452,10 +443,11 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
                         for(int m = 0; m < mMax; m++){
 
                             double Eklm= m_E[0](iC, iD, k) * m_E[1](jC, jD, l) * m_E[2](kC, kD, m);
-                            result += Etuv * Eklm * m_R.at(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+                            result += Eklm * m_Ree.at(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
                         }
                     }
                 }
+                result *=Etuv;
             }
         }
     }

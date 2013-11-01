@@ -12,6 +12,7 @@ class Boys
 public:
     Boys(uint highestOrder);
 
+    double getBoysFunctions(const int &n) const;
     rowvec getBoysFunctions() const;
     void evaluateBoysFunctions(const double &arg);
 
@@ -24,7 +25,6 @@ private:
     rowvec m_results;
     mat m_Ftabulated;
 
-    void results();
     void downwardRecursion();
     void readBoysForSmallArguments();
     double taylorExpandendBoys(uint nterms = 6, double dxt = 50.0/999) const;

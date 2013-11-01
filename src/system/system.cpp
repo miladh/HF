@@ -21,6 +21,9 @@ System::System(int nOrbitals, int  nNuclei ,int maxAngularMomentum):
     }
     integrator.setMaxAngularMomentum(maxAngularMomentum);
 
+    m_R(0,0) = -0.5;
+    m_R(1,0) = 0.5;
+
 }
 
 void System::addPrimitives(PrimitiveGTO *primitive)
@@ -50,6 +53,7 @@ double**** System::getTwoParticleMatrix() const
 
 void System::setupOneParticleMatrix()
 {
+
     for(uint A = 0; A < m_R.n_rows; A++){
         integrator.setCorePositionA(m_R.row(A));
 
@@ -105,7 +109,9 @@ void System::setupTwoParticleMatrix()
 
                                     m_Q[a+A*4][c+C*4][b+B*4][d+D*4] =
                                             integrator.electronRepulsionIntegral(0,0,0,0,0,0,
-                                                                                 0,0,0,0,0,0);                                }
+                                                                                 0,0,0,0,0,0);
+//                                    cout << m_Q[a+A*4][c+C*4][b+B*4][d+D*4] << endl;
+                                }
                             }
                         }
                     }
@@ -113,8 +119,6 @@ void System::setupTwoParticleMatrix()
             }
         }
     }
-
-
 
 
 }

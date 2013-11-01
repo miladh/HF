@@ -16,9 +16,28 @@ HFsolver::HFsolver(System system, int nOrbitals, int nSteps):
 
 void HFsolver::runSolver()
 {
-    for(int step=0; step < m_nSteps; step++){
 
+//    for(int i = 0; i <m_C.n_elem; i++ ){
+//        for(int j = 0; j <m_C.n_elem; j++ ){
+//            for(int k = 0; k <m_C.n_elem; k++ ){
+//                for(int l = 0; l <m_C.n_elem; l++ ){
+
+//                    cout << m_Q[i][j][k][l] <<endl;
+//                }
+//            }
+//        }
+
+//    }
+
+//    sleep(7);
+
+
+    for(int step=0; step < m_nSteps; step++){
+        m_G = 0*m_G;
         setupTwoParticleMatrix();
+
+//     cout << m_G <<endl;
+//        sleep(5);
         m_F = m_h + m_G;
 
         vec s; mat U;
@@ -28,7 +47,6 @@ void HFsolver::runSolver()
         m_F = V.t() * m_F * V;
 
 
-        cout << m_S <<endl;
         vec eps;
         mat Cmat;
         eig_sym(eps, Cmat, m_F);
@@ -38,18 +56,18 @@ void HFsolver::runSolver()
 
         double Eg=0.0;
 
-        for(uint p=0; p < m_C.n_elem; p++){
-            for(uint q=0; q < m_C.n_elem; q++){
-                Eg += m_C(p)*m_C(q)*m_h(p,q);
+        for(uint a=0; a < m_C.n_elem; a++){
+            for(uint b=0; b < m_C.n_elem; b++){
+                Eg += m_C(a)*m_C(b)*m_h(a,b);
             }
         }
 
         Eg = 2*Eg;
-        for(uint p=0; p < m_C.n_elem; p++){
-            for(uint r=0; r < m_C.n_elem; r++){
-                for(uint q=0; q< m_C.n_elem; q++){
-                    for(uint s=0; s < m_C.n_elem; s++){
-                        Eg +=m_Q[p][r][q][s]*m_C(p)*m_C(q)*m_C(r)*m_C(s);
+        for(uint a=0; a < m_C.n_elem; a++){
+            for(uint b=0; b < m_C.n_elem; b++){
+                for(uint c=0; c< m_C.n_elem; c++){
+                    for(uint d=0; d < m_C.n_elem; d++){
+                        Eg +=m_Q[a][c][b][d]*m_C(a)*m_C(b)*m_C(c)*m_C(d);
                     }
                 }
             }
@@ -64,12 +82,13 @@ void HFsolver::runSolver()
 }
 void HFsolver::setupTwoParticleMatrix()
 {
-
     for(uint a=0; a < m_C.n_elem; a++){
         for(uint b=0; b < m_C.n_elem; b++){
+
             for(uint c=0; c < m_C.n_elem; c++){
                 for(uint d=0; d < m_C.n_elem; d++){
                     m_G(a,b) += m_Q[a][c][b][d]*m_C(c)*m_C(d);
+
                 }
             }
         }

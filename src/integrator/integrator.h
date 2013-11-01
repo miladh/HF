@@ -16,7 +16,7 @@ public:
     Integrator();
 
     void setupE();
-    void setupR(const rowvec &PQ, const double &alpha, const int &type);
+    void setupR(const rowvec &PQ, const double &alpha, field<cube> &R);
 
     rowvec corePositionA() const;
     void setCorePositionA(const rowvec &corePositionA);
@@ -70,12 +70,16 @@ private:
 
     cube m_E[3]; // x,y,z cube
     vector<cube> m_R;
+    field<cube> m_Ree;
+    field<cube> m_Ren;
 
 
     bool interiorPoint(int iA, int iB, int t);
 
     double overlapIntegral(int cor, int iA, int iB);
     double kineticIntegral(int cor, int iA, int iB);
+
+    Boys* m_boys;
 };
 
 #endif // INTEGRATOR_H
