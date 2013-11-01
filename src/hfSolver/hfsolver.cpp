@@ -22,7 +22,7 @@ void HFsolver::runSolver()
 //            for(int k = 0; k <m_C.n_elem; k++ ){
 //                for(int l = 0; l <m_C.n_elem; l++ ){
 
-//                    cout << m_Q[i][j][k][l] <<endl;
+//                    cout << m_Q(i,j)(k,l) <<endl;
 //                }
 //            }
 //        }
@@ -36,8 +36,6 @@ void HFsolver::runSolver()
         m_G = 0*m_G;
         setupTwoParticleMatrix();
 
-//     cout << m_G <<endl;
-//        sleep(5);
         m_F = m_h + m_G;
 
         vec s; mat U;
@@ -67,12 +65,12 @@ void HFsolver::runSolver()
             for(uint b=0; b < m_C.n_elem; b++){
                 for(uint c=0; c< m_C.n_elem; c++){
                     for(uint d=0; d < m_C.n_elem; d++){
-                        Eg +=m_Q[a][c][b][d]*m_C(a)*m_C(b)*m_C(c)*m_C(d);
+                        Eg +=m_Q(a,c)(b,d)*m_C(a)*m_C(b)*m_C(c)*m_C(d);
                     }
                 }
             }
         }
-
+         cout.precision(8);
         cout <<"Energy: " << Eg <<" step: " << step << endl;
 
     }
@@ -87,7 +85,7 @@ void HFsolver::setupTwoParticleMatrix()
 
             for(uint c=0; c < m_C.n_elem; c++){
                 for(uint d=0; d < m_C.n_elem; d++){
-                    m_G(a,b) += m_Q[a][c][b][d]*m_C(c)*m_C(d);
+                    m_G(a,b) += m_Q(a,b)(c,d)*m_C(c)*m_C(d);
 
                 }
             }

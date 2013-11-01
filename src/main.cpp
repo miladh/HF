@@ -14,7 +14,7 @@ int main()
     int nBasisFunc = 4;
     int nNuclei    = 2;
     int nSteps     = 20;
-    int maxAngularMomentum = 2;
+    int maxAngularMomentum = 0;
 
     int nOrbitals = nBasisFunc * nNuclei;
     vec exponent = {13.00773, 1.962079, 0.444529, 0.1219492};

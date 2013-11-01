@@ -22,11 +22,11 @@ public:
     void setupTwoParticleMatrix();
 
     mat getOneParticleMatrix() const;
-    double ****getTwoParticleMatrix() const;
+    field<mat> getTwoParticleMatrix() const;
     mat getOverlapMatrix() const;
 private:
     mat m_h, m_S, m_R;
-    double ****m_Q;
+    field<mat> m_Q;
     vector<PrimitiveGTO *> m_primitives;
     Integrator integrator;
 };

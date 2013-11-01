@@ -16,6 +16,7 @@ public:
     Integrator();
 
     void setupE();
+    void setupE(const rowvec &A , const rowvec &B, const double &a, const double&b);
     void setupR(const rowvec &PQ, const double &alpha, field<cube> &R);
 
     rowvec corePositionA() const;
@@ -68,8 +69,8 @@ private:
 
     uint m_maxAngularMomentum;
 
-    cube m_E[3]; // x,y,z cube
-    vector<cube> m_R;
+//    cube m_E[3]; // x,y,z cube
+    field<cube> m_E;
     field<cube> m_Ree;
     field<cube> m_Ren;
 

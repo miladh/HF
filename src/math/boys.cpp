@@ -25,7 +25,6 @@ void Boys::evaluateBoysFunctions(const double &arg)
 
 }
 
-
 double Boys::getBoysFunctions(const int &n) const
 {
     return m_results[n];

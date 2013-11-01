@@ -21,7 +21,7 @@ private:
 
     mat m_F, m_S, m_G, m_h;
     vec m_C;
-    double ****m_Q;
+    field<mat> m_Q;
 
     void setupTwoParticleMatrix();
     void normalize();
