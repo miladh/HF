@@ -14,12 +14,10 @@ TEST(GTOoverlapIntegral)
     integrator.setExponentA(0.2);
     integrator.setExponentB(0.3);
 
-//    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
-//    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
-
     integrator.setMaxAngularMomentum(1);
 
-    integrator.setupE();
+    integrator.updateHermiteCoefficients();
+//    integrator.setupE();
 
     CHECK_CLOSE(1.191723635809e-01, integrator.overlapIntegral(0,0,0,0,0,0), 1e-5);
     CHECK_CLOSE(2.764798835076e-01, integrator.overlapIntegral(0,0,0,0,0,1), 1e-5);
@@ -133,12 +131,10 @@ TEST(GTOkineticIntegral)
     integrator.setExponentA(0.2);
     integrator.setExponentB(0.3);
 
-//    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
-//    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
 
     integrator.setMaxAngularMomentum(2);
-
-    integrator.setupE();
+    integrator.updateHermiteCoefficients();
+//    integrator.setupE();
 
     CHECK_CLOSE(-9.678702680582e-02, integrator.kineticIntegral(0,0,0,0,0,0), 1e-5);
     CHECK_CLOSE(-1.581907301477e-01, integrator.kineticIntegral(0,0,0,0,0,1), 1e-5);
@@ -252,14 +248,12 @@ TEST(GTOnuclearAttractionIntegral)
     integrator.setCorePositionB(posB);
     integrator.setCorePositionC(posC);
 
-//    integrator.addPrimitives(new PrimitiveGTO(0.2, 1.0));
-//    integrator.addPrimitives(new PrimitiveGTO(0.3, 1.0));
 
     integrator.setExponentA(0.2);
     integrator.setExponentB(0.3);
     integrator.setMaxAngularMomentum(2);
-
-    integrator.setupE();
+    integrator.updateHermiteCoefficients();
+//    integrator.setupE();
 
 
     CHECK_CLOSE(2.788948987251e-02, integrator.nuclearAttractionIntegral(0,0,0,0,0,0), 1e-5);

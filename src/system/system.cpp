@@ -1,5 +1,4 @@
 #include "system.h"
-#include <iostream>
 
 System::System(int nOrbitals, int  nNuclei ,int maxAngularMomentum):
     m_h(zeros(nOrbitals,nOrbitals)),
@@ -48,7 +47,6 @@ field<mat> System::getTwoParticleMatrix() const
 
 void System::setupOneParticleMatrix()
 {
-
     for(uint A = 0; A < m_R.n_rows; A++){
         integrator.setCorePositionA(m_R.row(A));
 
@@ -60,7 +58,8 @@ void System::setupOneParticleMatrix()
 
                 for(uint b=0; b < m_primitives.size(); b++){
                     integrator.setExponentB(m_primitives.at(b)->exponent());
-                    integrator.setupE();
+
+                    integrator.updateHermiteCoefficients();
 
                     m_S(a+A*4,b+B*4) = integrator.overlapIntegral(0,0,0,0,0,0);
                     m_h(a+A*4,b+B*4) = integrator.kineticIntegral(0,0,0,0,0,0);
@@ -77,6 +76,8 @@ void System::setupOneParticleMatrix()
 
 void System::setupTwoParticleMatrix()
 {
+
+    bool twoParticleIntegral = true;
 
     for(uint A = 0; A < m_R.n_rows; A++){
         integrator.setCorePositionA(m_R.row(A));
@@ -102,6 +103,8 @@ void System::setupTwoParticleMatrix()
                                 for(uint d=0; d < m_primitives.size(); d++){
                                     integrator.setExponentD(m_primitives.at(d)->exponent());
 
+                                    integrator.updateHermiteCoefficients(twoParticleIntegral);
+
                                     m_Q(a+A*4,b+B*4)(c+C*4, d+D*4) =
                                             integrator.electronRepulsionIntegral(0,0,0,0,0,0,
                                                                                  0,0,0,0,0,0);
@@ -114,7 +117,6 @@ void System::setupTwoParticleMatrix()
             }
         }
     }
-
 }
 
 

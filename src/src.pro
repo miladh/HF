@@ -12,6 +12,7 @@ SOURCES += main.cpp \
     system/system.cpp \
     integrator/integrator.cpp \
     math/boys.cpp \
+    math/hermitecoefficients.cpp \
     hfSolver/hfsolver.cpp
 
 HEADERS += \
@@ -20,5 +21,6 @@ HEADERS += \
     system/system.h \
     integrator/integrator.h \
     math/boys.h \
+    math/hermitecoefficients.h \
     hfSolver/hfsolver.h
 

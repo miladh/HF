@@ -1,12 +1,54 @@
 #include "integrator.h"
 
-
 Integrator::Integrator():
-    m_corePositionA(zeros<rowvec>(3)),
-    m_corePositionB(zeros<rowvec>(3))
+    m_exponentA(0),
+    m_exponentB(0),
+    m_exponentC(0),
+    m_exponentD(0),
+    m_corePositionA(rowvec(3)),
+    m_corePositionB(rowvec(3)),
+    m_corePositionC(rowvec(3)),
+    m_corePositionD(rowvec(3))
+
 {
     //    setMaxAngularMomentum(0);
 }
+
+
+void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
+{
+    m_maxAngularMomentum = maxAngularMomentum;
+
+    int nMax_en = 2 * m_maxAngularMomentum + 1;
+    m_Ren.set_size(nMax_en);
+    for(int n = 0; n < nMax_en; n++){
+        m_Ren(n) = zeros(nMax_en, nMax_en, nMax_en);
+    }
+
+    int nMax_ee  = 4 * m_maxAngularMomentum + 1;
+    m_Ree.set_size(nMax_ee);
+    for(int n = 0; n < nMax_ee; n++){
+        m_Ree(n) = zeros(nMax_ee, nMax_ee, nMax_ee);
+    }
+
+    m_boys = new Boys(nMax_ee - 1);
+}
+
+
+void Integrator::updateHermiteCoefficients(bool twoParticleIntegral)
+{
+
+    m_hermiteCoefficients  = new HermiteCoefficients(m_exponentA, m_corePositionA, m_maxAngularMomentum,
+                                                     m_exponentB, m_corePositionB, m_maxAngularMomentum);
+    m_Eab = m_hermiteCoefficients->getCoefficients();
+
+    if(twoParticleIntegral){
+        m_hermiteCoefficients  = new HermiteCoefficients(m_exponentC, m_corePositionC, m_maxAngularMomentum,
+                                                         m_exponentD, m_corePositionD, m_maxAngularMomentum);
+        m_Ecd = m_hermiteCoefficients->getCoefficients();
+    }
+}
+
 
 rowvec Integrator::corePositionA() const
 {
@@ -93,44 +135,6 @@ uint Integrator::maxAngularMomentum() const
     return m_maxAngularMomentum;
 }
 
-void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
-{
-    m_maxAngularMomentum = maxAngularMomentum;
-
-    int nMax_en = 2 * m_maxAngularMomentum + 1;
-    m_Ren.set_size(nMax_en);
-    for(int n = 0; n < nMax_en; n++){
-        m_Ren(n) = zeros(nMax_en, nMax_en, nMax_en);
-    }
-
-    int nMax_ee  = 4 * m_maxAngularMomentum + 1;
-    m_Ree.set_size(nMax_ee);
-    for(int n = 0; n < nMax_ee; n++){
-        m_Ree(n) = zeros(nMax_ee, nMax_ee, nMax_ee);
-    }
-
-    m_boys = new Boys(nMax_ee - 1);
-    m_E.set_size(3);
-}
-
-void Integrator::addPrimitives(PrimitiveGTO *primitive)
-{
-    m_primitives.push_back(primitive);
-
-}
-
-
-
-bool Integrator::interiorPoint(int iA, int iB, int t)
-{
-    if(t < 0 || t > (iA + iB) || iA < 0 || iB < 0) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-
 void Integrator::setupR(const rowvec &PQ, const double &alpha, field<cube> &R){
 
 
@@ -206,128 +210,12 @@ void Integrator::setupR(const rowvec &PQ, const double &alpha, field<cube> &R){
     }
 }
 
-
-void Integrator::setupE()
-{
-    uint iAmax = m_maxAngularMomentum + 3;
-    uint iBmax = m_maxAngularMomentum + 3;
-    uint tmax  = 2*(m_maxAngularMomentum + 2) + 1;
-
-    for(uint cor = 0; cor < 3; cor++){
-        m_E[cor] = zeros(iAmax, iBmax, tmax);
-    }
-
-    const rowvec &A = m_corePositionA;
-    const rowvec &B = m_corePositionB;
-
-    double a = m_exponentA;
-    double b = m_exponentB;
-
-    double p = a + b;
-    double mu = a * b / p;
-
-    rowvec P  = (a*A + b*B)/p;
-    rowvec AB = A - B;
-    rowvec PA = P - A;
-    rowvec PB = P - B;
-    rowvec Kab = exp(-mu*AB%AB);
-
-
-    for(uint cor = 0; cor < 3; cor++){
-        m_E[cor](0,0,0) = Kab(cor);
-    }
-
-    for(uint cor=0; cor < 3; cor++){ //Loop for x,y,z
-
-
-        // p = previous, n = next
-        // E(t,i,j) = 1 / (2*p) * E(t-1,i,j-1) + XPA * E(t,i,j-1) + (t + 1)*E(t+1,i,j-1)
-        for(uint iB = 1; iB < iBmax; iB++){
-            for(uint t = 0; t < tmax; t++){
-
-                int iA = 0;
-                int iBp = iB - 1;
-                int tp = t - 1;
-                int tn = t + 1;
-
-                double E_iA_iBp_tp = 0.0;
-                if(interiorPoint(iA, iBp, tp)){
-                    E_iA_iBp_tp = m_E[cor](iA, iBp, tp);
-                }
-
-                double E_iA_iBp_t = 0;
-                if(interiorPoint(iA, iBp, t)) {
-                    E_iA_iBp_t = m_E[cor](iA, iBp, t);
-                }
-
-                double E_iA_iBp_tn = 0;
-                if(interiorPoint(iA, iBp, tn)) {
-                    E_iA_iBp_tn = m_E[cor](iA, iBp, tn);
-                }
-
-                m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + PB(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
-            }
-        }
-
-
-
-        // p = previous, n = next
-        // E(t,i,j) = 1 / (2*p) * E(t-1,i-1,j) + XPA * E(t,i-1,j) + (t + 1)*E(t+1,i-1,j)
-        for(uint iA = 1; iA < iAmax; iA++) {
-            for(uint iB = 0; iB < iBmax; iB++) {
-                for(uint t = 0; t < tmax; t++) {
-
-                    int iAp = iA - 1;
-                    int tp = t - 1;
-                    int tn = t + 1;
-
-                    double E_iAp_iB_tp = 0;
-                    if(interiorPoint(iAp, iB, tp)) {
-                        E_iAp_iB_tp = m_E[cor](iAp, iB, tp);
-                    }
-
-                    double E_iAp_iB_t = 0;
-                    if(interiorPoint(iAp, iB, t)) {
-                        E_iAp_iB_t = m_E[cor](iAp, iB, t);
-                    }
-
-                    double E_iAp_iB_tn = 0;
-                    if(interiorPoint(iAp, iB, tn)) {
-                        E_iAp_iB_tn = m_E[cor](iAp, iB, tn);
-                    }
-
-                    m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp + PA(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
-                }
-            }
-        }
-
-    }//End of cor=(x,y,z) loop
-
-
-    //    cout <<"p " << p << endl;
-    //    cout <<"mu "<< mu << endl;
-    //    cout <<"P"<< P << endl;
-    //    cout <<"ab"<< AB <<endl;
-    //    cout <<"pa"<< PA <<endl;
-    //    cout <<"pb"<< PB <<endl;
-    //    cout <<"kab"<< Kab <<endl;
-
-
-    //        cout << m_E[0] << endl;
-    //        cout << "-----------------------------------" <<endl;
-    //        cout << m_E[1] << endl;
-    //        cout << "-----------------------------------" <<endl;
-    //        cout << m_E[2] << endl;
-
-}
-
-
 double Integrator::overlapIntegral(int cor, int iA, int iB)
 {
     double a = m_exponentA;
     double b = m_exponentB;
     double p = a + b;
-    return m_E[cor](iA,iB,0) * sqrt(M_PI / p);
+    return m_Eab[cor](iA,iB,0) * sqrt(M_PI / p);
 }
 
 
@@ -390,7 +278,7 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
     for(uint t = 0; t < tMax; t++){
         for(uint u = 0; u < uMax; u++){
             for(uint v = 0; v < vMax; v++){
-                result += m_E[0](iA, iB, t) * m_E[1](jA, jB, u) * m_E[2](kA, kB, v) * m_Ren(0)(t,u,v);
+                result += m_Eab[0](iA, iB, t) * m_Eab[1](jA, jB, u) * m_Eab[2](kA, kB, v) * m_Ren(0)(t,u,v);
             }
         }
     }
@@ -435,18 +323,16 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
     for(int t = 0; t < tMax; t++){
         for(int u = 0; u < uMax; u++){
             for(int v = 0; v < vMax; v++){
-                setupE(A,B,a,b);
+                //                setupE(A,B,a,b);
 
-
-                double Etuv= m_E[0](iA, iB, t) * m_E[1](jA, jB, u) * m_E[2](kA, kB, v);
-                setupE(C,D,c,d);
-
+                double Etuv= m_Eab[0](iA, iB, t) * m_Eab[1](jA, jB, u) * m_Eab[2](kA, kB, v);
+                //                setupE(C,D,c,d);
 
                 for(int k = 0; k < kMax; k++){
                     for(int l = 0; l < lMax; l++){
                         for(int m = 0; m < mMax; m++){
 
-                            double Eklm= m_E[0](iC, iD, k) * m_E[1](jC, jD, l) * m_E[2](kC, kD, m);
+                            double Eklm= m_Ecd[0](iC, iD, k) * m_Ecd[1](jC, jD, l) * m_Ecd[2](kC, kD, m);
                             result += Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
                         }
                     }
@@ -460,140 +346,9 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
 
     result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
 
-//    cout << A(0) << "  " << B(0) << " --- " <<C(0) << "  " << D(0) <<endl;
-//    cout << a << "  " << b << " --- " << c << "  " << d <<endl;
-//    cout << "  res: " << result <<endl;
-//    cout << endl;
-//    if (D(0)==0.5){
-//        cerr << "WARNING!!!" << endl <<endl;
-
-//            sleep(5);
-//    }
-
     return result;
 
 }
-
-
-
-
-
-void Integrator::setupE(const rowvec &A , const rowvec &B, const double &a, const double&b)
-{
-    uint iAmax = m_maxAngularMomentum + 3;
-    uint iBmax = m_maxAngularMomentum + 3;
-    uint tmax  = 2*(m_maxAngularMomentum + 2) + 1;
-
-    for(uint cor = 0; cor < 3; cor++){
-        m_E[cor] = zeros(iAmax, iBmax, tmax);
-    }
-
-
-
-    double p = a + b;
-    double mu = a * b / p;
-
-    rowvec P  = (a*A + b*B)/p;
-    rowvec AB = A - B;
-    rowvec PA = P - A;
-    rowvec PB = P - B;
-    rowvec Kab = exp(-mu*AB%AB);
-
-
-    for(uint cor = 0; cor < 3; cor++){
-        m_E[cor](0,0,0) = Kab(cor);
-    }
-
-    for(uint cor=0; cor < 3; cor++){ //Loop for x,y,z
-
-
-        // p = previous, n = next
-        // E(t,i,j) = 1 / (2*p) * E(t-1,i,j-1) + XPA * E(t,i,j-1) + (t + 1)*E(t+1,i,j-1)
-        for(uint iB = 1; iB < iBmax; iB++){
-            for(uint t = 0; t < tmax; t++){
-
-                int iA = 0;
-                int iBp = iB - 1;
-                int tp = t - 1;
-                int tn = t + 1;
-
-                double E_iA_iBp_tp = 0.0;
-                if(interiorPoint(iA, iBp, tp)){
-                    E_iA_iBp_tp = m_E[cor](iA, iBp, tp);
-                }
-
-                double E_iA_iBp_t = 0;
-                if(interiorPoint(iA, iBp, t)) {
-                    E_iA_iBp_t = m_E[cor](iA, iBp, t);
-                }
-
-                double E_iA_iBp_tn = 0;
-                if(interiorPoint(iA, iBp, tn)) {
-                    E_iA_iBp_tn = m_E[cor](iA, iBp, tn);
-                }
-
-                m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + PB(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
-            }
-        }
-
-
-
-        // p = previous, n = next
-        // E(t,i,j) = 1 / (2*p) * E(t-1,i-1,j) + XPA * E(t,i-1,j) + (t + 1)*E(t+1,i-1,j)
-        for(uint iA = 1; iA < iAmax; iA++) {
-            for(uint iB = 0; iB < iBmax; iB++) {
-                for(uint t = 0; t < tmax; t++) {
-
-                    int iAp = iA - 1;
-                    int tp = t - 1;
-                    int tn = t + 1;
-
-                    double E_iAp_iB_tp = 0;
-                    if(interiorPoint(iAp, iB, tp)) {
-                        E_iAp_iB_tp = m_E[cor](iAp, iB, tp);
-                    }
-
-                    double E_iAp_iB_t = 0;
-                    if(interiorPoint(iAp, iB, t)) {
-                        E_iAp_iB_t = m_E[cor](iAp, iB, t);
-                    }
-
-                    double E_iAp_iB_tn = 0;
-                    if(interiorPoint(iAp, iB, tn)) {
-                        E_iAp_iB_tn = m_E[cor](iAp, iB, tn);
-                    }
-
-                    m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp + PA(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
-                }
-            }
-        }
-
-    }//End of cor=(x,y,z) loop
-
-
-    //    cout <<"p " << p << endl;
-    //    cout <<"mu "<< mu << endl;
-    //    cout <<"P"<< P << endl;
-    //    cout <<"ab"<< AB <<endl;
-    //    cout <<"pa"<< PA <<endl;
-    //    cout <<"pb"<< PB <<endl;
-    //    cout <<"kab"<< Kab <<endl;
-
-
-    //        cout << m_E[0] << endl;
-    //        cout << "-----------------------------------" <<endl;
-    //        cout << m_E[1] << endl;
-    //        cout << "-----------------------------------" <<endl;
-    //        cout << m_E[2] << endl;
-
-}
-
-
-
-
-
-
-
 
 
 
