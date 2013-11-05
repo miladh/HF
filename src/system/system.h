@@ -7,6 +7,7 @@
 #include<src/primitiveGTO/primitiveGTO.h>
 #include<src/contractedGTO/contractedGTO.h>
 #include<src/integrator/integrator.h>
+#include<src/basisSet/basisset.h>
 
 
 using namespace arma;
@@ -16,8 +17,8 @@ class System
 {
 public:
     System(int nOrbitals, int nNuclei, int maxAngularMomentum);
-    void addPrimitives(PrimitiveGTO *primitive);
 
+    void addBasisSet(BasisSet *basisSet);
 
     void setupOneParticleMatrix();
     void setupTwoParticleMatrix();
@@ -25,11 +26,23 @@ public:
     mat getOneParticleMatrix() const;
     field<mat> getTwoParticleMatrix() const;
     mat getOverlapMatrix() const;
+
+
+
+
+
+
+
+    void setupOneParticleMatrix2();
+    void setupTwoParticleMatrix2();
+
 private:
     mat m_h, m_S, m_R;
     field<mat> m_Q;
-    vector<PrimitiveGTO *> m_primitives;
+    vector<BasisSet *> m_basisSet;
     Integrator integrator;
+    vector<int > m_coreID;
+    vector<int > m_cumSumContracted;
 };
 
 #endif // SYSTEM_H

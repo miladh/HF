@@ -11,17 +11,21 @@ using namespace std;
 class PrimitiveGTO
 {
 public:
-    PrimitiveGTO(double exponent, double weight);
+    PrimitiveGTO(const double &exponent, const double &weight, const rowvec &powers);
 
     double exponent() const;
-    void setExponent(double exponent);
+    void setExponent(const double &exponent);
 
     double weight() const;
-    void setWeight(double weight);
+    void setWeight(const double &weight);
+
+    rowvec powers() const;
+    void setPowers(const rowvec &powers);
 
 private:
     double m_exponent;
     double m_weight;
+    rowvec m_powers;
 
 };
 #endif // PRIMITIVEGTO_H

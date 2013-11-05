@@ -13,7 +13,9 @@ SOURCES += main.cpp \
     integrator/integrator.cpp \
     math/boys.cpp \
     math/hermitecoefficients.cpp \
-    hfSolver/hfsolver.cpp
+    hfSolver/hfsolver.cpp \
+    basisSet/basisset.cpp \
+    basisSet/quadzeta.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -22,5 +24,7 @@ HEADERS += \
     integrator/integrator.h \
     math/boys.h \
     math/hermitecoefficients.h \
-    hfSolver/hfsolver.h
+    hfSolver/hfsolver.h \
+    basisSet/basisset.h \
+    basisSet/quadzeta.h
 

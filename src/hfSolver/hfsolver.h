@@ -20,10 +20,12 @@ private:
     int m_nSteps;
 
     mat m_F, m_S, m_G, m_h;
-    vec m_C;
+    mat m_P;
+    mat m_C;
     field<mat> m_Q;
 
     void setupTwoParticleMatrix();
+    void setupDensityMatrix();
     void normalize();
 };
 
