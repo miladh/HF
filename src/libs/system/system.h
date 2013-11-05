@@ -16,7 +16,7 @@ using namespace std;
 class System
 {
 public:
-    System(int nOrbitals, int nNuclei, int maxAngularMomentum);
+    System(int nOrbitals, int maxAngularMomentum, rowvec coreCharges);
 
     void addBasisSet(BasisSet *basisSet);
 
@@ -29,20 +29,21 @@ public:
 
 
 
-
-
-
-
     void setupOneParticleMatrix2();
     void setupTwoParticleMatrix2();
 
+    int getTotalNumOfBasisFunc();
+    int getNumOfElectrons();
+
 private:
-    mat m_h, m_S, m_R;
+    mat m_h, m_S;
     field<mat> m_Q;
     vector<BasisSet *> m_basisSet;
     Integrator integrator;
     vector<int > m_coreID;
     vector<int > m_cumSumContracted;
+
+    rowvec m_coreCharges;
 };
 
 #endif // SYSTEM_H

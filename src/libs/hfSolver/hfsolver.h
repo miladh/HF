@@ -12,21 +12,19 @@ using namespace std;
 class HFsolver
 {
 public:
-    HFsolver(System system, int nOrbitals, int nSteps);
+    HFsolver(System system);
     void runSolver();
 
 private:
     System m_system;
-    int m_nSteps;
-
-    mat m_F, m_S, m_G, m_h;
-    mat m_P;
-    mat m_C;
+    int m_nElectrons,m_nOrbitals;
+    double m_fockEnergy, m_energy, m_toler;
+    mat m_F, m_S, m_h, m_P, m_C;
     field<mat> m_Q;
 
-    void setupTwoParticleMatrix();
-    void setupDensityMatrix();
+    void setupFockMatrix();
     void normalize();
+    void solveSingle();
 };
 
 #endif // HFSOLVER_H

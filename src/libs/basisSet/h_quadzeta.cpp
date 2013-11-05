@@ -1,6 +1,6 @@
-#include "quadzeta.h"
+#include "h_quadzeta.h"
 
-QuadZeta::QuadZeta()
+H_QuadZeta::H_QuadZeta()
 {
     rowvec exponent = {13.00773, 1.962079, 0.444529, 0.1219492};
     rowvec weight = {1.0, 1.0, 1.0, 1.0};
@@ -22,4 +22,12 @@ QuadZeta::QuadZeta()
     m_contractedGTOs.push_back(m_contractedGTO_3);
     m_contractedGTOs.push_back(m_contractedGTO_4);
 
+    m_angularMomentum = 0;
+
+}
+
+
+int H_QuadZeta::getAngularMomentum() const
+{
+    return m_angularMomentum;
 }

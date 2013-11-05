@@ -1,13 +1,14 @@
-#ifndef QUADZETA_H
-#define QUADZETA_H
+#ifndef H_QuadZeta_H
+#define H_QuadZeta_H
 
 #include <basisSet/basisset.h>
 
-class QuadZeta : public BasisSet
+class H_QuadZeta : public BasisSet
 {
 public:
-    QuadZeta();
+    H_QuadZeta();
 
+    int getAngularMomentum() const;
 private:
     ContractedGTO *m_contractedGTO_1;
     ContractedGTO *m_contractedGTO_2;
@@ -15,4 +16,4 @@ private:
     ContractedGTO *m_contractedGTO_4;
 };
 
-#endif // QUADZETA_H
+#endif // H_QuadZeta_H

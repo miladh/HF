@@ -1,131 +1,115 @@
 #include "hfsolver.h"
 
-HFsolver::HFsolver(System system, int nOrbitals, int nSteps):
+HFsolver::HFsolver(System system):
     m_system(system),
-    m_nSteps(nSteps),
-    m_F(zeros(nOrbitals,nOrbitals)),
-    m_S(zeros(nOrbitals,nOrbitals)),
-    m_G(zeros(nOrbitals,nOrbitals)),
-    m_C(ones(nOrbitals,nOrbitals)),
-    m_P(zeros(nOrbitals,nOrbitals))
+    m_nElectrons(system.getNumOfElectrons()),
+    m_nOrbitals(system.getTotalNumOfBasisFunc()),
+    m_F(zeros(m_nOrbitals,m_nOrbitals)),
+    m_S(zeros(m_nOrbitals,m_nOrbitals)),
+    m_P(zeros(m_nOrbitals,m_nOrbitals)),
+    m_C(zeros(m_nOrbitals,m_nElectrons/2.0))
 
 {
     m_S = m_system.getOverlapMatrix();
     m_h = m_system.getOneParticleMatrix();
     m_Q = m_system.getTwoParticleMatrix();
     normalize();
+
+    m_fockEnergy = 1.0E6;
+    m_energy = 1.0E6;
+    m_toler = 1.0E-6;
 }
 
 void HFsolver::runSolver()
 {
 
-    //    for(int i = 0; i <m_C.n_elem; i++ ){
-    //        for(int j = 0; j <m_C.n_elem; j++ ){
-    //            for(int k = 0; k <m_C.n_elem; k++ ){
-    //                for(int l = 0; l <m_C.n_elem; l++ ){
+    double m_fockEnergyOld;
+    double m_energyDiff = 1.0;
 
-    //                    cout << m_Q(i,j)(k,l) <<endl;
-    //                }
-    //            }
-    //        }
+    m_C = zeros<mat>(m_nOrbitals, m_nElectrons/2.0);
 
-    //    }
+    // Iterate until the fock m_energy has converged
+    while (m_energyDiff > m_toler){
+        m_fockEnergyOld = m_fockEnergy;
+        setupFockMatrix();
+        solveSingle();
+        m_energyDiff = fabs(m_fockEnergyOld - m_fockEnergy);
 
-    //    sleep(7);
+        // Calculate m_energy (not equal to Fock m_energy)
+        m_energy = 0;
 
+        for (int a = 0; a < m_nOrbitals; a++){
+            for (int b = 0; b < m_nOrbitals; b++){
+                m_energy += m_P(a, b)*m_h(a, b);
 
-    for(int step=0; step < m_nSteps; step++){
-        m_G = 0*m_G;
-
-        setupDensityMatrix();
-        setupTwoParticleMatrix();
-
-        m_F = m_h + m_G;
-
-        vec s; mat U;
-        eig_sym(s, U, m_S);
-
-        mat V = U*diagmat(1.0/sqrt(s));
-        m_F = V.t() * m_F * V;
-
-
-        vec eps;
-        mat Cmat;
-        eig_sym(eps, Cmat, m_F);
-
-        m_C = V*Cmat.col(0);
-        normalize();
-
-        double Eg=0.0;
-
-        for(uint a=0; a < m_P.n_rows; a++){
-            for(uint b=0; b < m_P.n_cols; b++){
-                Eg += m_P(a,b)*m_h(a,b);
-            }
-        }
-
-        for(uint a=0; a < m_P.n_rows; a++){
-            for(uint b=0; b < m_P.n_cols; b++){
-                for(uint c=0; c< m_P.n_rows; c++){
-                    for(uint d=0; d < m_P.n_cols; d++){
-                        Eg +=m_Q(a,c)(b,d)*m_P(a,b)*m_P(c,d);
+                for (int c = 0; c < m_nOrbitals; c++){
+                    for (int d = 0; d < m_nOrbitals; d++){
+                        m_energy += 0.5*m_P(a,b)*m_P(c,d)*(m_Q(a,b)(c,d) - 0.5*m_Q(a,b)(d,c));
                     }
                 }
             }
         }
 
-        Eg *=0.5;
-
-        cout.precision(8);
-        cout <<"Energy: " << Eg <<" step: " << step << endl;
+        cout << "Energy: " << setprecision(10) << m_energy << endl;
 
     }
 
 
-
 }
-void HFsolver::setupTwoParticleMatrix()
+
+
+void HFsolver::setupFockMatrix()
 {
-    for(uint a=0; a < m_G.n_rows; a++){
-        for(uint b=0; b < m_G.n_cols; b++){
 
-            for(uint c=0; c < m_P.n_rows; c++){
-                for(uint d=0; d < m_P.n_cols; d++){
-                    m_G(a,b) += m_Q(a,b)(c,d)*m_P(c,d);
+    for (int a = 0; a < m_nOrbitals; a++){
+        for (int b = 0; b < m_nOrbitals; b++){
 
+            // One-electron integrals
+            m_F(a,b) = m_h(a,b);
+
+            // Add two-electron integrals
+            for (int c = 0; c < m_nOrbitals; c++){
+                for (int d = 0; d < m_nOrbitals; d++){
+                    m_F(a,b) += 0.5*m_P(c,d)*(2*m_Q(a,b)(c,d) - m_Q(a,b)(d,c));
                 }
             }
         }
     }
-
 }
 
-void HFsolver::setupDensityMatrix()
+void HFsolver::solveSingle()
 {
-    for(int p = 0; p < m_P.n_rows; p++){
-        for(int q = 0; q < m_P.n_cols; q++){
+    vec eigVal;
+    mat eigVec;
+    eig_sym(eigVal, eigVec, m_S);
 
-            for(int k = 0; k < 2*0.5; k++){
+    mat V = eigVec*diagmat(1.0/sqrt(eigVal));
 
-                m_P(p,q) += 2*m_C(p,k)*m_C(q,k);
+    m_F = V.t()*m_F*V;
 
-            }
 
-        }
+    eig_sym(eigVal, eigVec, m_F);
+    m_C = V*eigVec.cols(0, m_nElectrons/2-1);
 
-    }
+    // Normalize vector C
+    normalize();
+
+    // Compute density matrix
+    m_P = 2*m_C*m_C.t();
+
+    m_fockEnergy = eigVal(0);
 }
 
-void HFsolver::normalize(){
-    for(int k=0; k < m_C.n_cols; k++){
-        double normFactor= 0.0;
 
-        for(uint i= 0; i < m_C.n_rows; i++){
-            for(uint j= 0; j < m_C.n_rows; j++){
-                normFactor += m_C(i,k)*m_S(i,j)*m_C(j,k);
-            }
-        }
-
-        m_C.col(k) /= sqrt(normFactor);
+void HFsolver::normalize()
+{
+    double norm;
+    for (int i = 0; i < m_nElectrons/2; i++){
+        norm = dot(m_C.col(i), m_S*m_C.col(i));
+        m_C.col(i) = m_C.col(i)/sqrt(norm);
     }
+
 }
+
+
+

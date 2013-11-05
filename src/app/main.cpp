@@ -4,7 +4,9 @@
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
 #include<contractedGTO/contractedGTO.h>
-#include<basisSet/quadzeta.h>
+#include<basisSet/h_quadzeta.h>
+#include<basisSet/h_321g.h>
+#include<basisSet/o_321g.h>
 
 
 using namespace arma;
@@ -14,32 +16,44 @@ using namespace std;
 int main()
 {
 
-    int nBasisFunc = 4;
+//    H_QuadZeta *basisCoreA  = new H_QuadZeta;
+//    H_QuadZeta *basisCoreB  = new H_QuadZeta;
+
+//    H_321G *basisCoreA = new H_321G;
+//    H_321G *basisCoreB = new H_321G;
+
+    O_321G *basisCoreA = new O_321G;
+    O_321G *basisCoreB = new O_321G;
+
+    int nBasisFunc = 9;
     int nNuclei    = 2;
-    int nSteps     = 20;
-    int maxAngularMomentum = 0;
+    rowvec coreCharges = {8.0 , 8.0};
 
+    rowvec A = {-1.41 , 0, 0};
+    rowvec B = {1.41 , 0, 0};
+
+    /********************************************************/
+
+
+
+    int maxAngularMomentum = basisCoreA->getAngularMomentum();
     int nOrbitals = nBasisFunc * nNuclei;
-    System system(nOrbitals, nNuclei, maxAngularMomentum);
 
-
-    QuadZeta *basisCoreA  = new QuadZeta;
-    QuadZeta *basisCoreB  = new QuadZeta;
-
-    rowvec A = {-0.5 , 0, 0};
-    rowvec B = {0.5 , 0, 0};
     basisCoreA->setCorePosition(A);
     basisCoreB->setCorePosition(B);
 
+
+    System system(nOrbitals,maxAngularMomentum, coreCharges);
     system.addBasisSet(basisCoreA);
     system.addBasisSet(basisCoreB);
 
     system.setupOneParticleMatrix();
     system.setupTwoParticleMatrix();
 
-    HFsolver solver(system,nOrbitals,nSteps);
+    HFsolver solver(system);
     solver.runSolver();
 
     return 0;
 }
+
 

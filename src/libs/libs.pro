@@ -11,7 +11,9 @@ SOURCES += \
     math/hermitecoefficients.cpp \
     hfSolver/hfsolver.cpp \
     basisSet/basisset.cpp \
-    basisSet/quadzeta.cpp
+    basisSet/h_321g.cpp \
+    basisSet/h_quadzeta.cpp \
+    basisSet/o_321g.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -22,4 +24,6 @@ HEADERS += \
     math/hermitecoefficients.h \
     hfSolver/hfsolver.h \
     basisSet/basisset.h \
-    basisSet/quadzeta.h
+    basisSet/h_321g.h \
+    basisSet/h_quadzeta.h \
+    basisSet/o_321g.h

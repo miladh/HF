@@ -1,11 +1,11 @@
 #include "system.h"
-#include<basisSet/quadzeta.h>
+#include <basisSet/h_quadzeta.h>
 
 
-System::System(int nOrbitals, int  nNuclei ,int maxAngularMomentum):
+System::System(int nOrbitals,int maxAngularMomentum, rowvec coreCharges):
     m_h(zeros(nOrbitals,nOrbitals)),
     m_S(zeros(nOrbitals,nOrbitals)),
-    m_R(zeros(nNuclei,3))
+    m_coreCharges(coreCharges)
 {
 
     m_Q.set_size(nOrbitals, nOrbitals);
@@ -17,11 +17,19 @@ System::System(int nOrbitals, int  nNuclei ,int maxAngularMomentum):
     }
 
     integrator.setMaxAngularMomentum(maxAngularMomentum);
-    m_R(0,0) = -0.5;
-    m_R(1,0) = 0.5;
-
     m_cumSumContracted.push_back(0);
 
+}
+
+int System::getTotalNumOfBasisFunc()
+{
+    return m_coreID.size();
+}
+
+
+int System::getNumOfElectrons()
+{
+    return m_basisSet.size();
 }
 
 
@@ -95,8 +103,9 @@ void System::setupOneParticleMatrix()
 
                     for(uint c = 0; c < m_basisSet.size(); c++){
                         integrator.setCorePositionC(m_basisSet.at(c)->corePosition());
-                        m_h(a,b) -= integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
+                        m_h(a,b) -=m_coreCharges(c)*integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
                                                                          powB(0), powB(1), powB(2));
+
                     }
 
                 }

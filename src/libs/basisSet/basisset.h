@@ -20,9 +20,12 @@ public:
     vector<ContractedGTO *> contractedGTOs() const;
 
     int getNumContracted() const;
+    virtual int getAngularMomentum() const = 0;
+
 protected:
     vector<ContractedGTO *> m_contractedGTOs;
     rowvec m_corePosition;
+    int m_angularMomentum;
 
 };
 
