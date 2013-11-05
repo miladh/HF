@@ -4,7 +4,7 @@
 #include <iostream>
 #include <armadillo>
 
-#include<src/system/system.h>
+#include<system/system.h>
 
 using namespace arma;
 using namespace std;

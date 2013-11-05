@@ -4,8 +4,8 @@
 #include <iostream>
 #include <armadillo>
 
-#include<src/math/hermitecoefficients.h>
-#include<src/math/boys.h>
+#include<math/hermitecoefficients.h>
+#include<math/boys.h>
 
 
 using namespace arma;

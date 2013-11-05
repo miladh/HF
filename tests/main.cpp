@@ -1,6 +1,6 @@
 #include <unittest++/UnitTest++.h>
-#include <src/integrator/integrator.h>
-#include <src/math/boys.h>
+#include <integrator/integrator.h>
+#include <math/boys.h>
 
 
 TEST(GTOoverlapIntegral)

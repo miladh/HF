@@ -4,7 +4,7 @@
 #include <iostream>
 #include <armadillo>
 
-#include <src/contractedGTO/contractedGTO.h>
+#include <contractedGTO/contractedGTO.h>
 
 using namespace arma;
 using namespace std;

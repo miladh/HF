@@ -1,7 +1,7 @@
 #ifndef QUADZETA_H
 #define QUADZETA_H
 
-#include <src/basisSet/basisset.h>
+#include <basisSet/basisset.h>
 
 class QuadZeta : public BasisSet
 {

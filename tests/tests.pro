@@ -1,16 +1,12 @@
-TEMPLATE = app
+include(../defaults.pri)
 
+TARGET = hartree-fock-tests
+
+TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-LIBS += -lunittest++
+LIBS += -lunittest++ -L$$TOP_OUT_PWD/src/libs -lhartree-fock
 
-include(../defaults.pri)
-
-SOURCES += main.cpp \
-    ../src/integrator/integrator.cpp\
-    ../src/math/hermitecoefficients.cpp \
-    ../src/primitiveGTO/primitiveGTO.cpp \
-    ../src/math/boys.cpp
-
+SOURCES += main.cpp

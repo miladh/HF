@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <armadillo>
-#include<src/primitiveGTO/primitiveGTO.h>
+#include<primitiveGTO/primitiveGTO.h>
 
 using namespace arma;
 using namespace std;

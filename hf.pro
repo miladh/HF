@@ -1,4 +1,7 @@
 TEMPLATE = subdirs
-SUBDIRS += src \
-           tests
+CONFIG += ordered
+
+SUBDIRS += src tests
+
+BUILD_DIR = $$OUT_PWD
 

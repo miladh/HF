@@ -8,7 +8,7 @@ Boys::Boys(uint highestOrder):
 }
 
 void Boys::readBoysForSmallArguments(){
-    string path = "../../hf/infiles/tabulatedBoys.dat";
+    string path = "infiles/tabulatedBoys.dat";
     m_Ftabulated.load(path);
 }
 

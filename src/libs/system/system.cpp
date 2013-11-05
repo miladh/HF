@@ -1,5 +1,5 @@
 #include "system.h"
-#include<src/basisSet/quadzeta.h>
+#include<basisSet/quadzeta.h>
 
 
 System::System(int nOrbitals, int  nNuclei ,int maxAngularMomentum):

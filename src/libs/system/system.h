@@ -4,10 +4,10 @@
 #include <iostream>
 #include <armadillo>
 
-#include<src/primitiveGTO/primitiveGTO.h>
-#include<src/contractedGTO/contractedGTO.h>
-#include<src/integrator/integrator.h>
-#include<src/basisSet/basisset.h>
+#include<primitiveGTO/primitiveGTO.h>
+#include<contractedGTO/contractedGTO.h>
+#include<integrator/integrator.h>
+#include<basisSet/basisset.h>
 
 
 using namespace arma;

@@ -1,10 +1,10 @@
 #include <iostream>
 #include <armadillo>
 
-#include<src/system/system.h>
-#include<src/hfSolver/hfsolver.h>
-#include<src/contractedGTO/contractedGTO.h>
-#include<src/basisSet/quadzeta.h>
+#include<system/system.h>
+#include<hfSolver/hfsolver.h>
+#include<contractedGTO/contractedGTO.h>
+#include<basisSet/quadzeta.h>
 
 
 using namespace arma;
