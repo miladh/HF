@@ -12,16 +12,26 @@ H_321G::H_321G()
     rowvec powers = {0,0,0};
 
 
-    m_contractedGTO_1 = new ContractedGTO;
-    m_contractedGTO_2 = new ContractedGTO;
+    PrimitiveGTO primitiveGTO_11(exp1(0),weight1(0) ,powers);
+    PrimitiveGTO primitiveGTO_12(exp1(1),weight1(1) ,powers);
+    PrimitiveGTO primitiveGTO_2(exp2(0), weight2(0)  ,powers);
 
+    m_contractedGTO_1.addPrimitive(primitiveGTO_11);
+    m_contractedGTO_1.addPrimitive(primitiveGTO_12);
+    m_contractedGTO_2.addPrimitive(primitiveGTO_2);
 
-    m_contractedGTO_1->addPrimitiveGTO(new PrimitiveGTO(exp1[0],weight1[0] ,powers));
-    m_contractedGTO_1->addPrimitiveGTO(new PrimitiveGTO(exp1[1],weight1[1] ,powers));
-    m_contractedGTO_2->addPrimitiveGTO(new PrimitiveGTO(exp2[0],weight2[0] ,powers));
 
     m_contractedGTOs.push_back(m_contractedGTO_1);
     m_contractedGTOs.push_back(m_contractedGTO_2);
+
+
+
+//    m_contractedGTO_1.addPrimitive(new PrimitiveGTO(exp1[0],weight1[0] ,powers));
+//    m_contractedGTO_1.addPrimitive(new PrimitiveGTO(exp1[1],weight1[1] ,powers));
+//    m_contractedGTO_2.addPrimitive(new PrimitiveGTO(exp2[0],weight2[0] ,powers));
+
+//    m_contractedGTOs.push_back(m_contractedGTO_1);
+//    m_contractedGTOs.push_back(m_contractedGTO_2);
 
     m_angularMomentum = 0;
 

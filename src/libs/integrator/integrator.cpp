@@ -41,11 +41,15 @@ void Integrator::updateHermiteCoefficients(bool twoParticleIntegral)
     m_hermiteCoefficients  = new HermiteCoefficients(m_exponentA, m_corePositionA, m_maxAngularMomentum,
                                                      m_exponentB, m_corePositionB, m_maxAngularMomentum);
     m_Eab = m_hermiteCoefficients->getCoefficients();
+    delete m_hermiteCoefficients;
+
 
     if(twoParticleIntegral){
         m_hermiteCoefficients  = new HermiteCoefficients(m_exponentC, m_corePositionC, m_maxAngularMomentum,
                                                          m_exponentD, m_corePositionD, m_maxAngularMomentum);
         m_Ecd = m_hermiteCoefficients->getCoefficients();
+
+        delete m_hermiteCoefficients;
     }
 }
 

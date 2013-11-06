@@ -38,22 +38,21 @@ void HFsolver::runSolver()
         // Calculate m_energy (not equal to Fock m_energy)
         m_energy = 0;
 
-        for (int a = 0; a < m_nOrbitals; a++){
-            for (int b = 0; b < m_nOrbitals; b++){
-                m_energy += m_P(a, b)*m_h(a, b);
+        for (int p = 0; p < m_nOrbitals; p++){
+            for (int q = 0; q < m_nOrbitals; q++){
+                m_energy += m_P(p, q)*m_h(p, q);
 
-                for (int c = 0; c < m_nOrbitals; c++){
-                    for (int d = 0; d < m_nOrbitals; d++){
-                        m_energy += 0.5*m_P(a,b)*m_P(c,d)*(m_Q(a,b)(c,d) - 0.5*m_Q(a,b)(d,c));
+                for (int r = 0; r < m_nOrbitals; r++){
+                    for (int s = 0; s < m_nOrbitals; s++){
+                        m_energy += 0.5*m_P(p,q)*m_P(s,r)*(m_Q(p,r)(q,s) - 0.5*m_Q(p,r)(s,q));
                     }
                 }
             }
         }
-
+        m_energy += m_system.getNucleiPotential();
         cout << "Energy: " << setprecision(10) << m_energy << endl;
 
     }
-
 
 }
 
@@ -61,16 +60,16 @@ void HFsolver::runSolver()
 void HFsolver::setupFockMatrix()
 {
 
-    for (int a = 0; a < m_nOrbitals; a++){
-        for (int b = 0; b < m_nOrbitals; b++){
+    for (int p = 0; p < m_nOrbitals; p++){
+        for (int q = 0; q < m_nOrbitals; q++){
 
             // One-electron integrals
-            m_F(a,b) = m_h(a,b);
+            m_F(p,q) = m_h(p,q);
 
             // Add two-electron integrals
-            for (int c = 0; c < m_nOrbitals; c++){
-                for (int d = 0; d < m_nOrbitals; d++){
-                    m_F(a,b) += 0.5*m_P(c,d)*(2*m_Q(a,b)(c,d) - m_Q(a,b)(d,c));
+            for (int r = 0; r < m_nOrbitals; r++){
+                for (int s = 0; s < m_nOrbitals; s++){
+                    m_F(p,q) += 0.5*m_P(s,r)*(2*m_Q(p,r)(q,s) - m_Q(p,r)(s,q));
                 }
             }
         }
@@ -89,7 +88,7 @@ void HFsolver::solveSingle()
 
 
     eig_sym(eigVal, eigVec, m_F);
-    m_C = V*eigVec.cols(0, m_nElectrons/2-1);
+    m_C = V*eigVec.cols(0, m_nElectrons/2.0-1);
 
     // Normalize vector C
     normalize();

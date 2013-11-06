@@ -22,46 +22,58 @@ O_321G::O_321G()
 
 
 
-    m_contractedGTO_1 = new ContractedGTO;
-    m_contractedGTO_2 = new ContractedGTO;
-    m_contractedGTO_3 = new ContractedGTO;
-    m_contractedGTO_4 = new ContractedGTO;
-    m_contractedGTO_5 = new ContractedGTO;
-    m_contractedGTO_6 = new ContractedGTO;
-    m_contractedGTO_7 = new ContractedGTO;
-    m_contractedGTO_8 = new ContractedGTO;
-    m_contractedGTO_9 = new ContractedGTO;
-
-
     //1s
-    m_contractedGTO_1->addPrimitiveGTO(new PrimitiveGTO(exp1[0],weight1[0] ,powers1));
-    m_contractedGTO_1->addPrimitiveGTO(new PrimitiveGTO(exp1[1],weight1[1] ,powers1));
-    m_contractedGTO_1->addPrimitiveGTO(new PrimitiveGTO(exp1[2],weight1[2] ,powers1));
+    PrimitiveGTO primitiveGTO_11(exp1(0),weight1(0) ,powers1);
+    PrimitiveGTO primitiveGTO_12(exp1(1),weight1(1) ,powers1);
+    PrimitiveGTO primitiveGTO_13(exp1(2),weight1(2) ,powers1);
+    m_contractedGTO_1.addPrimitive(primitiveGTO_11);
+    m_contractedGTO_1.addPrimitive(primitiveGTO_12);
+    m_contractedGTO_1.addPrimitive(primitiveGTO_13);
 
 
     //2s
-    m_contractedGTO_2->addPrimitiveGTO(new PrimitiveGTO(exp2[0],weight2[0] ,powers1));
-    m_contractedGTO_2->addPrimitiveGTO(new PrimitiveGTO(exp2[1],weight2[1] ,powers1));
+    PrimitiveGTO primitiveGTO_21(exp2(0),weight2(0) ,powers1);
+    PrimitiveGTO primitiveGTO_22(exp2(1),weight2(1) ,powers1);
 
-    m_contractedGTO_3->addPrimitiveGTO(new PrimitiveGTO(exp3[0],weight3[0] ,powers1));
+    PrimitiveGTO primitiveGTO_3(exp3(0),weight3(0) ,powers1);
+
+    m_contractedGTO_2.addPrimitive(primitiveGTO_21);
+    m_contractedGTO_2.addPrimitive(primitiveGTO_22);
+
+    m_contractedGTO_3.addPrimitive(primitiveGTO_3);
 
     //2px
-    m_contractedGTO_4->addPrimitiveGTO(new PrimitiveGTO(exp4[0],weight4[0] ,powers2));
-    m_contractedGTO_4->addPrimitiveGTO(new PrimitiveGTO(exp4[1],weight4[1] ,powers2));
+    PrimitiveGTO primitiveGTO_41(exp4(0),weight4(0) ,powers2);
+    PrimitiveGTO primitiveGTO_42(exp4(1),weight4(1) ,powers2);
 
-    m_contractedGTO_5->addPrimitiveGTO(new PrimitiveGTO(exp5[0],weight5[0] ,powers2));
+    PrimitiveGTO primitiveGTO_5(exp5(0),weight5(0) ,powers2);
+
+    m_contractedGTO_4.addPrimitive(primitiveGTO_41);
+    m_contractedGTO_4.addPrimitive(primitiveGTO_42);
+
+    m_contractedGTO_5.addPrimitive(primitiveGTO_5);
 
     //2py
-    m_contractedGTO_6->addPrimitiveGTO(new PrimitiveGTO(exp4[0],weight4[0] ,powers3));
-    m_contractedGTO_6->addPrimitiveGTO(new PrimitiveGTO(exp4[1],weight4[1] ,powers3));
+    PrimitiveGTO primitiveGTO_61(exp4(0),weight4(0) ,powers3);
+    PrimitiveGTO primitiveGTO_62(exp4(1),weight4(1) ,powers3);
 
-    m_contractedGTO_7->addPrimitiveGTO(new PrimitiveGTO(exp5[0],weight5[0] ,powers3));
+    PrimitiveGTO primitiveGTO_7(exp5(0),weight5(0) ,powers3);
+
+    m_contractedGTO_6.addPrimitive(primitiveGTO_61);
+    m_contractedGTO_6.addPrimitive(primitiveGTO_62);
+
+    m_contractedGTO_7.addPrimitive(primitiveGTO_7);
 
     //2pz
-    m_contractedGTO_8->addPrimitiveGTO(new PrimitiveGTO(exp4[0],weight4[0] ,powers4));
-    m_contractedGTO_8->addPrimitiveGTO(new PrimitiveGTO(exp4[1],weight4[1] ,powers4));
+    PrimitiveGTO primitiveGTO_81(exp4(0),weight4(0) ,powers4);
+    PrimitiveGTO primitiveGTO_82(exp4(1),weight4(1) ,powers4);
 
-    m_contractedGTO_9->addPrimitiveGTO(new PrimitiveGTO(exp5[0],weight5[0] ,powers4));
+    PrimitiveGTO primitiveGTO_9(exp5(0),weight5(0) ,powers4);
+
+    m_contractedGTO_8.addPrimitive(primitiveGTO_81);
+    m_contractedGTO_8.addPrimitive(primitiveGTO_82);
+
+    m_contractedGTO_9.addPrimitive(primitiveGTO_9);
 
 
     m_contractedGTOs.push_back(m_contractedGTO_1);

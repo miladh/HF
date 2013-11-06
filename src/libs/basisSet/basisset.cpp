@@ -13,11 +13,10 @@ void BasisSet::setCorePosition(const rowvec &corePosition)
     m_corePosition = corePosition;
 }
 
-vector<ContractedGTO *> BasisSet::contractedGTOs() const
+const ContractedGTO &BasisSet::getContracted(const int c) const
 {
-    return m_contractedGTOs;
+    return m_contractedGTOs.at(c);
 }
-
 
 int BasisSet::getNumContracted() const
 {

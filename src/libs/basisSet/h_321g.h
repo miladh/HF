@@ -9,8 +9,8 @@ public:
     int getAngularMomentum() const;
 
 private:
-    ContractedGTO *m_contractedGTO_1;
-    ContractedGTO *m_contractedGTO_2;
+    ContractedGTO m_contractedGTO_1;
+    ContractedGTO m_contractedGTO_2;
 
 };
 

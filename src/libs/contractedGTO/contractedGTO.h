@@ -14,16 +14,12 @@ class ContractedGTO
 public:
     ContractedGTO();
 
-    void addPrimitiveGTO(PrimitiveGTO *primitive);
-    vector<PrimitiveGTO *> primitives() const;
-
-
-    rowvec corePosition() const;
-    void setCorePosition(const rowvec &corePosition);
-
+    void addPrimitive(PrimitiveGTO primitiveGTO);
     int getNumPrimitives() const;
+    const PrimitiveGTO &getPrimitive(const int p) const;
+
 private:
-    vector<PrimitiveGTO *> m_primitives;
+    vector<PrimitiveGTO> m_primitivesGTOs;
 };
 
 

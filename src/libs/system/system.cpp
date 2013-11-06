@@ -2,10 +2,11 @@
 #include <basisSet/h_quadzeta.h>
 
 
-System::System(int nOrbitals,int maxAngularMomentum, rowvec coreCharges):
+System::System(int nOrbitals,int maxAngularMomentum, rowvec coreCharges, int nElectrons):
     m_h(zeros(nOrbitals,nOrbitals)),
     m_S(zeros(nOrbitals,nOrbitals)),
-    m_coreCharges(coreCharges)
+    m_coreCharges(coreCharges),
+    m_nElectrons(nElectrons)
 {
 
     m_Q.set_size(nOrbitals, nOrbitals);
@@ -29,7 +30,7 @@ int System::getTotalNumOfBasisFunc()
 
 int System::getNumOfElectrons()
 {
-    return m_basisSet.size();
+  return m_nElectrons;
 }
 
 
@@ -67,135 +68,151 @@ field<mat> System::getTwoParticleMatrix() const
 
 void System::setupOneParticleMatrix()
 {
-    for(uint a = 0; a < m_coreID.size(); a++){
-
-        integrator.setCorePositionA(m_basisSet.at(m_coreID.at(a))->corePosition());
-        vector<ContractedGTO *> cGTOsA = m_basisSet.at(m_coreID.at(a))->contractedGTOs();
-        ContractedGTO *cGTOA = cGTOsA.at(a - m_cumSumContracted.at(m_coreID.at(a)) );
-
-        for(uint b = 0; b < m_coreID.size(); b++){
-
-            integrator.setCorePositionB(m_basisSet.at(m_coreID.at(b))->corePosition());
-            vector<ContractedGTO *> cGTOsB = m_basisSet.at(m_coreID.at(b))->contractedGTOs();
-            ContractedGTO *cGTOB = cGTOsB.at(b - m_cumSumContracted.at(m_coreID.at(b)) );
-
-            for(int i = 0; i < cGTOA->getNumPrimitives(); i++){
-                vector<PrimitiveGTO *>psA = cGTOA->primitives();
-                PrimitiveGTO* pA = psA.at(i);
-                integrator.setExponentA(pA->exponent());
-
-                for(int j = 0; j < cGTOB->getNumPrimitives(); j++){
-                    vector<PrimitiveGTO *>psB = cGTOB->primitives();
-                    PrimitiveGTO* pB = psB.at(j);
-                    integrator.setExponentB(pB->exponent());
-
-                    rowvec powA = pA->powers();
-                    rowvec powB = pB->powers();
-
-                    integrator.updateHermiteCoefficients();
-
-                    m_S(a, b) += integrator.overlapIntegral(powA(0), powA(1), powA(2),
-                                                            powB(0), powB(1), powB(2));
-
-                    m_h(a, b) += integrator.kineticIntegral(powA(0), powA(1), powA(2),
-                                                            powB(0), powB(1), powB(2));
-
-
-                    for(uint c = 0; c < m_basisSet.size(); c++){
-                        integrator.setCorePositionC(m_basisSet.at(c)->corePosition());
-                        m_h(a,b) -=m_coreCharges(c)*
-                                integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
-                                                                     powB(0), powB(1), powB(2));
-
-                    }
-
-                }
-
-            }
-
+    for(uint p = 0; p < m_coreID.size(); p++){
+        for(uint q = 0; q < m_coreID.size(); q++){
+            rowvec tmp = getOneParticleIntegral(p,q);
+            m_S(p,q) = tmp(0);
+            m_h(p,q) = tmp(1);
         }
-
     }
+
 }
-
-
 
 
 void System::setupTwoParticleMatrix()
 {
+    for(uint p = 0; p < m_coreID.size(); p++){
+        for(uint r = 0; r < m_coreID.size(); r++){
+            for(uint q = 0; q < m_coreID.size(); q++){
+                for(uint s = 0; s < m_coreID.size(); s++){
 
-    bool twoParticleIntegral = true;
-    for(uint a = 0; a < m_coreID.size(); a++){
-
-        integrator.setCorePositionA(m_basisSet.at(m_coreID.at(a))->corePosition());
-        vector<ContractedGTO *> cGTOsA = m_basisSet.at(m_coreID.at(a))->contractedGTOs();
-        ContractedGTO *cGTOA = cGTOsA.at(a - m_cumSumContracted.at(m_coreID.at(a)) );
-
-        for(uint b = 0; b < m_coreID.size(); b++){
-
-            integrator.setCorePositionB(m_basisSet.at(m_coreID.at(b))->corePosition());
-            vector<ContractedGTO *> cGTOsB = m_basisSet.at(m_coreID.at(b))->contractedGTOs();
-            ContractedGTO *cGTOB = cGTOsB.at(b - m_cumSumContracted.at(m_coreID.at(b)) );
-
-
-            for(uint c = 0; c < m_coreID.size(); c++){
-
-                integrator.setCorePositionC(m_basisSet.at(m_coreID.at(c))->corePosition());
-                vector<ContractedGTO *> cGTOsC = m_basisSet.at(m_coreID.at(c))->contractedGTOs();
-                ContractedGTO *cGTOC = cGTOsC.at(c - m_cumSumContracted.at(m_coreID.at(c)) );
-
-                for(uint d = 0; d < m_coreID.size(); d++){
-
-                    integrator.setCorePositionD(m_basisSet.at(m_coreID.at(d))->corePosition());
-                    vector<ContractedGTO *> cGTOsD = m_basisSet.at(m_coreID.at(d))->contractedGTOs();
-                    ContractedGTO *cGTOD = cGTOsD.at(d - m_cumSumContracted.at(m_coreID.at(d)) );
-
-                    for(int i = 0; i < cGTOA->getNumPrimitives(); i++){
-                        vector<PrimitiveGTO *>psA = cGTOA->primitives();
-                        PrimitiveGTO* pA = psA.at(i);
-                        integrator.setExponentA(pA->exponent());
-
-                        for(int j = 0; j < cGTOB->getNumPrimitives(); j++){
-                            vector<PrimitiveGTO *>psB = cGTOB->primitives();
-                            PrimitiveGTO* pB = psB.at(j);
-                            integrator.setExponentB(pB->exponent());
-
-
-                            for(int k = 0; k < cGTOC->getNumPrimitives(); k++){
-                                vector<PrimitiveGTO *>psC = cGTOC->primitives();
-                                PrimitiveGTO* pC = psC.at(k);
-                                integrator.setExponentC(pC->exponent());
-
-                                for(int l = 0; l < cGTOD->getNumPrimitives(); l++){
-                                    vector<PrimitiveGTO *>psD = cGTOD->primitives();
-                                    PrimitiveGTO* pD = psD.at(l);
-                                    integrator.setExponentD(pD->exponent());
-
-                                    rowvec powA = pA->powers();
-                                    rowvec powB = pB->powers();
-                                    rowvec powC = pC->powers();
-                                    rowvec powD = pD->powers();
-
-                                    integrator.updateHermiteCoefficients(twoParticleIntegral);
-
-                                    m_Q(a,b)(c, d) =
-                                            integrator.electronRepulsionIntegral(powA(0), powA(1), powA(2),
-                                                                                 powB(0), powB(1), powB(2),
-                                                                                 powC(0), powC(1), powC(2),
-                                                                                 powD(0), powD(1), powD(2));
-
-                                }
-                            }
-                        }
-                    }
+                    m_Q(p,r)(q,s) = getTwoParticleIntegral(p,q,r,s);
                 }
             }
         }
     }
+
+
+}
+
+rowvec System::getOneParticleIntegral(const int a, const int b)
+{
+    double Sab = 0;
+    double hab = 0;
+
+    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
+    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
+    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
+    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
+
+    integrator.setCorePositionA(coreA->corePosition());
+    integrator.setCorePositionB(coreB->corePosition());
+
+    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
+        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
+        const rowvec &powA = primitiveA.powers();
+        integrator.setExponentA(primitiveA.exponent());
+
+        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
+            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
+            const rowvec &powB = primitiveB.powers();
+            integrator.setExponentB(primitiveB.exponent());
+
+            integrator.updateHermiteCoefficients();
+
+            Sab += integrator.overlapIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
+                    * primitiveA.weight() * primitiveB.weight();
+
+            hab += integrator.kineticIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+
+
+            for(uint c = 0; c < m_basisSet.size(); c++){
+                const BasisSet *coreC = m_basisSet.at(c);
+                integrator.setCorePositionC(coreC->corePosition());
+                hab -= m_coreCharges(c)* integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
+                                                                              powB(0), powB(1), powB(2));
+
+            }
+            hab *= primitiveA.weight() * primitiveB.weight();
+
+        }
+
+    }
+
+    rowvec tmp = {Sab, hab};
+    return tmp;
+}
+
+double System::getTwoParticleIntegral(const int a, const int b, const int c, const int d)
+{
+    double Qabcd = 0.0;
+    bool twoParticleIntegral = true;
+
+    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
+    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
+    const BasisSet *coreC = m_basisSet.at(m_coreID.at(c));
+    const BasisSet *coreD = m_basisSet.at(m_coreID.at(d));
+    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
+    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
+    const ContractedGTO &contractedC = coreC->getContracted(c - m_cumSumContracted.at(m_coreID.at(c)));
+    const ContractedGTO &contractedD = coreD->getContracted(d - m_cumSumContracted.at(m_coreID.at(d)));
+
+    integrator.setCorePositionA(coreA->corePosition());
+    integrator.setCorePositionB(coreB->corePosition());
+    integrator.setCorePositionC(coreC->corePosition());
+    integrator.setCorePositionD(coreD->corePosition());
+
+    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
+        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
+        const rowvec &powA = primitiveA.powers();
+        integrator.setExponentA(primitiveA.exponent());
+
+        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
+            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
+            const rowvec &powB = primitiveB.powers();
+            integrator.setExponentB(primitiveB.exponent());
+
+            for(int k = 0; k < contractedC.getNumPrimitives(); k++){
+                const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
+                const rowvec &powC = primitiveC.powers();
+                integrator.setExponentC(primitiveC.exponent());
+
+                for(int l = 0; l < contractedD.getNumPrimitives(); l++){
+                    const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
+                    const rowvec &powD = primitiveD.powers();
+                    integrator.setExponentD(primitiveD.exponent());
+
+                    integrator.updateHermiteCoefficients(twoParticleIntegral);
+
+                    Qabcd += primitiveA.weight() * primitiveB.weight() * primitiveC.weight() * primitiveD.weight()
+                            * integrator.electronRepulsionIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2),
+                                                                   powC(0), powC(1), powC(2),powD(0), powD(1), powD(2));
+
+                }
+            }
+        }
+    }
+
+    return Qabcd;
 }
 
 
 
+
+double System::getNucleiPotential()
+{
+    double value = 0;
+    rowvec3 AB;
+
+    for(uint a = 0; a < m_basisSet.size(); a++){
+        for(uint b = a+1; b < m_basisSet.size(); b++){
+            AB = m_basisSet.at(a)->corePosition() - m_basisSet.at(b)->corePosition();
+            value += m_coreCharges(a)*m_coreCharges(b)/sqrt(dot(AB,AB));
+        }
+    }
+
+    return value;
+}
 
 
 

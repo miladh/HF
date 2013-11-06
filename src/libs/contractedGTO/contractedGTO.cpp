@@ -4,18 +4,17 @@ ContractedGTO::ContractedGTO()
 {
 }
 
-vector<PrimitiveGTO*> ContractedGTO::primitives() const
+void ContractedGTO::addPrimitive(PrimitiveGTO primitiveGTO)
 {
-    return m_primitives;
+    m_primitivesGTOs.push_back(primitiveGTO);
 }
 
-
-void ContractedGTO::addPrimitiveGTO(PrimitiveGTO *primitive)
+const PrimitiveGTO &ContractedGTO::getPrimitive(const int p) const
 {
-    m_primitives.push_back(primitive);
+    return m_primitivesGTOs.at(p);
 }
 
 int ContractedGTO::getNumPrimitives() const
 {
-    return m_primitives.size();
+    return m_primitivesGTOs.size();
 }

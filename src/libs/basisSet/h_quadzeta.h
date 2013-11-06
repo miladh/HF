@@ -9,11 +9,14 @@ public:
     H_QuadZeta();
 
     int getAngularMomentum() const;
+
+
 private:
-    ContractedGTO *m_contractedGTO_1;
-    ContractedGTO *m_contractedGTO_2;
-    ContractedGTO *m_contractedGTO_3;
-    ContractedGTO *m_contractedGTO_4;
+    ContractedGTO m_contractedGTO_1;
+    ContractedGTO m_contractedGTO_2;
+    ContractedGTO m_contractedGTO_3;
+    ContractedGTO m_contractedGTO_4;
+
 };
 
 #endif // H_QuadZeta_H

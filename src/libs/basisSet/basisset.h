@@ -16,14 +16,13 @@ public:
 
     rowvec corePosition() const;
     void setCorePosition(const rowvec &corePosition);
-
-    vector<ContractedGTO *> contractedGTOs() const;
-
+    const ContractedGTO &getContracted(const int c) const;
     int getNumContracted() const;
+
     virtual int getAngularMomentum() const = 0;
 
 protected:
-    vector<ContractedGTO *> m_contractedGTOs;
+    vector<ContractedGTO> m_contractedGTOs;
     rowvec m_corePosition;
     int m_angularMomentum;
 
