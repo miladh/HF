@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <armadillo>
-
 #include<system/system.h>
 
 using namespace arma;
@@ -15,16 +14,20 @@ public:
     HFsolver(System system);
     void runSolver();
 
+
 private:
     System m_system;
-    int m_nElectrons,m_nOrbitals;
-    double m_fockEnergy, m_energy, m_toler;
-    mat m_F, m_S, m_h, m_P, m_C;
-    field<mat> m_Q;
 
-    void setupFockMatrix();
+    int m_nElectrons, m_nOrbitals;
+    mat m_S, m_h, m_F, m_P, m_C;
+    field<mat> m_Q;
+    double m_fockEnergy, m_energy, m_toler;
+
     void normalize();
     void solveSingle();
+    void setupFockMatrix();
+    void setupTwoParticleMatrix();
+    void setupOneParticleMatrix();
 };
 
 #endif // HFSOLVER_H

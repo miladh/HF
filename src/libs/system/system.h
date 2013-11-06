@@ -4,8 +4,6 @@
 #include <iostream>
 #include <armadillo>
 
-#include<primitiveGTO/primitiveGTO.h>
-#include<contractedGTO/contractedGTO.h>
 #include<integrator/integrator.h>
 #include<basisSet/basisset.h>
 
@@ -16,32 +14,18 @@ using namespace std;
 class System
 {
 public:
-    System(int nOrbitals, int maxAngularMomentum, rowvec coreCharges, int nElectrons);
+    System(int nElectrons, int maxAngularMomentum, rowvec coreCharges);
 
     void addBasisSet(BasisSet *basisSet);
-
-    void setupOneParticleMatrix();
-    void setupTwoParticleMatrix();
-
-    mat getOneParticleMatrix() const;
-    field<mat> getTwoParticleMatrix() const;
-    mat getOverlapMatrix() const;
-
-
-
-
     int getTotalNumOfBasisFunc();
     int getNumOfElectrons();
 
-
+    double getNucleiPotential();
     rowvec getOneParticleIntegral(const int a, const int b);
     double getTwoParticleIntegral(const int p, const int q,
                                   const int r, const int s);
 
-    double getNucleiPotential();
 private:
-    mat m_h, m_S;
-    field<mat> m_Q;
     vector<BasisSet *> m_basisSet;
     Integrator integrator;
     vector<int > m_coreID;

@@ -1,19 +1,7 @@
 #include "hermitecoefficients.h"
 
-
-HermiteCoefficients::HermiteCoefficients():
-    HermiteCoefficients(0,rowvec(3),0,0,rowvec(3),0)
+HermiteCoefficients::HermiteCoefficients()
 {
-}
-
-HermiteCoefficients::HermiteCoefficients(const double &a, const rowvec3 &A, const int &La,
-                                         const double &b, const rowvec3 &B, const int &Lb):
-    m_a(a), m_b(b),
-    m_A(A), m_B(B),
-    m_La(La), m_Lb(Lb)
-{
-    m_E.set_size(3);
-    setupE();
 }
 
 bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
@@ -26,29 +14,30 @@ bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
 }
 
 
-void HermiteCoefficients::setupE()
+void HermiteCoefficients::setupE(const double &a, const rowvec3 &A, const int &La,
+                                 const double &b, const rowvec3 &B, const int &Lb,
+                                 field<cube> &E)
 {
-    int iAmax = m_La + 3;
-    int iBmax = m_Lb + 3;
+    int iAmax = La + 3;
+    int iBmax = Lb + 3;
     int tmax  = iAmax + iBmax - 1;
 
     for(int cor = 0; cor < 3; cor++){
-        m_E(cor) = zeros(iAmax, iBmax, tmax);
+        E(cor) = zeros(iAmax, iBmax, tmax);
     }
 
-    double p = m_a + m_b;
-    rowvec P  = (m_a*m_A + m_b*m_B)/p;
-    rowvec AB = m_A - m_B;
-    rowvec PA = P - m_A;
-    rowvec PB = P - m_B;
-    rowvec Kab = exp(-(m_a * m_b / p)*AB%AB);
+    double p = a + b;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec AB = A - B;
+    rowvec PA = P - A;
+    rowvec PB = P - B;
+    rowvec Kab = exp(-(a * b / p)*AB%AB);
 
-
-    for(int cor = 0; cor < 3; cor++){
-        m_E[cor](0,0,0) = Kab(cor);
+    for(uint cor = 0; cor < E.n_elem; cor++){
+        E[cor](0,0,0) = Kab(cor);
     }
 
-    for(int cor=0; cor < 3; cor++){ //Loop for x,y,z
+    for(uint cor=0; cor < E.n_elem; cor++){ //Loop for x,y,z
 
 
         // p = previous, n = next
@@ -63,20 +52,20 @@ void HermiteCoefficients::setupE()
 
                 double E_iA_iBp_tp = 0.0;
                 if(interiorPoint(iA, iBp, tp)){
-                    E_iA_iBp_tp = m_E[cor](iA, iBp, tp);
+                    E_iA_iBp_tp = E[cor](iA, iBp, tp);
                 }
 
                 double E_iA_iBp_t = 0;
                 if(interiorPoint(iA, iBp, t)) {
-                    E_iA_iBp_t = m_E[cor](iA, iBp, t);
+                    E_iA_iBp_t = E[cor](iA, iBp, t);
                 }
 
                 double E_iA_iBp_tn = 0;
                 if(interiorPoint(iA, iBp, tn)) {
-                    E_iA_iBp_tn = m_E[cor](iA, iBp, tn);
+                    E_iA_iBp_tn = E[cor](iA, iBp, tn);
                 }
 
-                m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + PB(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
+                E[cor](iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + PB(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
             }
         }
 
@@ -94,40 +83,23 @@ void HermiteCoefficients::setupE()
 
                     double E_iAp_iB_tp = 0;
                     if(interiorPoint(iAp, iB, tp)) {
-                        E_iAp_iB_tp = m_E[cor](iAp, iB, tp);
+                        E_iAp_iB_tp = E[cor](iAp, iB, tp);
                     }
 
                     double E_iAp_iB_t = 0;
                     if(interiorPoint(iAp, iB, t)) {
-                        E_iAp_iB_t = m_E[cor](iAp, iB, t);
+                        E_iAp_iB_t = E[cor](iAp, iB, t);
                     }
 
                     double E_iAp_iB_tn = 0;
                     if(interiorPoint(iAp, iB, tn)) {
-                        E_iAp_iB_tn = m_E[cor](iAp, iB, tn);
+                        E_iAp_iB_tn = E[cor](iAp, iB, tn);
                     }
 
-                    m_E[cor](iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp + PA(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
+                    E[cor](iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp + PA(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
                 }
             }
         }
 
     }//End of cor=(x,y,z) loop
-
-
-    //    cout <<"p " << p << endl;
-    //    cout <<"mu "<< mu << endl;
-    //    cout <<"P"<< P << endl;
-    //    cout <<"ab"<< AB <<endl;
-    //    cout <<"pa"<< PA <<endl;
-    //    cout <<"pb"<< PB <<endl;
-    //    cout <<"kab"<< Kab <<endl;
-
-
-    //        cout << m_E[0] << endl;
-    //        cout << "-----------------------------------" <<endl;
-    //        cout << m_E[1] << endl;
-    //        cout << "-----------------------------------" <<endl;
-    //        cout << m_E[2] << endl;
-
 }

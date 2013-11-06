@@ -5,17 +5,18 @@
 #include <armadillo>
 
 #include<math/hermitecoefficients.h>
-#include<math/boys.h>
-
+#include<math/hermiteintegrals.h>
 
 using namespace arma;
 using namespace std;
-
 
 class Integrator
 {
 public:
     Integrator();
+
+    uint maxAngularMomentum() const;
+    void setMaxAngularMomentum(const uint &maxAngularMomentum);
 
     double exponentA() const;
     void setExponentA(double exponentA);
@@ -42,9 +43,6 @@ public:
     rowvec corePositionD() const;
     void setCorePositionD(const rowvec &corePositionD);
 
-    uint maxAngularMomentum() const;
-    void setMaxAngularMomentum(const uint &maxAngularMomentum);
-
 
     double overlapIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
     double kineticIntegral(int iA, int jA, int kA, int iB, int jB, int kB);
@@ -53,10 +51,10 @@ public:
                                      int iC, int jC, int kC, int iD, int jD, int kD);
 
     void updateHermiteCoefficients(bool twoParticleIntegral = false);
-    void setupR(const rowvec &PQ, const double &alpha, field<cube> &R);
-
 
 private:
+    uint m_maxAngularMomentum;
+
     double m_exponentA;
     double m_exponentB;
     double m_exponentC;
@@ -67,14 +65,11 @@ private:
     rowvec m_corePositionC;
     rowvec m_corePositionD;
 
-    uint m_maxAngularMomentum;
-
     field<cube> m_Eab, m_Ecd;
-    field<cube> m_Ree;
-    field<cube> m_Ren;
+    field<cube> m_Ree, m_Ren;
 
-    Boys *m_boys;
-    HermiteCoefficients *m_hermiteCoefficients;
+    HermiteCoefficients m_hermiteCoefficients;
+    HermiteIntegrals *m_hermiteIntegrals;
 
     double overlapIntegral(int cor, int iA, int iB);
     double kineticIntegral(int cor, int iA, int iB);

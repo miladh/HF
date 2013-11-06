@@ -1,25 +1,11 @@
 #include "system.h"
-#include <basisSet/h_quadzeta.h>
 
-
-System::System(int nOrbitals,int maxAngularMomentum, rowvec coreCharges, int nElectrons):
-    m_h(zeros(nOrbitals,nOrbitals)),
-    m_S(zeros(nOrbitals,nOrbitals)),
+System::System(int nElectrons, int maxAngularMomentum, rowvec coreCharges):
     m_coreCharges(coreCharges),
     m_nElectrons(nElectrons)
 {
-
-    m_Q.set_size(nOrbitals, nOrbitals);
-
-    for(int i = 0; i < nOrbitals; i++){
-        for(int j = 0; j < nOrbitals; j++){
-            m_Q(i,j) = zeros(nOrbitals,nOrbitals);
-        }
-    }
-
     integrator.setMaxAngularMomentum(maxAngularMomentum);
     m_cumSumContracted.push_back(0);
-
 }
 
 int System::getTotalNumOfBasisFunc()
@@ -46,52 +32,6 @@ void System::addBasisSet(BasisSet *basisSet)
 
     m_cumSumContracted.push_back(m_cumSumContracted.back()+ nGTOs);
     m_basisSet.push_back(basisSet);
-
-}
-
-
-mat System::getOverlapMatrix() const
-{
-    return m_S;
-}
-
-mat System::getOneParticleMatrix() const
-{
-    return m_h;
-}
-
-field<mat> System::getTwoParticleMatrix() const
-{
-    return m_Q;
-}
-
-
-void System::setupOneParticleMatrix()
-{
-    for(uint p = 0; p < m_coreID.size(); p++){
-        for(uint q = 0; q < m_coreID.size(); q++){
-            rowvec tmp = getOneParticleIntegral(p,q);
-            m_S(p,q) = tmp(0);
-            m_h(p,q) = tmp(1);
-        }
-    }
-
-}
-
-
-void System::setupTwoParticleMatrix()
-{
-    for(uint p = 0; p < m_coreID.size(); p++){
-        for(uint r = 0; r < m_coreID.size(); r++){
-            for(uint q = 0; q < m_coreID.size(); q++){
-                for(uint s = 0; s < m_coreID.size(); s++){
-
-                    m_Q(p,r)(q,s) = getTwoParticleIntegral(p,q,r,s);
-                }
-            }
-        }
-    }
-
 
 }
 
@@ -197,8 +137,6 @@ double System::getTwoParticleIntegral(const int a, const int b, const int c, con
 }
 
 
-
-
 double System::getNucleiPotential()
 {
     double value = 0;
@@ -213,91 +151,3 @@ double System::getNucleiPotential()
 
     return value;
 }
-
-
-
-
-
-
-
-
-
-//void System::setupTwoParticleMatrix()
-//{
-
-//    bool twoParticleIntegral = true;
-
-//    for(uint A = 0; A < m_R.n_rows; A++){
-//        integrator.setCorePositionA(m_R.row(A));
-
-//        for(uint B = 0; B < m_R.n_rows; B++){
-//            integrator.setCorePositionB(m_R.row(B));
-
-//            for(uint C = 0; C < m_R.n_rows; C++){
-//                integrator.setCorePositionC(m_R.row(C));
-
-//                for(uint D = 0; D < m_R.n_rows; D++){
-//                    integrator.setCorePositionD(m_R.row(D));
-
-//                    for(uint a=0; a < m_primitives.size(); a++){
-//                        integrator.setExponentA(m_primitives.at(a)->exponent());
-
-//                        for(uint b=0; b < m_primitives.size(); b++){
-//                            integrator.setExponentB(m_primitives.at(b)->exponent());
-
-//                            for(uint c=0; c < m_primitives.size(); c++){
-//                                integrator.setExponentC(m_primitives.at(c)->exponent());
-
-//                                for(uint d=0; d < m_primitives.size(); d++){
-//                                    integrator.setExponentD(m_primitives.at(d)->exponent());
-
-//                                    integrator.updateHermiteCoefficients(twoParticleIntegral);
-
-//                                    m_Q(a+A*4,b+B*4)(c+C*4, d+D*4) =
-//                                            integrator.electronRepulsionIntegral(0,0,0,0,0,0,
-//                                                                                 0,0,0,0,0,0);
-
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
-//void System::setupOneParticleMatrix()
-//{
-//    for(uint A = 0; A < m_R.n_rows; A++){
-//        integrator.setCorePositionA(m_R.row(A));
-
-//        for(uint B = 0; B < m_R.n_rows; B++){
-//            integrator.setCorePositionB(m_R.row(B));
-
-//            for(uint a=0; a < m_primitives.size(); a++){
-//                integrator.setExponentA(m_primitives.at(a)->exponent());
-
-//                for(uint b=0; b < m_primitives.size(); b++){
-//                    integrator.setExponentB(m_primitives.at(b)->exponent());
-
-//                    integrator.updateHermiteCoefficients();
-
-//                    m_S(a+A*4,b+B*4) = integrator.overlapIntegral(0,0,0,0,0,0);
-//                    m_h(a+A*4,b+B*4) = integrator.kineticIntegral(0,0,0,0,0,0);
-
-//                    for(uint C = 0; C < m_R.n_rows; C++){
-//                        integrator.setCorePositionC(m_R.row(C));
-//                        m_h(a+A*4,b+B*4) -= integrator.nuclearAttractionIntegral(0,0,0,0,0,0);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
-
