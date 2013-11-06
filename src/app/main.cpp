@@ -7,6 +7,7 @@
 #include<basisSet/h_quadzeta.h>
 #include<basisSet/h_321g.h>
 #include<basisSet/o_321g.h>
+#include<basisSet/h_sto6.h>
 
 
 using namespace arma;
@@ -16,21 +17,26 @@ using namespace std;
 int main()
 {
 
-//    H_QuadZeta *basisCoreA  = new H_QuadZeta;
-//    H_QuadZeta *basisCoreB  = new H_QuadZeta;
+    H_QuadZeta *basisCoreA  = new H_QuadZeta;
+    H_QuadZeta *basisCoreB  = new H_QuadZeta;
 
 //    H_321G *basisCoreA = new H_321G;
 //    H_321G *basisCoreB = new H_321G;
 
-    O_321G *basisCoreA = new O_321G;
-    O_321G *basisCoreB = new O_321G;
+//    O_321G *basisCoreA = new O_321G;
+//    O_321G *basisCoreB = new O_321G;
 
-    int nBasisFunc = 9;
+//    H_STO6 *basisCoreA = new H_STO6;
+//    H_STO6 *basisCoreB = new H_STO6;
+
+    int nBasisFunc = 4;
     int nNuclei    = 2;
-    rowvec coreCharges = {8.0 , 8.0};
 
-    rowvec A = {-1.41 , 0, 0};
-    rowvec B = {1.41 , 0, 0};
+
+    rowvec coreCharges = {1.0 , 1.0};
+
+    rowvec A = {-0.5 , 0, 0};
+    rowvec B = { 0.5 , 0, 0};
 
     /********************************************************/
 

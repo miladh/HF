@@ -103,8 +103,9 @@ void System::setupOneParticleMatrix()
 
                     for(uint c = 0; c < m_basisSet.size(); c++){
                         integrator.setCorePositionC(m_basisSet.at(c)->corePosition());
-                        m_h(a,b) -=m_coreCharges(c)*integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
-                                                                         powB(0), powB(1), powB(2));
+                        m_h(a,b) -=m_coreCharges(c)*
+                                integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
+                                                                     powB(0), powB(1), powB(2));
 
                     }
 
