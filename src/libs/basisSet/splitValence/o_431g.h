@@ -1,12 +1,12 @@
-#ifndef O_321G_H
-#define O_321G_H
+#ifndef O_431G_H
+#define O_431G_H
 
-#include<basisSet/basisset.h>
+#include<basisSet/splitValence/splitvalence.h>
 
-class O_321G : public BasisSet
+class O_431G : public SplitValence
 {
 public:
-    O_321G();
+    O_431G();
 
     int getAngularMomentum() const;
 
@@ -22,4 +22,4 @@ private:
     ContractedGTO m_contractedGTO_9;
 };
 
-#endif // O_321G_H
+#endif // O_431G_H

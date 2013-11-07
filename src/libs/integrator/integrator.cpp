@@ -11,7 +11,7 @@ Integrator::Integrator():
     m_corePositionD(rowvec(3))
 
 {
-        setMaxAngularMomentum(0);
+//        setMaxAngularMomentum(0);
 }
 
 void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
@@ -257,13 +257,13 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
                         for(int m = 0; m < mMax; m++){
 
                             double Eklm= m_Ecd[0](iC, iD, k) * m_Ecd[1](jC, jD, l) * m_Ecd[2](kC, kD, m);
-                            result += Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+                            result += Etuv*Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
                         }
                     }
                 }
 
 
-                result *=Etuv;
+//                result *=Etuv;
             }
         }
     }

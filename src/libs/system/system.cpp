@@ -48,6 +48,7 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
     integrator.setCorePositionA(coreA->corePosition());
     integrator.setCorePositionB(coreB->corePosition());
 
+
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
         const rowvec &powA = primitiveA.powers();
@@ -63,17 +64,19 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
             Sab += integrator.overlapIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
                     * primitiveA.weight() * primitiveB.weight();
 
-            hab += integrator.kineticIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+            hab += primitiveA.weight() * primitiveB.weight() *
+                    integrator.kineticIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
 
 
             for(uint c = 0; c < m_basisSet.size(); c++){
                 const BasisSet *coreC = m_basisSet.at(c);
                 integrator.setCorePositionC(coreC->corePosition());
-                hab -= m_coreCharges(c)* integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
-                                                                              powB(0), powB(1), powB(2));
+                hab -= m_coreCharges(c)* primitiveA.weight() * primitiveB.weight()*
+                        integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
+                                                            powB(0), powB(1), powB(2));
 
             }
-            hab *= primitiveA.weight() * primitiveB.weight();
+//            hab *= primitiveA.weight() * primitiveB.weight();
 
         }
 

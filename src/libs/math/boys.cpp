@@ -7,7 +7,8 @@ Boys::Boys(uint highestOrder):
     readBoysForSmallArguments();
 }
 
-void Boys::readBoysForSmallArguments(){
+void Boys::readBoysForSmallArguments()
+{
     string path = "infiles/tabulatedBoys.dat";
     m_Ftabulated.load(path);
 }
@@ -27,7 +28,7 @@ void Boys::evaluateBoysFunctions(const double &arg)
 
 double Boys::getBoysFunctions(const int &n) const
 {
-    return m_results[n];
+    return m_results(n);
 }
 
 rowvec Boys::getBoysFunctions() const
