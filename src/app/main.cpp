@@ -5,8 +5,8 @@
 #include<hfSolver/hfsolver.h>
 #include<basisSet/h_quadzeta.h>
 #include<basisSet/h_321g.h>
+#include<basisSet/li_321g.h>
 #include<basisSet/o_321g.h>
-#include<basisSet/h_sto6.h>
 
 
 using namespace arma;
@@ -16,23 +16,64 @@ using namespace std;
 int main()
 {
     double start_time = time(NULL);
+    int nElectrons;
+    rowvec coreCharges, A, B, C;
 
-//    H_QuadZeta *basisCoreA  = new H_QuadZeta;
-//    H_QuadZeta *basisCoreB  = new H_QuadZeta;
+    BasisSet *basisCoreA;
+    BasisSet *basisCoreB;
+    BasisSet *basisCoreC;
 
-//    H_321G *basisCoreA = new H_321G;
-//    H_321G *basisCoreB = new H_321G;
 
-    O_321G *basisCoreA = new O_321G;
-    O_321G *basisCoreB = new O_321G;
+    int m_case = 5;
 
-//    H_STO6 *basisCoreA = new H_STO6;
-//    H_STO6 *basisCoreB = new H_STO6;
+    if(m_case == 1){
+        //Hydrogen molecule
+        nElectrons = 2;
+        A = {-0.5, 0.0, 0.0};
+        B = {0.5, 0.0, 0.0};
+        coreCharges = {1 , 1};
+        basisCoreA  = new H_QuadZeta;
+        basisCoreB  = new H_QuadZeta;
 
-    int nElectrons = 16;
-    rowvec coreCharges = {8 , 8};
-    rowvec A = {-1.14 , 0, 0};
-    rowvec B = { 1.14 , 0, 0};
+    }else if(m_case==2){
+        //Hydrogen molecule
+        nElectrons = 2;
+        A = {-0.5, 0.0, 0.0};
+        B = {0.5, 0.0, 0.0};
+        coreCharges = {1 , 1};
+        basisCoreA  = new H_321G;
+        basisCoreB  = new H_321G;
+
+    }else if(m_case==3){
+        //Lithium molecule
+        nElectrons = 6;
+        A = {-2.5, 0.0, 0.0};
+        B = { 2.5, 0.0, 0.0};
+        coreCharges = {3 , 3};
+        basisCoreA = new Li_321G;
+        basisCoreB = new Li_321G;
+
+    }else if(m_case==4){
+        //Oxygen molecule
+        nElectrons = 16;
+        A = {-1.14, 0.0, 0.0};
+        B = { 1.14, 0.0, 0.0};
+        coreCharges = {8 , 8};
+        basisCoreA = new O_321G;
+        basisCoreB = new O_321G;
+
+    }else if(m_case==5){
+        //Water molecule
+        nElectrons = 10;
+        A = {-2.0, 4.0, 0.0};
+        B = { 2.0, 4.0, 0.0};
+        C = { 0.0, 0.0, 0.0};
+        coreCharges = {1 , 1, 8};
+        basisCoreA = new H_321G;
+        basisCoreB = new H_321G;
+        basisCoreC = new O_321G;
+
+    }
 
     /********************************************************/
 
@@ -40,9 +81,18 @@ int main()
     basisCoreA->setCorePosition(A);
     basisCoreB->setCorePosition(B);
 
+    if(m_case == 5){
+        maxAngularMomentum = basisCoreC->getAngularMomentum();
+        basisCoreC->setCorePosition(C);
+    }
+
     System system(nElectrons, maxAngularMomentum, coreCharges);
     system.addBasisSet(basisCoreA);
     system.addBasisSet(basisCoreB);
+
+    if(m_case == 5){
+        system.addBasisSet(basisCoreC);
+    }
 
     HFsolver solver(system);
     solver.runSolver();

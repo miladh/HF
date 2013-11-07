@@ -24,15 +24,6 @@ H_321G::H_321G()
     m_contractedGTOs.push_back(m_contractedGTO_1);
     m_contractedGTOs.push_back(m_contractedGTO_2);
 
-
-
-//    m_contractedGTO_1.addPrimitive(new PrimitiveGTO(exp1[0],weight1[0] ,powers));
-//    m_contractedGTO_1.addPrimitive(new PrimitiveGTO(exp1[1],weight1[1] ,powers));
-//    m_contractedGTO_2.addPrimitive(new PrimitiveGTO(exp2[0],weight2[0] ,powers));
-
-//    m_contractedGTOs.push_back(m_contractedGTO_1);
-//    m_contractedGTOs.push_back(m_contractedGTO_2);
-
     m_angularMomentum = 0;
 
 }

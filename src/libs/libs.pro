@@ -15,7 +15,8 @@ SOURCES += \
     basisSet/h_quadzeta.cpp \
     basisSet/o_321g.cpp \
     basisSet/h_sto6.cpp \
-    math/hermiteintegrals.cpp
+    math/hermiteintegrals.cpp \
+    basisSet/li_321g.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -30,4 +31,5 @@ HEADERS += \
     basisSet/h_quadzeta.h \
     basisSet/o_321g.h \
     basisSet/h_sto6.h \
-    math/hermiteintegrals.h
+    math/hermiteintegrals.h \
+    basisSet/li_321g.h
