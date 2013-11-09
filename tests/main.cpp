@@ -16,7 +16,7 @@ TEST(GTOoverlapIntegral)
 
     integrator.setMaxAngularMomentum(1);
 
-    integrator.updateHermiteCoefficients();
+    integrator.updateHermiteCoefficients(true, false);
 
     CHECK_CLOSE(1.191723635809e-01, integrator.overlapIntegral(0,0,0,0,0,0), 1e-5);
     CHECK_CLOSE(2.764798835076e-01, integrator.overlapIntegral(0,0,0,0,0,1), 1e-5);
@@ -132,7 +132,7 @@ TEST(GTOkineticIntegral)
 
 
     integrator.setMaxAngularMomentum(2);
-    integrator.updateHermiteCoefficients();
+    integrator.updateHermiteCoefficients(true, false);
 
     CHECK_CLOSE(-9.678702680582e-02, integrator.kineticIntegral(0,0,0,0,0,0), 1e-5);
     CHECK_CLOSE(-1.581907301477e-01, integrator.kineticIntegral(0,0,0,0,0,1), 1e-5);
@@ -250,7 +250,7 @@ TEST(GTOnuclearAttractionIntegral)
     integrator.setExponentA(0.2);
     integrator.setExponentB(0.3);
     integrator.setMaxAngularMomentum(2);
-    integrator.updateHermiteCoefficients();
+    integrator.updateHermiteCoefficients(true, false);
 
 
     CHECK_CLOSE(2.788948987251e-02, integrator.nuclearAttractionIntegral(0,0,0,0,0,0), 1e-5);
@@ -356,28 +356,6 @@ TEST(GTOnuclearAttractionIntegral)
 
 }
 
-TEST(electronInteraction)
-{
-    Integrator integrator;
-
-    rowvec posA = {-0.5, 0 , 0};
-    integrator.setCorePositionA(posA);
-    integrator.setCorePositionB(posA);
-    integrator.setCorePositionC(posA);
-    integrator.setCorePositionD(posA);
-
-
-    integrator.setExponentA(13.0077);
-    integrator.setExponentB(13.0077);
-    integrator.setExponentC(13.0077);
-    integrator.setExponentD(13.0077);
-    integrator.setMaxAngularMomentum(1);
-
-    integrator.updateHermiteCoefficients(true);
-
-    cout << integrator.electronRepulsionIntegral(0,0,0,0,0,0,0,0,0,0,0,0) << endl;
-
-}
 
 TEST(BoysfactorialFunctions)
 {

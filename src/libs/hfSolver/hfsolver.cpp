@@ -8,7 +8,7 @@ HFsolver::HFsolver(System system):
     m_h(zeros(m_nOrbitals,m_nOrbitals)),
     m_F(zeros(m_nOrbitals,m_nOrbitals)),
     m_P(zeros(m_nOrbitals,m_nOrbitals)),
-    m_C(zeros(m_nOrbitals,m_nElectrons/2.0))
+    m_C(ones(m_nOrbitals,m_nElectrons/2.0))
 
 {
     m_Q.set_size(m_nOrbitals, m_nOrbitals);
@@ -30,7 +30,6 @@ void HFsolver::runSolver()
 
     setupOneParticleMatrix();
     setupTwoParticleMatrix();
-    normalize();
 
     while (m_energyDiff > m_toler){
         m_fockEnergyOld = m_fockEnergy;
@@ -53,7 +52,6 @@ void HFsolver::runSolver()
         }
         m_energy += m_system.getNucleiPotential();
         cout << "Energy: " << setprecision(10) << m_energy << endl;
-            cout << m_C << endl;
     }
 
 }
@@ -120,7 +118,6 @@ void HFsolver::solveSingle()
     eig_sym(eigVal, eigVec, m_F);
     m_C = V*eigVec.cols(0, m_nElectrons/2.0-1);
 
-
     normalize();
 
     m_P = 2*m_C*m_C.t();
@@ -136,7 +133,6 @@ void HFsolver::normalize()
         norm = dot(m_C.col(i), m_S*m_C.col(i));
         m_C.col(i) = m_C.col(i)/sqrt(norm);
     }
-
 }
 
 

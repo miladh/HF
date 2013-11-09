@@ -26,7 +26,7 @@ int main()
     BasisSet *basisCoreC;
 
 
-    int m_case = 5;
+    int m_case = 6;
 
     if(m_case == 1){
         //Hydrogen molecule
@@ -70,8 +70,8 @@ int main()
         A = {-1.14, 0.0, 0.0};
         B = { 1.14, 0.0, 0.0};
         coreCharges = {8 , 8};
-        basisCoreA = new O_321G;
-        basisCoreB = new O_321G;
+        basisCoreA = new O_431G;
+        basisCoreB = new O_431G;
 
     }else if(m_case==6){
         double x = 1.797*cos((180-104.45) *M_PI/180.0);

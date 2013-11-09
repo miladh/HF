@@ -59,7 +59,7 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
             const rowvec &powB = primitiveB.powers();
             integrator.setExponentB(primitiveB.exponent());
 
-            integrator.updateHermiteCoefficients();
+            integrator.updateHermiteCoefficients(true, false);
 
             Sab += integrator.overlapIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
                     * primitiveA.weight() * primitiveB.weight();
@@ -76,7 +76,6 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
                                                             powB(0), powB(1), powB(2));
 
             }
-//            hab *= primitiveA.weight() * primitiveB.weight();
 
         }
 
@@ -89,7 +88,6 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
 double System::getTwoParticleIntegral(const int a, const int b, const int c, const int d)
 {
     double Qabcd = 0.0;
-    bool twoParticleIntegral = true;
 
     const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
     const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
@@ -115,6 +113,8 @@ double System::getTwoParticleIntegral(const int a, const int b, const int c, con
             const rowvec &powB = primitiveB.powers();
             integrator.setExponentB(primitiveB.exponent());
 
+            integrator.updateHermiteCoefficients(true, false);
+
             for(int k = 0; k < contractedC.getNumPrimitives(); k++){
                 const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
                 const rowvec &powC = primitiveC.powers();
@@ -125,7 +125,7 @@ double System::getTwoParticleIntegral(const int a, const int b, const int c, con
                     const rowvec &powD = primitiveD.powers();
                     integrator.setExponentD(primitiveD.exponent());
 
-                    integrator.updateHermiteCoefficients(twoParticleIntegral);
+                    integrator.updateHermiteCoefficients(false, true);
 
                     Qabcd += primitiveA.weight() * primitiveB.weight() * primitiveC.weight() * primitiveD.weight()
                             * integrator.electronRepulsionIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2),

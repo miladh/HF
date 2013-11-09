@@ -11,14 +11,23 @@ Integrator::Integrator():
     m_corePositionD(rowvec(3))
 
 {
-//        setMaxAngularMomentum(0);
+    //        setMaxAngularMomentum(0);
 }
 
 void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
 {
     m_maxAngularMomentum = maxAngularMomentum;
+
+
     m_Eab.set_size(3);
     m_Ecd.set_size(3);
+    int iAmax = m_maxAngularMomentum + 3;
+    int iBmax = m_maxAngularMomentum + 3;
+    int tmax  = iAmax + iBmax - 1;
+    for(int cor = 0; cor < 3; cor++){
+        m_Eab(cor) = zeros(iAmax, iBmax, tmax);
+        m_Ecd(cor) = zeros(iAmax, iBmax, tmax);
+    }
 
     int nMax_en = 2 * m_maxAngularMomentum + 1;
     m_Ren.set_size(nMax_en);
@@ -33,6 +42,17 @@ void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
     }
 
     m_hermiteIntegrals = new HermiteIntegrals(nMax_ee);
+
+
+
+
+    m_dEab.set_size(3);
+    m_dEcd.set_size(3);
+    for(int cor = 0; cor < 3; cor++){
+        m_dEab(cor) = zeros(iAmax, iBmax, tmax);
+        m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
+    }
+
 }
 
 uint Integrator::maxAngularMomentum() const
@@ -121,34 +141,56 @@ void Integrator::setExponentD(double exponentD)
 }
 
 
-void Integrator::updateHermiteCoefficients(bool twoParticleIntegral)
+void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral)
 {
 
-    m_hermiteCoefficients.setupE(m_exponentA, m_corePositionA, m_maxAngularMomentum,
-                                 m_exponentB, m_corePositionB, m_maxAngularMomentum,
-                                 m_Eab);
+    if(oneParticleIntegral){
+        m_hermiteCoefficients.setupE(m_exponentA, m_exponentB,
+                                     m_corePositionA - m_corePositionB,
+                                     m_Eab);
 
-    if(twoParticleIntegral){
-        m_hermiteCoefficients.setupE(m_exponentC, m_corePositionC, m_maxAngularMomentum,
-                                     m_exponentD, m_corePositionD, m_maxAngularMomentum,
+    }else if(twoParticleIntegral){
+        m_hermiteCoefficients.setupE(m_exponentC, m_exponentD,
+                                     m_corePositionC - m_corePositionD,
                                      m_Ecd);
+    }else{
+        cerr << "Hermite coefficients not updated!" << endl;
     }
 }
+
 
 /*---------------------------------------------------------------------------------------------------*/
 double Integrator::overlapIntegral(int cor, int iA, int iB)
 {
-    double a = m_exponentA;
-    double b = m_exponentB;
-    double p = a + b;
+    double p = m_exponentA + m_exponentB;
     return m_Eab[cor](iA,iB,0) * sqrt(M_PI / p);
 }
 
 
-double Integrator::overlapIntegral(int iA, int jA, int kA, int iB, int jB, int kB) {
+double Integrator::overlapIntegral(int iA, int jA, int kA, int iB, int jB, int kB)
+{
 
     return overlapIntegral(0, iA, iB) * overlapIntegral(1, jA, jB) * overlapIntegral(2, kA, kB);
 }
+
+
+double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
+{
+    double p =  m_exponentA +  m_exponentB;
+    return m_Eab[cor](iA,iB,0) * sqrt(M_PI / p);
+}
+
+
+double Integrator::overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
+{
+    return overlapIntegral_derivative(0, iA, iB)*
+           overlapIntegral_derivative(1, jA, jB)*
+           overlapIntegral_derivative(2, kA, kB);
+}
+
+
+
+
 
 /*---------------------------------------------------------------------------------------------------*/
 double Integrator::kineticIntegral(int cor, int iA, int iB) {
@@ -263,7 +305,7 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
                 }
 
 
-//                result *=Etuv;
+                //                result *=Etuv;
             }
         }
     }

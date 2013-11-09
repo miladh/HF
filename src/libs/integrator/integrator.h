@@ -50,8 +50,9 @@ public:
     double electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
                                      int iC, int jC, int kC, int iD, int jD, int kD);
 
-    void updateHermiteCoefficients(bool twoParticleIntegral = false);
+    void updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral);
 
+    double overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
 private:
     uint m_maxAngularMomentum;
 
@@ -66,6 +67,7 @@ private:
     rowvec m_corePositionD;
 
     field<cube> m_Eab, m_Ecd;
+    field<cube> m_dEab, m_dEcd;
     field<cube> m_Ree, m_Ren;
 
     HermiteCoefficients m_hermiteCoefficients;
@@ -73,6 +75,7 @@ private:
 
     double overlapIntegral(int cor, int iA, int iB);
     double kineticIntegral(int cor, int iA, int iB);
+    double overlapIntegral_derivative(int cor, int iA, int iB);
 };
 
 #endif // INTEGRATOR_H
