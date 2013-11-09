@@ -26,7 +26,7 @@ int main()
     BasisSet *basisCoreC;
 
 
-    int m_case = 6;
+    int m_case = 5;
 
     if(m_case == 1){
         //Hydrogen molecule
@@ -121,7 +121,7 @@ int main()
 
 
 
-//vec X = linspace(2, 4, 20);
+//vec X = linspace(0.5, 4, 20);
 //for(uint i = 0; i < X.n_elem; i++)
 //{
 

@@ -355,6 +355,30 @@ TEST(GTOnuclearAttractionIntegral)
     CHECK_CLOSE(6.422210627967e-02, integrator.nuclearAttractionIntegral(2,0,0,2,0,0), 1e-5);
 
 }
+
+TEST(electronInteraction)
+{
+    Integrator integrator;
+
+    rowvec posA = {-0.5, 0 , 0};
+    integrator.setCorePositionA(posA);
+    integrator.setCorePositionB(posA);
+    integrator.setCorePositionC(posA);
+    integrator.setCorePositionD(posA);
+
+
+    integrator.setExponentA(13.0077);
+    integrator.setExponentB(13.0077);
+    integrator.setExponentC(13.0077);
+    integrator.setExponentD(13.0077);
+    integrator.setMaxAngularMomentum(1);
+
+    integrator.updateHermiteCoefficients(true);
+
+    cout << integrator.electronRepulsionIntegral(0,0,0,0,0,0,0,0,0,0,0,0) << endl;
+
+}
+
 TEST(BoysfactorialFunctions)
 {
     Boys boys(0);
@@ -511,8 +535,8 @@ TEST(BoysDownwardrecursionFunction)
     xvec = linspace<rowvec>(51,100,20);
     F0 = zeros(20,16);
     for(uint i = 0; i < 20; i++){
-     boysF0_large.evaluateBoysFunctions(xvec[i]);
-     F0.row(i) = boysF0_large.getBoysFunctions();
+        boysF0_large.evaluateBoysFunctions(xvec[i]);
+        F0.row(i) = boysF0_large.getBoysFunctions();
     }
 
     CHECK_CLOSE(F0(0,0), 1.2409659136408727e-01, 1e-9); //OBS!!

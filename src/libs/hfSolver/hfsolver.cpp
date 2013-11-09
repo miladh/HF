@@ -20,7 +20,7 @@ HFsolver::HFsolver(System system):
 
     m_fockEnergy = 1.0E6;
     m_energy = 1.0E6;
-    m_toler = 1.0E-3;
+    m_toler = 1.0E-6;
 }
 
 void HFsolver::runSolver()
@@ -53,7 +53,7 @@ void HFsolver::runSolver()
         }
         m_energy += m_system.getNucleiPotential();
         cout << "Energy: " << setprecision(10) << m_energy << endl;
-        //    cout << setprecision(10) << m_energy <<", "<< endl;
+            cout << m_C << endl;
     }
 
 }
