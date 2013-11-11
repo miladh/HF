@@ -51,8 +51,14 @@ public:
                                      int iC, int jC, int kC, int iD, int jD, int kD);
 
     void updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral);
+    void updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral);
 
-    double overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
+
+   rowvec overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
+   rowvec kineticIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
+   rowvec nuclearAttractionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
+
+
 private:
     uint m_maxAngularMomentum;
 
@@ -76,6 +82,10 @@ private:
     double overlapIntegral(int cor, int iA, int iB);
     double kineticIntegral(int cor, int iA, int iB);
     double overlapIntegral_derivative(int cor, int iA, int iB);
+    double kineticIntegral_derivative(int cor, int iA, int iB);
+
+    rowvec nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
+    rowvec nuclearAttractionIntegral_P_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
 };
 
 #endif // INTEGRATOR_H

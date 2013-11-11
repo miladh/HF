@@ -19,14 +19,16 @@ void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
     m_maxAngularMomentum = maxAngularMomentum;
 
 
-    m_Eab.set_size(3);
-    m_Ecd.set_size(3);
+    m_Eab.set_size(3);  m_Ecd.set_size(3);
+    m_dEab.set_size(3); m_dEcd.set_size(3);
     int iAmax = m_maxAngularMomentum + 3;
     int iBmax = m_maxAngularMomentum + 3;
     int tmax  = iAmax + iBmax - 1;
     for(int cor = 0; cor < 3; cor++){
-        m_Eab(cor) = zeros(iAmax, iBmax, tmax);
-        m_Ecd(cor) = zeros(iAmax, iBmax, tmax);
+        m_Eab(cor)  = zeros(iAmax, iBmax, tmax);
+        m_Ecd(cor)  = zeros(iAmax, iBmax, tmax);
+        m_dEab(cor) = zeros(iAmax, iBmax, tmax);
+        m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
     }
 
     int nMax_en = 2 * m_maxAngularMomentum + 1;
@@ -43,15 +45,6 @@ void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
 
     m_hermiteIntegrals = new HermiteIntegrals(nMax_ee);
 
-
-
-
-    m_dEab.set_size(3);
-    m_dEcd.set_size(3);
-    for(int cor = 0; cor < 3; cor++){
-        m_dEab(cor) = zeros(iAmax, iBmax, tmax);
-        m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
-    }
 
 }
 
@@ -158,6 +151,23 @@ void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoPar
     }
 }
 
+void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral)
+{
+
+    if(oneParticleIntegral){
+        m_hermiteCoefficients.setup_dEdR(m_exponentA, m_exponentB,
+                                         m_corePositionA - m_corePositionB,
+                                         m_Eab, m_dEab);
+
+    }else if(twoParticleIntegral){
+        m_hermiteCoefficients.setup_dEdR(m_exponentC, m_exponentD,
+                                         m_corePositionC - m_corePositionD,
+                                         m_Ecd,m_dEcd);
+    }else{
+        cerr << "Hermite coefficients not updated!" << endl;
+    }
+}
+
 
 /*---------------------------------------------------------------------------------------------------*/
 double Integrator::overlapIntegral(int cor, int iA, int iB)
@@ -177,20 +187,20 @@ double Integrator::overlapIntegral(int iA, int jA, int kA, int iB, int jB, int k
 double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
 {
     double p =  m_exponentA +  m_exponentB;
-    return m_Eab[cor](iA,iB,0) * sqrt(M_PI / p);
+    return m_dEab[cor](iA,iB,0) * sqrt(M_PI / p);
 }
 
 
-double Integrator::overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
+rowvec Integrator::overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
 {
-    return overlapIntegral_derivative(0, iA, iB)*
-           overlapIntegral_derivative(1, jA, jB)*
-           overlapIntegral_derivative(2, kA, kB);
+    rowvec dS = zeros<rowvec>(3);
+
+    dS(0) = overlapIntegral_derivative(0, iA, iB) * overlapIntegral(1, jA, jB) * overlapIntegral(2, kA, kB);
+    dS(1) = overlapIntegral_derivative(1, jA, jB) * overlapIntegral(0, iA, iB) * overlapIntegral(2, kA, kB);
+    dS(2) = overlapIntegral_derivative(2, kA, kB) * overlapIntegral(0, iA, iB) * overlapIntegral(1, jA, jB);
+
+    return dS;
 }
-
-
-
-
 
 /*---------------------------------------------------------------------------------------------------*/
 double Integrator::kineticIntegral(int cor, int iA, int iB) {
@@ -221,6 +231,52 @@ double Integrator::kineticIntegral(int iA, int jA, int kA, int iB, int jB, int k
     return result;
 }
 
+
+
+double Integrator::kineticIntegral_derivative(int cor, int iA, int iB) {
+    double b = m_exponentB;
+
+    double dS_iA_iBnn = overlapIntegral_derivative(cor, iA, iB + 2);
+    double dS_iA_iB = overlapIntegral_derivative(cor, iA, iB);
+    double dS_iA_iBpp;
+
+    if(iB - 2 >= 0) {
+        dS_iA_iBpp= overlapIntegral_derivative(cor, iA, iB - 2);
+    } else {
+        dS_iA_iBpp = 0;
+    }
+    return 4 * b * b * dS_iA_iBnn - 2*b * (2*iB + 1) * dS_iA_iB + iB * (iB - 1) * dS_iA_iBpp;
+}
+
+
+rowvec Integrator::kineticIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB) {
+    rowvec dT = zeros<rowvec>(3);
+
+    double T_iA_iB = kineticIntegral(0, iA, iB);
+    double T_jA_jB = kineticIntegral(1, jA, jB);
+    double T_kA_kB = kineticIntegral(2, kA, kB);
+
+    double dT_iA_iB = kineticIntegral_derivative(0, iA, iB);
+    double dT_jA_jB = kineticIntegral_derivative(1, jA, jB);
+    double dT_kA_kB = kineticIntegral_derivative(2, kA, kB);
+
+    double S_iA_iB = overlapIntegral(0, iA, iB);
+    double S_jA_jB = overlapIntegral(1, jA, jB);
+    double S_kA_kB = overlapIntegral(2, kA, kB);
+
+    double dS_iA_iB = overlapIntegral_derivative(0, iA, iB);
+    double dS_jA_jB = overlapIntegral_derivative(1, jA, jB);
+    double dS_kA_kB = overlapIntegral_derivative(2, kA, kB);
+
+    dT(0) = (dT_iA_iB * S_jA_jB * S_kA_kB) + (dS_iA_iB * T_jA_jB * S_kA_kB) + (dS_iA_iB * S_jA_jB  * T_kA_kB);
+    dT(1) = (T_iA_iB * dS_jA_jB * S_kA_kB) + (S_iA_iB * dT_jA_jB * S_kA_kB) + (S_iA_iB * dS_jA_jB  * T_kA_kB);
+    dT(2) = (T_iA_iB * S_jA_jB * dS_kA_kB) + (S_iA_iB * T_jA_jB * dS_kA_kB) + (S_iA_iB * S_jA_jB  * dT_kA_kB);
+
+    dT *= -0.5;
+    return dT;
+}
+
+
 /*---------------------------------------------------------------------------------------------------*/
 double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int jB, int kB)
 {
@@ -228,8 +284,8 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
     const rowvec &B = m_corePositionB;
     const rowvec &C = m_corePositionC;
 
-    double a = m_exponentA;
-    double b = m_exponentB;
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
 
     double p = a + b;
     rowvec P  = (a*A + b*B)/p;
@@ -246,13 +302,114 @@ double Integrator::nuclearAttractionIntegral(int iA, int jA, int kA, int iB, int
     for(uint t = 0; t < tMax; t++){
         for(uint u = 0; u < uMax; u++){
             for(uint v = 0; v < vMax; v++){
-                result += m_Eab[0](iA, iB, t) * m_Eab[1](jA, jB, u) * m_Eab[2](kA, kB, v) * m_Ren(0)(t,u,v);
+                result += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v);
             }
         }
     }
 
     return 2 * result * M_PI / p;
 }
+
+
+
+rowvec Integrator::nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
+{
+    rowvec dVab = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+
+    double p = a + b;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec PC = P - C;
+
+    m_hermiteIntegrals->setupR(PC,p, m_Ren);
+
+
+    uint tMax = iA + iB + 1;
+    uint uMax = jA + jB + 1;
+    uint vMax = kA + kB + 1;
+
+    for(uint t = 0; t < tMax; t++){
+        for(uint u = 0; u < uMax; u++){
+            for(uint v = 0; v < vMax; v++){
+                dVab(0) += m_dEab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u)  * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v);
+                dVab(1) += m_Eab(0)(iA, iB, t)  * m_dEab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v);
+                dVab(2) += m_Eab(0)(iA, iB, t)  * m_Eab(1)(jA, jB, u)  * m_dEab(2)(kA, kB, v) * m_Ren(0)(t,u,v);
+            }
+        }
+    }
+
+    double AC = dot(A-C,A-C);
+    double BC = dot(B-C,B-C);
+    if(AC == 0 || BC == 0){
+        for(uint t = 0; t < tMax; t++){
+            for(uint u = 0; u < uMax; u++){
+                for(uint v = 0; v < vMax; v++){
+                    dVab(0) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t+1,u,v);
+                    dVab(1) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u+1,v);
+                    dVab(2) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v+1);
+                }
+            }
+        }
+    }
+
+    return 2 * M_PI / p * dVab;
+}
+
+
+rowvec Integrator::nuclearAttractionIntegral_P_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
+{
+    rowvec dVab = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+
+    double p = a + b;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec PC = P - C;
+
+    m_hermiteIntegrals->setupR(PC,p, m_Ren);
+
+
+    uint tMax = iA + iB + 1;
+    uint uMax = jA + jB + 1;
+    uint vMax = kA + kB + 1;
+
+
+    for(uint t = 0; t < tMax; t++){
+        for(uint u = 0; u < uMax; u++){
+            for(uint v = 0; v < vMax; v++){
+                dVab(0) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t+1,u,v);
+                dVab(1) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u+1,v);
+                dVab(2) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v+1);
+            }
+        }
+    }
+
+    return 2 * M_PI / p * dVab;
+}
+
+
+rowvec Integrator::nuclearAttractionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
+{
+    rowvec dVdA = zeros<rowvec>(3);
+    const double &a = m_exponentA;
+    const double &b = m_exponentB;
+    double p = a + b;
+
+    dVdA = a/p * nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
+            - nuclearAttractionIntegral_R_derivative(iA, jA, kA, iB, jB, kB) ;
+
+    return dVdA;
+}
+
 
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -264,10 +421,10 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
     const rowvec &C = m_corePositionC;
     const rowvec &D = m_corePositionD;
 
-    double a = m_exponentA;
-    double b = m_exponentB;
-    double c = m_exponentC;
-    double d = m_exponentD;
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+    const double &c  = m_exponentC;
+    const double &d  = m_exponentD;
 
     double p = a + b;
     double q = c + d;
@@ -304,8 +461,6 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
                     }
                 }
 
-
-                //                result *=Etuv;
             }
         }
     }

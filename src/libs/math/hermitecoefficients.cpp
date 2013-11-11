@@ -112,6 +112,7 @@ void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowve
     int iBmax = dE(0).n_cols;
     int tmax  = dE(0).n_slices;
 
+
     for(int cor = 0; cor < 3; cor++){
         dE(cor) = zeros(iAmax, iBmax, tmax);
     }
@@ -146,7 +147,7 @@ void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowve
                 double E_iA_iBp_t  = 0;
                 if(interiorPoint(iA, iBp, t)) {
                     dE_iA_iBp_t = dE[cor](iA, iBp, t);
-                    E_iA_iBp_t = dE[cor](iA, iBp, t);
+                    E_iA_iBp_t = E[cor](iA, iBp, t);
                 }
 
                 double dE_iA_iBp_tn = 0;
@@ -180,7 +181,7 @@ void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowve
                     double E_iAp_iB_t = 0;
                     if(interiorPoint(iAp, iB, t)) {
                         dE_iAp_iB_t = dE[cor](iAp, iB, t);
-                        E_iAp_iB_t = dE[cor](iAp, iB, t);
+                        E_iAp_iB_t = E[cor](iAp, iB, t);
                     }
 
                     double dE_iAp_iB_tn = 0;
@@ -188,7 +189,7 @@ void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowve
                         dE_iAp_iB_tn = dE[cor](iAp, iB, tn);
                     }
 
-                    dE(cor)(iA,iB,t) = 1.0 / (2*p) * dE_iAp_iB_tp - b / a * (R(cor) *dE_iAp_iB_t  + E_iAp_iB_t )
+                    dE(cor)(iA,iB,t) = 1.0 / (2*p) * dE_iAp_iB_tp - b / p * (R(cor) *dE_iAp_iB_t  + E_iAp_iB_t )
                                        +  (t + 1)*dE_iAp_iB_tn;
                 }
             }
