@@ -25,6 +25,11 @@ public:
     double getTwoParticleIntegral(const int p, const int q,
                                   const int r, const int s);
 
+    rowvec getOverlapDerivative(const int a, const int b, const int N);
+    rowvec getKineticIntegralDerivative(const int a, const int b, const int N);
+    rowvec getAttractionIntegralDerivative(const int a, const int b, const int N);
+    rowvec getNucleiPotential_derivative(int k);
+
 private:
     vector<BasisSet *> m_basisSet;
     Integrator integrator;

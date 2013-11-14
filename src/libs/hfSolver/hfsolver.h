@@ -11,12 +11,16 @@ using namespace std;
 class HFsolver
 {
 public:
-    HFsolver(System system);
+    HFsolver(System *system);
     void runSolver();
 
 
+    field<mat> getQmatrix();
+    mat gethmatrix();
+    mat getSmatrix();
+
 private:
-    System m_system;
+    System *m_system;
 
     int m_nElectrons, m_nOrbitals;
     mat m_S, m_h, m_F, m_P, m_C;

@@ -3,6 +3,7 @@
 
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
+#include<cpmd/cpmd.h>
 #include<basisSet/h_quadzeta.h>
 #include<basisSet/splitValence/h_321g.h>
 #include<basisSet/splitValence/h_431g.h>
@@ -26,9 +27,14 @@ int main()
     BasisSet *basisCoreC;
 
 
-    int m_case = 6;
+    int m_case = 0;
 
-    if(m_case == 1){
+    if(m_case == 0){
+        cpmd mdSolver;
+        mdSolver.runDynamics();
+        return 0;
+
+    }else if(m_case == 1){
         //Hydrogen molecule
         nElectrons = 2;
         A = {-0.5, 0.0, 0.0};
@@ -99,12 +105,13 @@ int main()
         basisCoreC->setCorePosition(C);
     }
 
-    System system(nElectrons, maxAngularMomentum, coreCharges);
-    system.addBasisSet(basisCoreA);
-    system.addBasisSet(basisCoreB);
+
+    System *system = new System(nElectrons, maxAngularMomentum, coreCharges);
+    system->addBasisSet(basisCoreA);
+    system->addBasisSet(basisCoreB);
 
     if(m_case == 6){
-        system.addBasisSet(basisCoreC);
+        system->addBasisSet(basisCoreC);
     }
 
     HFsolver solver(system);

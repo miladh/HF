@@ -122,6 +122,7 @@ void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowve
     double factor = -2 * a * b / p;
 
     for(uint cor = 0; cor < dE.n_elem; cor++){
+
         dE(cor)(0,0,0) = factor * R(cor) * E(cor)(0,0,0);
     }
 

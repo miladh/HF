@@ -897,7 +897,7 @@ TEST(GTOnuclearAttractionIntegral_derivative)
     integrator.updateHermiteCoefficients(true, false);
     integrator.updateHermiteCoefficients_derivative(true,false);
 
-    cout << integrator.nuclearAttractionIntegral_derivative(0,0,0,0,0,0)<<endl;
+    cout << integrator.nuclearAttractionIntegral_derivative(0,0,0,0,0,0,1)<<endl;
 
 }
 
