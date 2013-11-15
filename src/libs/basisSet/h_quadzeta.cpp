@@ -2,8 +2,8 @@
 
 H_QuadZeta::H_QuadZeta()
 {
-//    rowvec exponent = {13.00773, 1.962079, 0.444529, 0.1219492};
-    rowvec exponent = {2.962079, 1.962079, 1.962079, 1.962079};
+    rowvec exponent = {13.00773, 1.962079, 0.444529, 0.1219492};
+//    rowvec exponent = {1.962079, 1.962079, 1.962079, 1.962079};
     rowvec weight = {1.0, 1.0, 1.0, 1.0};
     rowvec powers = {0,0,0};
 

@@ -12,8 +12,8 @@ cpmd::cpmd()
     posNew = zeros(m_nElectrons, 3);
     posOld = zeros(m_nElectrons, 3);
 
-    pos(0,0) = -0.5; pos(1,0) = 0.5;
-    posOld(0,0) = -0.5; posOld(1,0) = 0.5;
+    pos(0,0) = -0.25; pos(1,0) = 0.25;
+    posOld(0,0) = -0.25; posOld(1,0) = 0.25;
 
     m_basisCoreA->setCorePosition(pos.row(0));
     m_basisCoreB->setCorePosition(pos.row(1));
@@ -105,7 +105,7 @@ void cpmd::runDynamics()
             m_energyGradient = calculateEnergy_derivative(m_dQ, m_dh, m_C, core);
             IntegrateCoreForwardInTime(core);
         }
-        sleep(6);
+//        sleep(6);
 
         posOld = pos;
         pos = posNew;
@@ -173,10 +173,12 @@ rowvec cpmd::calculateEnergy_derivative(const field<mat> dQ, const field<rowvec>
     //    Nuclear repulsion term
 //        dE  +=m_system->getNucleiPotential_derivative(core);
 
-//    rowvec R = pos.row(0) - pos.row(1);
-//    dE(0) -= pow(-1.0,core)*R(0)/pow(dot(R,R),3.0/2.0);
-//    dE(1) -= pow(-1.0,core)*R(1)/pow(dot(R,R),3.0/2.0);
-//    dE(2) -= pow(-1.0,core)*R(2)/pow(dot(R,R),3.0/2.0);
+
+
+    rowvec R = pos.row(0) - pos.row(1);
+    dE(0) -= pow(-1.0,core)*R(0)/pow(dot(R,R),3.0/2.0);
+    dE(1) -= pow(-1.0,core)*R(1)/pow(dot(R,R),3.0/2.0);
+    dE(2) -= pow(-1.0,core)*R(2)/pow(dot(R,R),3.0/2.0);
 
     return dE;
 }
@@ -188,8 +190,8 @@ void cpmd::setupDerivativeMatrices(const int core)
     for(int p = 0; p < m_nOrbitals; p++){
         for(int q = 0; q < m_nOrbitals; q++){
             m_dS(p,q) = m_system->getOverlapDerivative(p,q,core);
-            m_dh(p,q) = /*m_system->getKineticIntegralDerivative(p,q,core)
-                        +*/ m_system->getAttractionIntegralDerivative(p,q,core);
+            m_dh(p,q) = m_system->getKineticIntegralDerivative(p,q,core)
+                        + m_system->getAttractionIntegralDerivative(p,q,core);
         }
     }
 
@@ -202,7 +204,7 @@ void cpmd::setupDerivativeMatrices(const int core)
         }
     }
 
-    cout << tmp << endl;
+//    cout << tmp << endl;
 
     //    //Set up the dQ array:
     //    for(uint Rp = 0; Rp < R.n_rows; Rp++){

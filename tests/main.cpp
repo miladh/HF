@@ -878,28 +878,6 @@ TEST(GTOkineticIntegral_derivative)
 
 }
 
-TEST(GTOnuclearAttractionIntegral_derivative)
-{
-    Integrator integrator;
-    rowvec dVab  = {0, 0, 0};
-
-    rowvec posA = {1.2,2.3,3.4};
-    rowvec posB = {-1.3,1.4,-2.4};
-    rowvec posC = {2.3,0.9,3.2};
-    integrator.setCorePositionA(posA);
-    integrator.setCorePositionB(posB);
-    integrator.setCorePositionC(posC);
-
-
-    integrator.setExponentA(0.2);
-    integrator.setExponentB(0.3);
-    integrator.setMaxAngularMomentum(2);
-    integrator.updateHermiteCoefficients(true, false);
-    integrator.updateHermiteCoefficients_derivative(true,false);
-
-    cout << integrator.nuclearAttractionIntegral_derivative(0,0,0,0,0,0,1)<<endl;
-
-}
 
 TEST(GTOnuclearAttractionIntegral)
 {

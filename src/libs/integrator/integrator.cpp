@@ -384,73 +384,70 @@ rowvec Integrator::nuclearAttractionIntegral_P_derivative(int iA, int jA, int kA
         }
     }
 
-
-    double AB = dot(A-B,A-B);
-    double AC = dot(A-C,A-C);
-    double BC = dot(B-C,B-C);
-
-    if(AC == 0 && AB!=0){
-
-        for(uint t = 0; t < tMax; t++){
-            for(uint u = 0; u < uMax; u++){
-                for(uint v = 0; v < vMax; v++){
-                    dVab(0) -= b/p * m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t+1,u,v);
-                    dVab(1) -= b/p * m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u+1,v);
-                    dVab(2) -= b/p * m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v+1);
-                }
-            }
-        }
-    }
-    if(BC == 0 && AB!=0){
-        for(uint t = 0; t < tMax; t++){
-            for(uint u = 0; u < uMax; u++){
-                for(uint v = 0; v < vMax; v++){
-                    dVab(0) += a/p *m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t+1,u,v);
-                    dVab(1) += a/p *m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u+1,v);
-                    dVab(2) += a/p *m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v+1);
-                }
-            }
-        }
-    }
-
-
     return 2 * M_PI / p * dVab;
 }
 
 
-rowvec Integrator::nuclearAttractionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB, bool differentiateWrtA)
+rowvec Integrator::nuclearAttractionIntegral_C_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
 {
-    rowvec dVdA = zeros<rowvec>(3);
+    rowvec dVab = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+
+    double p = a + b;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec PC = P - C;
+
+    m_hermiteIntegrals->setupR(PC,p, m_Ren);
+
+
+    uint tMax = iA + iB + 1;
+    uint uMax = jA + jB + 1;
+    uint vMax = kA + kB + 1;
+
+
+    for(uint t = 0; t < tMax; t++){
+        for(uint u = 0; u < uMax; u++){
+            for(uint v = 0; v < vMax; v++){
+                dVab(0) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t+1,u,v);
+                dVab(1) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u+1,v);
+                dVab(2) += m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v) * m_Ren(0)(t,u,v+1);
+            }
+        }
+    }
+
+    return 2 * M_PI / p * dVab;
+}
+
+rowvec Integrator::nuclearAttractionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                        bool differentiateWrtA,
+                                                        bool differentiateWrtB,
+                                                        bool differentiateWrtC)
+{
+    rowvec dVab = zeros<rowvec>(3);
     const double &a = m_exponentA;
     const double &b = m_exponentB;
     double p = a + b;
 
-
     if(differentiateWrtA){
-        Vab += a/p * nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
+        dVab += a/p * nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
                + nuclearAttractionIntegral_R_derivative(iA, jA, kA, iB, jB, kB) ;
-    }else{
-        dVdA += b/p * nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
+    }
+
+    if(differentiateWrtB){
+        dVab += b/p * nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
                 - nuclearAttractionIntegral_R_derivative(iA, jA, kA, iB, jB, kB) ;
     }
 
-    dVdA = nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
-            + nuclearAttractionIntegral_R_derivative(iA, jA, kA, iB, jB, kB) ;
-
-//    cout <<"A: " << m_corePositionA << endl;
-//    cout <<"B: " << m_corePositionB << endl;
-//    cout <<"C: " << m_corePositionC << endl;
-//    cout <<"dP: " << nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB) << endl;
-//    cout <<"dR: "<< nuclearAttractionIntegral_R_derivative(iA, jA, kA, iB, jB, kB) << endl;
-//    cout << "--------------------" << endl;
-//    sleep(1);
-
-
-    if(A){
-        return dVdA;
-    }else{
-        return -dVdA;
+    if(differentiateWrtC){
+        dVab -= nuclearAttractionIntegral_C_derivative(iA, jA, kA, iB, jB, kB);
     }
+
+        return dVab;
 }
 
 

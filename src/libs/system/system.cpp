@@ -188,15 +188,20 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
 {
     rowvec dVab = zeros<rowvec>(3);
 
-//    if(!(N == m_coreID.at(a) || N == m_coreID.at(b)) ){
-//        return dVab;
-//    }
+    bool differentiateWrtA;
+    bool differentiateWrtB;
+    bool differentiateWrtC;
 
-    bool A;
     if(N == m_coreID.at(a)){
-        A = true;
+        differentiateWrtA = true;
     }else{
-        A = false;
+        differentiateWrtA = false;
+    }
+
+    if(N == m_coreID.at(b)){
+        differentiateWrtB = true;
+    }else{
+        differentiateWrtB = false;
     }
 
     const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
@@ -220,19 +225,28 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
             integrator.updateHermiteCoefficients(true, false);
             integrator.updateHermiteCoefficients_derivative(true,false);
 
-
             for(uint c = 0; c < m_basisSet.size(); c++){
                 const BasisSet *coreC = m_basisSet.at(c);
                 integrator.setCorePositionC(coreC->corePosition());
 
+                if(N == c){
+                    differentiateWrtC = true;
+                }else{
+                    differentiateWrtC = false;
+                }
+
                 dVab -= m_coreCharges(c)* primitiveA.weight() * primitiveB.weight()*
                         integrator.nuclearAttractionIntegral_derivative(powA(0), powA(1), powA(2),
-                                                                        powB(0), powB(1), powB(2), A);
+                                                                        powB(0), powB(1), powB(2),
+                                                                        differentiateWrtA,
+                                                                        differentiateWrtB,
+                                                                        differentiateWrtC);
 
             }
 
         }
     }
+
 
     return dVab;
 
