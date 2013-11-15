@@ -241,7 +241,6 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
                                                                         differentiateWrtA,
                                                                         differentiateWrtB,
                                                                         differentiateWrtC);
-
             }
 
         }
@@ -325,28 +324,32 @@ double System::getNucleiPotential()
     return value;
 }
 
-rowvec System::getNucleiPotential_derivative(int k)
+rowvec System::getNucleiPotential_derivative(int activeCore)
 {
-    double value = 0;
-    rowvec dVnm = {1,1,1};
+    int sgn = 0;
+    double value;
+    rowvec dVnm = {0,0,0};
     rowvec3 R;
 
-    for(uint j = 0; j < m_basisSet.size(); j++){
-        if(k != j){
-            R = m_basisSet.at(k)->corePosition() - m_basisSet.at(j)->corePosition();
-            value -= 1.0/dot(R,R);
+    for(uint a = 0; a < m_basisSet.size(); a++){
+        for(uint b = a+1; b < m_basisSet.size(); b++){
+            R = m_basisSet.at(a)->corePosition() - m_basisSet.at(b)->corePosition();
+
+            if(activeCore == a){
+                sgn = 1;
+            }else if(activeCore == b){
+                sgn = -1;
+            }else{
+                sgn = 0.0;
+            }
+
+            value = sgn * 1.0/pow(dot(R,R),1.5);
+            dVnm = value * R;
         }
     }
 
-    for(uint i = 0; i < m_basisSet.size(); i++){
-        if(k != i){
-            R = m_basisSet.at(i)->corePosition() - m_basisSet.at(k)->corePosition();
-            value -= 1.0/dot(R,R);
-        }
-    }
 
-
-  return dVnm*value*0.5;
+  return -dVnm;
 
 }
 

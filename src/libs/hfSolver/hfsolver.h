@@ -19,6 +19,8 @@ public:
     mat gethmatrix();
     mat getSmatrix();
 
+    mat getC() const;
+
 private:
     System *m_system;
 

@@ -4,6 +4,7 @@
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
 #include<cpmd/cpmd.h>
+#include<bomd/bomd.h>
 #include<basisSet/h_quadzeta.h>
 #include<basisSet/splitValence/h_321g.h>
 #include<basisSet/splitValence/h_431g.h>
@@ -30,7 +31,8 @@ int main()
     int m_case = 0;
 
     if(m_case == 0){
-        cpmd mdSolver;
+//        cpmd mdSolver;
+        BOMD mdSolver;
         mdSolver.runDynamics();
         return 0;
 

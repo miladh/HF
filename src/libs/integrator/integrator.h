@@ -57,7 +57,8 @@ public:
    rowvec overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
    rowvec kineticIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
    rowvec nuclearAttractionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
-                                               bool differentiateWrtA, bool differentiateWrtB, bool differentiateWrtC);
+                                               bool differentiateWrtA, bool differentiateWrtB,
+                                               bool differentiateWrtC);
 
 
 private:

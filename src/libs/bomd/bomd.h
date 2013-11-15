@@ -1,5 +1,5 @@
-#ifndef CPMD_H
-#define CPMD_H
+#ifndef BOMD_H
+#define BOMD_H
 
 #include <iostream>
 #include <armadillo>
@@ -16,26 +16,25 @@
 using namespace arma;
 using namespace std;
 
-class cpmd
+class BOMD
 {
 public:
-    cpmd();
-
+    BOMD();
     void runDynamics();
 
 private:
     int m_nElectrons, m_nOrbitals;
-    int m_nSteps, m_eSteps;
+    int m_nSteps;
 
-    double m_dte, m_dtn;
-    double m_gammaE, m_gammaN;
-    double m_massE, m_massN;
+    double m_dtn;
+    double m_gammaN;
+    double m_massN;
     double m_lambda;
 
     rowvec m_energyGradient;
     rowvec m_coreCharges;
     mat m_C, m_Cp, m_Cm;
-    mat m_S, m_h, m_F, m_P;
+    mat m_S, m_h, m_P;
 
     mat pos, posNew, posOld;
 
@@ -51,14 +50,15 @@ private:
 
 
     void systemConfiguration();
-    void setupFockMatrix();
     void setupDerivativeMatrices(const int core);
+
     void IntegrateWavefunctionForwardInTime(int orb);
     void IntegrateCoreForwardInTime(int core);
-    double calculateEnergy();
+
     rowvec calculateEnergy_derivative(int core);
-    mat normalize(mat C, mat S);
     void writeToFile(const mat R, int n);
 };
 
-#endif // CPMD_H
+#endif // BOMD_H
+
+

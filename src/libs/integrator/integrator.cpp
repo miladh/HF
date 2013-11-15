@@ -189,7 +189,6 @@ double Integrator::overlapIntegral(int iA, int jA, int kA, int iB, int jB, int k
 double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
 {
     double p =  m_exponentA +  m_exponentB;
-//    cout << m_dEab(cor)<< endl;
     return m_dEab(cor)(iA,iB,0) * sqrt(M_PI / p);
 }
 
@@ -424,8 +423,7 @@ rowvec Integrator::nuclearAttractionIntegral_C_derivative(int iA, int jA, int kA
 }
 
 rowvec Integrator::nuclearAttractionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
-                                                        bool differentiateWrtA,
-                                                        bool differentiateWrtB,
+                                                        bool differentiateWrtA, bool differentiateWrtB,
                                                         bool differentiateWrtC)
 {
     rowvec dVab = zeros<rowvec>(3);
