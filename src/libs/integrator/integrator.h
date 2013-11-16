@@ -60,7 +60,10 @@ public:
                                                bool differentiateWrtA, bool differentiateWrtB,
                                                bool differentiateWrtC);
 
-
+   rowvec electronRepulsionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                               int iC, int jC, int kC, int iD, int jD, int kD,
+                                               bool differentiateWrtA, bool differentiateWrtB,
+                                               bool differentiateWrtC,  bool differentiateWrtD);
 private:
     uint m_maxAngularMomentum;
 
@@ -89,6 +92,15 @@ private:
     rowvec nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
     rowvec nuclearAttractionIntegral_P_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
     rowvec nuclearAttractionIntegral_C_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
+    rowvec electronRepulsionIntegral_Rab_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                  int iC, int jC, int kC, int iD, int jD, int kD);
+    rowvec electronRepulsionIntegral_Rcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                  int iC, int jC, int kC, int iD, int jD, int kD);
+    rowvec electronRepulsionIntegral_Pab_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                  int iC, int jC, int kC, int iD, int jD, int kD);
+
+
+    rowvec electronRepulsionIntegral_Pcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB, int iC, int jC, int kC, int iD, int jD, int kD);
 };
 
 #endif // INTEGRATOR_H

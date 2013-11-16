@@ -252,6 +252,96 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
 
 }
 
+rowvec System::getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
+                                                const int N)
+{
+    rowvec dQabcd = zeros<rowvec>(3);
+
+    bool differentiateWrtA;
+    bool differentiateWrtB;
+    bool differentiateWrtC;
+    bool differentiateWrtD;
+
+    if(N == m_coreID.at(a)){
+        differentiateWrtA = true;
+    }else{
+        differentiateWrtA = false;
+    }
+
+    if(N == m_coreID.at(b)){
+        differentiateWrtB = true;
+    }else{
+        differentiateWrtB = false;
+    }
+
+    if(N == m_coreID.at(c)){
+        differentiateWrtC = true;
+    }else{
+        differentiateWrtC = false;
+    }
+
+    if(N == m_coreID.at(d)){
+        differentiateWrtD = true;
+    }else{
+        differentiateWrtD = false;
+    }
+
+
+    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
+    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
+    const BasisSet *coreC = m_basisSet.at(m_coreID.at(c));
+    const BasisSet *coreD = m_basisSet.at(m_coreID.at(d));
+    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
+    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
+    const ContractedGTO &contractedC = coreC->getContracted(c - m_cumSumContracted.at(m_coreID.at(c)));
+    const ContractedGTO &contractedD = coreD->getContracted(d - m_cumSumContracted.at(m_coreID.at(d)));
+
+    integrator.setCorePositionA(coreA->corePosition());
+    integrator.setCorePositionB(coreB->corePosition());
+    integrator.setCorePositionC(coreC->corePosition());
+    integrator.setCorePositionD(coreD->corePosition());
+
+    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
+        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
+        const rowvec &powA = primitiveA.powers();
+        integrator.setExponentA(primitiveA.exponent());
+
+        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
+            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
+            const rowvec &powB = primitiveB.powers();
+            integrator.setExponentB(primitiveB.exponent());
+
+            integrator.updateHermiteCoefficients(true, false);
+            integrator.updateHermiteCoefficients_derivative(true, false);
+
+            for(int k = 0; k < contractedC.getNumPrimitives(); k++){
+                const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
+                const rowvec &powC = primitiveC.powers();
+                integrator.setExponentC(primitiveC.exponent());
+
+                for(int l = 0; l < contractedD.getNumPrimitives(); l++){
+                    const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
+                    const rowvec &powD = primitiveD.powers();
+                    integrator.setExponentD(primitiveD.exponent());
+
+                    integrator.updateHermiteCoefficients(false, true);
+                    integrator.updateHermiteCoefficients_derivative(false, true);
+
+                    dQabcd += primitiveA.weight() * primitiveB.weight() * primitiveC.weight() * primitiveD.weight()
+                            * integrator.electronRepulsionIntegral_derivative(powA(0), powA(1), powA(2),
+                                                                              powB(0), powB(1), powB(2),
+                                                                              powC(0), powC(1), powC(2),
+                                                                              powD(0), powD(1), powD(2),
+                                                                              differentiateWrtA, differentiateWrtB,
+                                                                              differentiateWrtC, differentiateWrtD);
+
+                }
+            }
+        }
+    }
+
+    return dQabcd;
+}
 
 
 double System::getTwoParticleIntegral(const int a, const int b, const int c, const int d)

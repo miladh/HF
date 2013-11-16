@@ -20,7 +20,7 @@ HFsolver::HFsolver(System *system):
 
     m_fockEnergy = 1.0E6;
     m_energy = 1.0E6;
-    m_toler = 1.0E-6;
+    m_toler = 1.0E-5; //CHECK CONVERGENCE!!!!!!!!!!!!!!
 }
 
 void HFsolver::runSolver()
@@ -31,28 +31,35 @@ void HFsolver::runSolver()
     setupOneParticleMatrix();
     setupTwoParticleMatrix();
 
-    while (m_energyDiff > m_toler){
-        m_fockEnergyOld = m_fockEnergy;
-        setupFockMatrix();
-        solveSingle();
-        m_energyDiff = fabs(m_fockEnergyOld - m_fockEnergy);
+//    int step = 0;
+//    int maxStep = 100;
+//    while (m_energyDiff > m_toler){
+//        m_fockEnergyOld = m_fockEnergy;
+//        setupFockMatrix();
+//        solveSingle();
+//        m_energyDiff = fabs(m_fockEnergyOld - m_fockEnergy);
 
-        m_energy = 0;
+//        m_energy = 0;
 
-        for (int p = 0; p < m_nOrbitals; p++){
-            for (int q = 0; q < m_nOrbitals; q++){
-                m_energy += m_P(p, q)*m_h(p, q);
+//        for (int p = 0; p < m_nOrbitals; p++){
+//            for (int q = 0; q < m_nOrbitals; q++){
+//                m_energy += m_P(p, q)*m_h(p, q);
 
-                for (int r = 0; r < m_nOrbitals; r++){
-                    for (int s = 0; s < m_nOrbitals; s++){
-                        m_energy += 0.5*m_P(p,q)*m_P(s,r)*(m_Q(p,r)(q,s) - 0.5*m_Q(p,r)(s,q));
-                    }
-                }
-            }
-        }
-        m_energy += m_system->getNucleiPotential();
-        cout << "Energy: " << setprecision(10) << m_energy << endl;
-    }
+//                for (int r = 0; r < m_nOrbitals; r++){
+//                    for (int s = 0; s < m_nOrbitals; s++){
+//                        m_energy += 0.5*m_P(p,q)*m_P(s,r)*(m_Q(p,r)(q,s) - 0.5*m_Q(p,r)(s,q));
+//                    }
+//                }
+//            }
+//        }
+//        m_energy += m_system->getNucleiPotential();
+////        cout << "Energy: " << setprecision(10) << m_energy << endl;
+
+//        step+=1;
+//        if(step > maxStep){
+//            cerr << "Energy has not converged! " << endl;
+//        }
+//    }
 
 }
 
@@ -153,6 +160,12 @@ mat HFsolver::getC() const
 {
     return m_C;
 }
+
+double HFsolver::getEnergy() const
+{
+    return m_energy;
+}
+
 
 
 

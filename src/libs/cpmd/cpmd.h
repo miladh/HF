@@ -2,6 +2,7 @@
 #define CPMD_H
 
 #include <iostream>
+#include <iomanip>
 #include <armadillo>
 
 #include<system/system.h>
@@ -36,10 +37,12 @@ private:
     rowvec m_coreCharges;
     mat m_C, m_Cp, m_Cm;
     mat m_S, m_h, m_F, m_P;
+    field<mat> m_Q;
 
     mat pos, posNew, posOld;
 
-    field<mat> m_Q, m_dQ;
+//    field<mat> m_dQ;
+    field<field<rowvec>> m_dQ;
     field<rowvec> m_dS, m_dh;
 
     BasisSet *m_basisCoreA;

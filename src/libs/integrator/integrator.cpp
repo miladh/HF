@@ -451,6 +451,7 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(int iA, int jA, int kA, 
 
 
 /*---------------------------------------------------------------------------------------------------*/
+
 double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
                                              int iC, int jC, int kC, int iD, int jD, int kD)
 {
@@ -508,6 +509,315 @@ double Integrator::electronRepulsionIntegral(int iA, int jA, int kA, int iB, int
     return result;
 
 }
+rowvec Integrator::electronRepulsionIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                        int iC, int jC, int kC, int iD, int jD, int kD,
+                                                        bool differentiateWrtA, bool differentiateWrtB,
+                                                        bool differentiateWrtC, bool differentiateWrtD)
+{
+    rowvec dQabcd = zeros<rowvec>(3);
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+    const double &c  = m_exponentC;
+    const double &d  = m_exponentD;
+
+    double p = a + b;
+    double q = c + d;
+
+    rowvec dQdPab, dQdPcd;
+    rowvec dQdRab, dQdRcd;
+
+    if(differentiateWrtA || differentiateWrtB){
+        dQdPab = electronRepulsionIntegral_Pab_derivative(iA, jA, kA, iB, jB, kB,
+                                                      iC, jC, kC, iD, jD, kD);
+        dQdRab = electronRepulsionIntegral_Rab_derivative(iA, jA, kA, iB, jB, kB,
+                                                          iC, jC, kC, iD, jD, kD) ;
+    }
+    if(differentiateWrtC || differentiateWrtD){
+        dQdRcd = electronRepulsionIntegral_Rcd_derivative(iA, jA, kA, iB, jB, kB,
+                                                          iC, jC, kC, iD, jD, kD);
+        dQdPcd = electronRepulsionIntegral_Pcd_derivative(iA, jA, kA, iB, jB, kB,
+                                                          iC, jC, kC, iD, jD, kD);
+    }
+
+
+    if(differentiateWrtA){
+        dQabcd  += a/p * dQdPab + dQdRab;
+    }
+
+    if(differentiateWrtB){
+        dQabcd  += b/p * dQdPab - dQdRab;
+    }
+
+    if(differentiateWrtC){
+        dQabcd  += c/q * dQdPcd + dQdRcd;
+    }
+
+    if(differentiateWrtD){
+        dQabcd  += d/q * dQdPcd - dQdRcd;
+    }
+
+    return dQabcd;
+
+}
+
+rowvec Integrator::electronRepulsionIntegral_Pab_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                        int iC, int jC, int kC, int iD, int jD, int kD)
+{
+    rowvec dQabcd = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+    const rowvec &D = m_corePositionD;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+    const double &c  = m_exponentC;
+    const double &d  = m_exponentD;
+
+    double p = a + b;
+    double q = c + d;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec Q  = (c*C + d*D)/q;
+
+    double alpha = p*q/(p+q);
+    rowvec PQ = P - Q;
+
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+
+
+    int tMax = iA + iB + 1;
+    int uMax = jA + jB + 1;
+    int vMax = kA + kB + 1;
+    int kMax = iC + iD + 1;
+    int lMax = jC + jD + 1;
+    int mMax = kC + kD + 1;
+
+    for(int t = 0; t < tMax; t++){
+        for(int u = 0; u < uMax; u++){
+            for(int v = 0; v < vMax; v++){
+
+                double Etuv= m_Eab[0](iA, iB, t) * m_Eab[1](jA, jB, u) * m_Eab[2](kA, kB, v);
+
+                for(int k = 0; k < kMax; k++){
+                    for(int l = 0; l < lMax; l++){
+                        for(int m = 0; m < mMax; m++){
+
+                            double Eklm= m_Ecd[0](iC, iD, k) * m_Ecd[1](jC, jD, l) * m_Ecd[2](kC, kD, m);
+
+                            dQabcd(0) += Etuv*Eklm  * m_Ree(0)(t+1+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+                            dQabcd(1) += Etuv*Eklm  * m_Ree(0)(t+k,u+1+l,v+m) * (1 - 2* ((k+l+m)%2));
+                            dQabcd(2) += Etuv*Eklm  * m_Ree(0)(t+k,u+l,v+1+m) * (1 - 2* ((k+l+m)%2));
+
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    dQabcd  *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
+
+    return dQabcd ;
+
+}
+
+
+rowvec Integrator::electronRepulsionIntegral_Pcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                        int iC, int jC, int kC, int iD, int jD, int kD)
+{
+    rowvec dQabcd = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+    const rowvec &D = m_corePositionD;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+    const double &c  = m_exponentC;
+    const double &d  = m_exponentD;
+
+    double p = a + b;
+    double q = c + d;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec Q  = (c*C + d*D)/q;
+
+    double alpha = p*q/(p+q);
+    rowvec PQ = P - Q;
+
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+
+
+    int tMax = iA + iB + 1;
+    int uMax = jA + jB + 1;
+    int vMax = kA + kB + 1;
+    int kMax = iC + iD + 1;
+    int lMax = jC + jD + 1;
+    int mMax = kC + kD + 1;
+
+    for(int t = 0; t < tMax; t++){
+        for(int u = 0; u < uMax; u++){
+            for(int v = 0; v < vMax; v++){
+
+                double Etuv= m_Eab[0](iA, iB, t) * m_Eab[1](jA, jB, u) * m_Eab[2](kA, kB, v);
+
+                for(int k = 0; k < kMax; k++){
+                    for(int l = 0; l < lMax; l++){
+                        for(int m = 0; m < mMax; m++){
+
+                            double Eklm= m_Ecd[0](iC, iD, k) * m_Ecd[1](jC, jD, l) * m_Ecd[2](kC, kD, m);
+
+                            dQabcd(0) += Etuv*Eklm  * m_Ree(0)(t+k+1,u+l,v+m) * (1 - 2* ((k+1+l+m)%2));
+                            dQabcd(1) += Etuv*Eklm  * m_Ree(0)(t+k,u+l+1,v+m) * (1 - 2* ((k+l+1+m)%2));
+                            dQabcd(2) += Etuv*Eklm  * m_Ree(0)(t+k,u+l,v+m+1) * (1 - 2* ((k+l+m+1)%2));
+
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    dQabcd  *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
+
+    return dQabcd ;
+
+}
+
+rowvec Integrator::electronRepulsionIntegral_Rab_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                        int iC, int jC, int kC, int iD, int jD, int kD)
+{
+
+    rowvec dQabcd = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+    const rowvec &D = m_corePositionD;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+    const double &c  = m_exponentC;
+    const double &d  = m_exponentD;
+
+    double p = a + b;
+    double q = c + d;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec Q  = (c*C + d*D)/q;
+
+    double alpha = p*q/(p+q);
+    rowvec PQ = P - Q;
+
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+
+
+    int tMax = iA + iB + 1;
+    int uMax = jA + jB + 1;
+    int vMax = kA + kB + 1;
+    int kMax = iC + iD + 1;
+    int lMax = jC + jD + 1;
+    int mMax = kC + kD + 1;
+
+    for(int t = 0; t < tMax; t++){
+        for(int u = 0; u < uMax; u++){
+            for(int v = 0; v < vMax; v++){
+
+                rowvec3 dEtuv = zeros<rowvec>(3);;
+                dEtuv(0) = m_dEab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v);
+                dEtuv(1) = m_Eab(0)(iA, iB, t) * m_dEab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v);
+                dEtuv(2) = m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_dEab(2)(kA, kB, v);
+
+                for(int k = 0; k < kMax; k++){
+                    for(int l = 0; l < lMax; l++){
+                        for(int m = 0; m < mMax; m++){
+
+                            double Eklm= m_Ecd(0)(iC, iD, k) * m_Ecd(1)(jC, jD, l) * m_Ecd(2)(kC, kD, m);
+
+                            dQabcd(0) += dEtuv(0) * Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+                            dQabcd(1) += dEtuv(1) * Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+                            dQabcd(2) += dEtuv(2) * Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    dQabcd *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
+
+    return dQabcd;
+
+}
+
+rowvec Integrator::electronRepulsionIntegral_Rcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
+                                                        int iC, int jC, int kC, int iD, int jD, int kD)
+{
+
+    rowvec dQabcd = zeros<rowvec>(3);
+    const rowvec &A = m_corePositionA;
+    const rowvec &B = m_corePositionB;
+    const rowvec &C = m_corePositionC;
+    const rowvec &D = m_corePositionD;
+
+    const double &a  = m_exponentA;
+    const double &b  = m_exponentB;
+    const double &c  = m_exponentC;
+    const double &d  = m_exponentD;
+
+    double p = a + b;
+    double q = c + d;
+    rowvec P  = (a*A + b*B)/p;
+    rowvec Q  = (c*C + d*D)/q;
+
+    double alpha = p*q/(p+q);
+    rowvec PQ = P - Q;
+
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+
+    int tMax = iA + iB + 1;
+    int uMax = jA + jB + 1;
+    int vMax = kA + kB + 1;
+    int kMax = iC + iD + 1;
+    int lMax = jC + jD + 1;
+    int mMax = kC + kD + 1;
+
+    for(int t = 0; t < tMax; t++){
+        for(int u = 0; u < uMax; u++){
+            for(int v = 0; v < vMax; v++){
+
+                double Etuv= m_Eab(0)(iA, iB, t) * m_Eab(1)(jA, jB, u) * m_Eab(2)(kA, kB, v);
+
+                for(int k = 0; k < kMax; k++){
+                    for(int l = 0; l < lMax; l++){
+                        for(int m = 0; m < mMax; m++){
+
+                            rowvec3 dEklm = zeros<rowvec>(3);;
+                            dEklm(0) = m_dEcd(0)(iC, iD, t) * m_Ecd(1)(jC, jD, u) * m_Ecd(2)(kC, kD, v);
+                            dEklm(1) = m_Ecd(0)(iC, iD, t) * m_dEcd(1)(jC, jD, u) * m_Ecd(2)(kC, kD, v);
+                            dEklm(2) = m_Ecd(0)(iC, iD, t) * m_Ecd(1)(jC, jD, u) * m_dEcd(2)(kC, kD, v);
+
+                            dQabcd(0) += dEklm(0) * Etuv * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));;
+                            dQabcd(1) += dEklm(1) * Etuv * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));;
+                            dQabcd(2) += dEklm(2) * Etuv * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));;
+
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    dQabcd  *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
+
+    return dQabcd ;
+
+}
+
+
+
 
 
 

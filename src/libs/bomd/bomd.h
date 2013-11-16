@@ -27,9 +27,11 @@ private:
     int m_nSteps;
 
     double m_dtn;
-    double m_gammaN;
     double m_massN;
-    double m_lambda;
+    double m_dampingFactor;
+    double m_energy;
+
+    rowvec coreMass;
 
     rowvec m_energyGradient;
     rowvec m_coreCharges;
@@ -38,12 +40,14 @@ private:
 
     mat pos, posNew, posOld;
 
-    field<mat> m_Q, m_dQ;
+    field<mat> m_Q;
+    field<field<rowvec>>m_dQ;
     field<rowvec> m_dS, m_dh;
 
     BasisSet *m_basisCoreA;
     BasisSet *m_basisCoreB;
     BasisSet *m_basisCoreC;
+
     System* m_system;
     HFsolver *m_solver;
 

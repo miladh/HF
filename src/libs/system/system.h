@@ -28,7 +28,12 @@ public:
     rowvec getOverlapDerivative(const int a, const int b, const int N);
     rowvec getKineticIntegralDerivative(const int a, const int b, const int N);
     rowvec getAttractionIntegralDerivative(const int a, const int b, const int N);
+    rowvec getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
+                                            const int N);
+
+
     rowvec getNucleiPotential_derivative(int activeCore);
+
 
 private:
     vector<BasisSet *> m_basisSet;

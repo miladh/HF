@@ -31,8 +31,8 @@ int main()
     int m_case = 0;
 
     if(m_case == 0){
-//        cpmd mdSolver;
-        BOMD mdSolver;
+        cpmd mdSolver;
+//        BOMD mdSolver;
         mdSolver.runDynamics();
         return 0;
 

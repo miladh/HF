@@ -2,6 +2,7 @@
 #define HFSOLVER_H
 
 #include <iostream>
+#include <iomanip>
 #include <armadillo>
 #include<system/system.h>
 
@@ -20,6 +21,8 @@ public:
     mat getSmatrix();
 
     mat getC() const;
+
+    double getEnergy() const;
 
 private:
     System *m_system;
