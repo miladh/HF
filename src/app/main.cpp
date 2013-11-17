@@ -28,8 +28,8 @@ int main()
     BasisSet *basisCoreC;
 
 
-    int m_case = 3;
-    int dynamic = 0;
+    int m_case = 6;
+    int dynamic = 1;
 
     if(m_case == 1){
         //Hydrogen molecule
@@ -91,9 +91,9 @@ int main()
         C = { 0.0, 0.0, 0.0};
         coreCharges = {1 , 1, 8};
         coreMass = {1 , 1, 16};
-        basisCoreA = new H_431G;
-        basisCoreB = new H_431G;
-        basisCoreC = new O_431G;
+        basisCoreA = new H_321G;
+        basisCoreB = new H_321G;
+        basisCoreC = new O_321G;
 
     }
 

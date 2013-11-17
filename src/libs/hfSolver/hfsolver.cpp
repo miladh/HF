@@ -98,8 +98,9 @@ void HFsolver::setupOneParticleMatrix()
         }
     }
 
-    cout << m_S << endl;
-    sleep(5);
+//    m_S = symmatu(m_S);
+//    m_h = symmatu(m_h);
+
 }
 
 

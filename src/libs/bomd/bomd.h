@@ -22,10 +22,10 @@ public:
     BOMD(System *system);
     void runDynamics();
 
+
 private:
     System* m_system;
     HFsolver *m_solver;
-
     int m_nCores, m_nElectrons, m_nOrbitals;
     int m_nSteps;
 
@@ -33,8 +33,8 @@ private:
     double m_dampingFactor;
     double m_energy;
 
+
     rowvec m_energyGradient;
-    rowvec m_coreCharges;
     mat m_C, m_Cp, m_Cm;
     mat m_S, m_h, m_P;
 
@@ -43,11 +43,6 @@ private:
     field<mat> m_Q;
     field<field<rowvec>>m_dQ;
     field<rowvec> m_dS, m_dh;
-
-    BasisSet *m_basisCoreA;
-    BasisSet *m_basisCoreB;
-    BasisSet *m_basisCoreC;
-
 
 
     void setupDerivativeMatrices(const int core);

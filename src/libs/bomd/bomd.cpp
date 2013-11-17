@@ -4,11 +4,15 @@ BOMD::BOMD(System *system):
     m_system(system),
     m_nCores(system->getNumOfCores()),
     m_nElectrons(system->getNumOfElectrons()),
-    m_nOrbitals(system->getTotalNumOfBasisFunc())
+    m_nOrbitals(system->getTotalNumOfBasisFunc()),
+    m_C(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_Cp(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_Cm(zeros(m_nOrbitals,m_nElectrons/2.0))
+
 
 {
-    m_nSteps = 50;
-    m_dtn   = 4.0;
+    m_nSteps = 400;
+    m_dtn   =  1.0;
     m_dampingFactor = 0.0;
 
     //initialize:
@@ -54,27 +58,24 @@ void BOMD::runDynamics()
 {
 
     for(int nStep = 0; nStep < m_nSteps; nStep++){
-        writeToFile(pos,nStep);
         m_solver->runSolver();
         m_C = m_solver->getC();
         m_P = 2*m_C*m_C.t();
         m_energy = m_solver->getEnergy();
 
-        for(uint core = 0; core < m_nCores; core++){
+        for(int core = 0; core < m_nCores; core++){
             setupDerivativeMatrices(core);
             m_energyGradient = calculateEnergyGradient(core);
             IntegrateCoreForwardInTime(core);
         }
 
+        writeToFile(pos,nStep);
+
         posOld = pos;
         pos = posNew;
         updateCorePositions();
 
-        //cout << pos << endl;
-        cout << "[" << abs(pos(0,0)- pos(1,0)) << "," << m_energy << "],"<< endl;
-        //cout << abs(pos(0,0)- pos(1,0)) << ","<< endl;
-
-        //cout << "step " << nStep << " Energy: " << m_energy << endl;
+        cout << "step " << nStep << " Energy: " << m_energy << endl;
     }
 
 }
@@ -166,21 +167,21 @@ void BOMD::writeToFile(const mat R, int n){
     stringstream outName;
     ofstream myfile;
 
-    outName << "/home/milad/kurs/data"<< n <<".xyz";
+    outName << "/home/milad/kurs/state"<< n <<".xyz";
     myfile.open(outName.str().c_str(),ios::binary);
     myfile << m_nCores   << "\n";
     myfile << "Hydrogen atoms  " << "\n";
 
     vector<string> name;
-    name.push_back("H");
-    name.push_back("H");
+    name.push_back("H ");
+    name.push_back("H ");
 
     if(m_nCores > 2){
-         name.push_back("O");
+         name.push_back("O ");
     }
 
     for(uint i=0;  i < R.n_rows; i++){
-        myfile << name.at(i) << R.row(i);
+        myfile << name.at(i) << m_energy << R.row(i);
     }
 
     outName.str( std::string() );
