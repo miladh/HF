@@ -1,7 +1,6 @@
 #include "system.h"
 
-System::System(int nElectrons, int maxAngularMomentum, rowvec coreCharges):
-    m_coreCharges(coreCharges),
+System::System(int nElectrons, int maxAngularMomentum):
     m_nElectrons(nElectrons)
 {
     integrator.setMaxAngularMomentum(maxAngularMomentum);
@@ -17,6 +16,11 @@ int System::getTotalNumOfBasisFunc()
 int System::getNumOfElectrons()
 {
     return m_nElectrons;
+}
+
+int System::getNumOfCores()
+{
+    return m_basisSet.size();
 }
 
 
@@ -70,8 +74,9 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
 
             for(uint c = 0; c < m_basisSet.size(); c++){
                 const BasisSet *coreC = m_basisSet.at(c);
+                const int coreCharge = coreC->coreCharge();
                 integrator.setCorePositionC(coreC->corePosition());
-                hab -= m_coreCharges(c)* primitiveA.weight() * primitiveB.weight()*
+                hab -= coreCharge * primitiveA.weight() * primitiveB.weight()*
                         integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
                                                              powB(0), powB(1), powB(2));
 
@@ -86,108 +91,9 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
 }
 
 
-rowvec System::getOverlapDerivative(const int a, const int b, const int N)
+mat System::getOneParticleDerivative(const int a, const int b, const int N)
 {
-    rowvec dSab = zeros<rowvec>(3);
-
-    if(!(N == m_coreID.at(a) || N == m_coreID.at(b)) ){
-        return dSab;
-    }
-
-
-    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
-    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
-    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
-    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
-
-    integrator.setCorePositionA(coreA->corePosition());
-    integrator.setCorePositionB(coreB->corePosition());
-
-    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
-        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-        const rowvec &powA = primitiveA.powers();
-        integrator.setExponentA(primitiveA.exponent());
-
-        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
-            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-            const rowvec &powB = primitiveB.powers();
-            integrator.setExponentB(primitiveB.exponent());
-
-            integrator.updateHermiteCoefficients(true, false);
-            integrator.updateHermiteCoefficients_derivative(true,false);
-
-            dSab += integrator.overlapIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
-                    * primitiveA.weight() * primitiveB.weight();
-
-        }
-
-    }
-
-
-
-    if(N == m_coreID.at(a)){
-
-        return dSab;
-    }else{
-
-        return -dSab;
-    }
-}
-
-
-rowvec System::getKineticIntegralDerivative(const int a, const int b, const int N)
-{
-    rowvec dKab = zeros<rowvec>(3);
-
-    if(!(N == m_coreID.at(a) || N == m_coreID.at(b)) ){
-        return dKab;
-    }
-
-
-    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
-    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
-    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
-    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
-
-    integrator.setCorePositionA(coreA->corePosition());
-    integrator.setCorePositionB(coreB->corePosition());
-
-
-    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
-        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-        const rowvec &powA = primitiveA.powers();
-        integrator.setExponentA(primitiveA.exponent());
-
-        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
-            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-            const rowvec &powB = primitiveB.powers();
-            integrator.setExponentB(primitiveB.exponent());
-
-            integrator.updateHermiteCoefficients(true, false);
-            integrator.updateHermiteCoefficients_derivative(true,false);
-
-            dKab += primitiveA.weight() * primitiveB.weight() *
-                    integrator.kineticIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
-
-        }
-    }
-
-    if(N == m_coreID.at(a)){
-
-        return dKab;
-    }else{
-
-        return -dKab;
-    }
-
-
-}
-
-
-rowvec System::getAttractionIntegralDerivative(const int a, const int b, const int N)
-{
-    rowvec dVab = zeros<rowvec>(3);
-
+    mat dhab = zeros(2,3);
     bool differentiateWrtA;
     bool differentiateWrtB;
     bool differentiateWrtC;
@@ -204,6 +110,7 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
         differentiateWrtB = false;
     }
 
+
     const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
     const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
     const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
@@ -225,8 +132,25 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
             integrator.updateHermiteCoefficients(true, false);
             integrator.updateHermiteCoefficients_derivative(true,false);
 
+
+            if(differentiateWrtA){
+            dhab.row(0) += integrator.overlapIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
+                        * primitiveA.weight() * primitiveB.weight();
+
+            dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
+                        integrator.kineticIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+            }
+            else if(differentiateWrtB){
+                dhab.row(0) -= integrator.overlapIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
+                            * primitiveA.weight() * primitiveB.weight();
+
+                dhab.row(1) -= primitiveA.weight() * primitiveB.weight() *
+                            integrator.kineticIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+            }
+
             for(uint c = 0; c < m_basisSet.size(); c++){
                 const BasisSet *coreC = m_basisSet.at(c);
+                const int coreCharge = coreC->coreCharge();
                 integrator.setCorePositionC(coreC->corePosition());
 
                 if(N == c){
@@ -235,22 +159,21 @@ rowvec System::getAttractionIntegralDerivative(const int a, const int b, const i
                     differentiateWrtC = false;
                 }
 
-                dVab -= m_coreCharges(c)* primitiveA.weight() * primitiveB.weight()*
-                        integrator.nuclearAttractionIntegral_derivative(powA(0), powA(1), powA(2),
-                                                                        powB(0), powB(1), powB(2),
-                                                                        differentiateWrtA,
-                                                                        differentiateWrtB,
-                                                                        differentiateWrtC);
+                dhab.row(1) -= coreCharge* primitiveA.weight() * primitiveB.weight()*
+                            integrator.nuclearAttractionIntegral_derivative(powA(0), powA(1), powA(2),
+                                                                            powB(0), powB(1), powB(2),
+                                                                            differentiateWrtA,
+                                                                            differentiateWrtB,
+                                                                            differentiateWrtC);
             }
 
         }
+
     }
 
-
-    return dVab;
-
-
+    return dhab;
 }
+
 
 rowvec System::getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
                                                 const int N)
@@ -407,7 +330,7 @@ double System::getNucleiPotential()
     for(uint a = 0; a < m_basisSet.size(); a++){
         for(uint b = a+1; b < m_basisSet.size(); b++){
             AB = m_basisSet.at(a)->corePosition() - m_basisSet.at(b)->corePosition();
-            value += m_coreCharges(a)*m_coreCharges(b)/sqrt(dot(AB,AB));
+            value += m_basisSet.at(a)->coreCharge() * m_basisSet.at(b)->coreCharge() /sqrt(dot(AB,AB));
         }
     }
 
@@ -434,7 +357,7 @@ rowvec System::getNucleiPotential_derivative(int activeCore)
             }
 
             value = sgn * 1.0/pow(dot(R,R),1.5);
-            dVnm = value * R;
+            dVnm = value * R * m_basisSet.at(a)->coreCharge() * m_basisSet.at(b)->coreCharge() ;
         }
     }
 

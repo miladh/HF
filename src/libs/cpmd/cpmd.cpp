@@ -19,7 +19,7 @@ cpmd::cpmd()
     m_basisCoreB->setCorePosition(pos.row(1));
 
     //NB Need higher maxL !!!!!!
-    m_system = new System(m_nElectrons, m_basisCoreA->getAngularMomentum()+1, m_coreCharges);
+    m_system = new System(m_nElectrons, m_basisCoreA->getAngularMomentum()+1);
     m_system->addBasisSet(m_basisCoreA);
     m_system->addBasisSet(m_basisCoreB);
 
@@ -45,7 +45,7 @@ void cpmd::systemConfiguration()
 
     m_massE = 0.3;
 //    m_massN  = 1000 * m_massE * 0.5;
-      m_massN = 1836.15*0.5*0.3;
+    m_massN = 1836.15*0.5;
 
     //initialize:
     m_F  = zeros(m_nOrbitals,m_nOrbitals);
@@ -238,13 +238,13 @@ rowvec cpmd::calculateEnergy_derivative(int core)
 
 void cpmd::setupDerivativeMatrices(const int core)
 {
-
+    mat diffOneParticleIntegral;
     //Set up the dh and dS matrix:
     for(int p = 0; p < m_nOrbitals; p++){
         for(int q = 0; q < m_nOrbitals; q++){
-            m_dS(p,q) = m_system->getOverlapDerivative(p,q,core);
-            m_dh(p,q) = m_system->getKineticIntegralDerivative(p,q,core)
-                    + m_system->getAttractionIntegralDerivative(p,q,core);
+            diffOneParticleIntegral = m_system->getOneParticleDerivative(p,q,core);
+            m_dS(p,q) = diffOneParticleIntegral.row(0);
+            m_dh(p,q) = diffOneParticleIntegral.row(1);
         }
     }
 

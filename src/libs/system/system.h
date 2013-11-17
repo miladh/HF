@@ -14,34 +14,31 @@ using namespace std;
 class System
 {
 public:
-    System(int nElectrons, int maxAngularMomentum, rowvec coreCharges);
+    System(int nElectrons, int maxAngularMomentum);
+
+    vector<BasisSet *> m_basisSet;
 
     void addBasisSet(BasisSet *basisSet);
     int getTotalNumOfBasisFunc();
     int getNumOfElectrons();
+    int getNumOfCores();
 
     double getNucleiPotential();
     rowvec getOneParticleIntegral(const int a, const int b);
     double getTwoParticleIntegral(const int p, const int q,
                                   const int r, const int s);
 
-    rowvec getOverlapDerivative(const int a, const int b, const int N);
-    rowvec getKineticIntegralDerivative(const int a, const int b, const int N);
-    rowvec getAttractionIntegralDerivative(const int a, const int b, const int N);
+    rowvec getNucleiPotential_derivative(int activeCore);
+    mat getOneParticleDerivative(const int a, const int b, const int N);
     rowvec getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
                                             const int N);
 
 
-    rowvec getNucleiPotential_derivative(int activeCore);
-
-
 private:
-    vector<BasisSet *> m_basisSet;
     Integrator integrator;
     vector<int > m_coreID;
     vector<int > m_cumSumContracted;
 
-    rowvec m_coreCharges;
     int m_nElectrons;
 };
 

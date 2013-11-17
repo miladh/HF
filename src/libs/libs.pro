@@ -40,4 +40,5 @@ HEADERS += \
     basisSet/splitValence/h_431g.h \
     basisSet/splitValence/o_431g.h \
     cpmd/cpmd.h \
-    bomd/bomd.h
+    bomd/bomd.h \
+    includes/defines.h

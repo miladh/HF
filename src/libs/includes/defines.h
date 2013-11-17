@@ -1,0 +1,7 @@
+#ifndef DEFINES_H
+#define DEFINES_H
+
+#define HFSOLVERTOLERANCE 1.0E-5
+#define PROTONMASS 1836
+
+#endif // DEFINES_H

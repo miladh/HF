@@ -21,27 +21,23 @@ int main()
 {
     double start_time = time(NULL);
     int nElectrons;
-    rowvec coreCharges, A, B, C;
+    rowvec coreCharges,coreMass, A, B, C;
 
     BasisSet *basisCoreA;
     BasisSet *basisCoreB;
     BasisSet *basisCoreC;
 
 
-    int m_case = 0;
+    int m_case = 3;
+    int dynamic = 0;
 
-    if(m_case == 0){
-        cpmd mdSolver;
-//        BOMD mdSolver;
-        mdSolver.runDynamics();
-        return 0;
-
-    }else if(m_case == 1){
+    if(m_case == 1){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-0.5, 0.0, 0.0};
-        B = {0.5, 0.0, 0.0};
+        A = {-2.5, 0.0, 0.0};
+        B = {2.5, 0.0, 0.0};
         coreCharges = {1 , 1};
+        coreMass = {1 , 1};
         basisCoreA  = new H_QuadZeta;
         basisCoreB  = new H_QuadZeta;
 
@@ -51,6 +47,7 @@ int main()
         A = {-0.7, 0.0, 0.0};
         B = {0.7, 0.0, 0.0};
         coreCharges = {1 , 1};
+        coreMass = {1 , 1};
         basisCoreA  = new H_321G;
         basisCoreB  = new H_321G;
 
@@ -60,6 +57,7 @@ int main()
         A = {-0.69, 0.0, 0.0};
         B = {0.69, 0.0, 0.0};
         coreCharges = {1 , 1};
+        coreMass = {1 , 1};
         basisCoreA  = new H_431G;
         basisCoreB  = new H_431G;
 
@@ -69,6 +67,7 @@ int main()
         A = {-2.5255, 0.0, 0.0};
         B = { 2.5255, 0.0, 0.0};
         coreCharges = {3 , 3};
+        coreMass = {7 , 7};
         basisCoreA = new Li_321G;
         basisCoreB = new Li_321G;
 
@@ -77,6 +76,7 @@ int main()
         nElectrons = 16;
         A = {-1.14, 0.0, 0.0};
         B = { 1.14, 0.0, 0.0};
+        coreMass = {16 , 16};
         coreCharges = {8 , 8};
         basisCoreA = new O_431G;
         basisCoreB = new O_431G;
@@ -90,6 +90,7 @@ int main()
         B = { -x, y, 0.0};
         C = { 0.0, 0.0, 0.0};
         coreCharges = {1 , 1, 8};
+        coreMass = {1 , 1, 16};
         basisCoreA = new H_431G;
         basisCoreB = new H_431G;
         basisCoreC = new O_431G;
@@ -99,16 +100,29 @@ int main()
     /********************************************************/
 
     int maxAngularMomentum = basisCoreA->getAngularMomentum();
+    basisCoreA->setCoreCharge(coreCharges(0));
+    basisCoreA->setCoreMass(coreMass(0));
     basisCoreA->setCorePosition(A);
+
     basisCoreB->setCorePosition(B);
+    basisCoreB->setCoreCharge(coreCharges(1));
+    basisCoreB->setCoreMass(coreMass(1));
+
 
     if(m_case == 6){
         maxAngularMomentum = basisCoreC->getAngularMomentum();
         basisCoreC->setCorePosition(C);
+        basisCoreC->setCoreCharge(coreCharges(2));
+        basisCoreC->setCoreMass(coreMass(2));
+
     }
 
 
-    System *system = new System(nElectrons, maxAngularMomentum, coreCharges);
+    if(dynamic){
+        maxAngularMomentum +=1;
+    }
+
+    System *system = new System(nElectrons, maxAngularMomentum);
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
@@ -116,8 +130,13 @@ int main()
         system->addBasisSet(basisCoreC);
     }
 
-    HFsolver solver(system);
-    solver.runSolver();
+    if(dynamic){
+        BOMD mdSolver(system);
+        mdSolver.runDynamics();
+    }else{
+        HFsolver solver(system);
+        solver.runSolver();
+    }
 
 
     double end_time = time(NULL);
