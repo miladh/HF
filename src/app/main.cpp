@@ -11,6 +11,7 @@
 #include<basisSet/splitValence/li_321g.h>
 #include<basisSet/splitValence/o_321g.h>
 #include<basisSet/splitValence/o_431g.h>
+#include<basisSet/splitValence/c_321g.h>
 
 
 using namespace arma;
@@ -30,12 +31,13 @@ int main()
 
     int m_case = 6;
     int dynamic = 1;
+    int cpmd = 1;
 
     if(m_case == 1){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-2.5, 0.0, 0.0};
-        B = {2.5, 0.0, 0.0};
+        A = {-1.5, 0.0, 0.0};
+        B = {1.5, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA  = new H_QuadZeta;
@@ -91,11 +93,24 @@ int main()
         C = { 0.0, 0.0, 0.0};
         coreCharges = {1 , 1, 8};
         coreMass = {1 , 1, 16};
-        basisCoreA = new H_321G;
-        basisCoreB = new H_321G;
-        basisCoreC = new O_321G;
+        basisCoreA = new H_431G;
+        basisCoreB = new H_431G;
+        basisCoreC = new O_431G;
+
+    }else if(m_case==7){
+        //Carbon dioxide
+        nElectrons = 22;
+        A = {-2.2, 0.0, 0.0};
+        B = { 2.2, 0.0, 0.0};
+        C = { 0.0, 0.0, 0.0};
+        coreCharges = {8 , 8, 6};
+        coreMass = {16 , 16, 12};
+        basisCoreA = new O_321G;
+        basisCoreB = new O_321G;
+        basisCoreC = new C_321G;
 
     }
+
 
     /********************************************************/
 
@@ -109,7 +124,7 @@ int main()
     basisCoreB->setCoreMass(coreMass(1));
 
 
-    if(m_case == 6){
+    if(m_case == 6 ||m_case == 7 ){
         maxAngularMomentum = basisCoreC->getAngularMomentum();
         basisCoreC->setCorePosition(C);
         basisCoreC->setCoreCharge(coreCharges(2));
@@ -126,13 +141,19 @@ int main()
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    if(m_case == 6){
+    if(m_case == 6 || m_case == 7 ){
         system->addBasisSet(basisCoreC);
     }
 
     if(dynamic){
-        BOMD mdSolver(system);
-        mdSolver.runDynamics();
+        if(cpmd){
+          CPMD cpSolver(system);
+          cpSolver.runDynamics();
+
+        }else{
+            BOMD boSolver(system);
+            boSolver.runDynamics();
+        }
     }else{
         HFsolver solver(system);
         solver.runSolver();
@@ -147,36 +168,4 @@ int main()
     return 0;
 }
 
-
-
-//vec X = linspace(0.5, 4, 20);
-//for(uint i = 0; i < X.n_elem; i++)
-//{
-
-//    double x = X[i]*cos((180-104.45) *M_PI/180.0);
-//    double y = X[i]*sin((180-104.45) *M_PI/180.0);
-//    //Water molecule
-//    nElectrons = 10;
-//    A = {X[i], 0.0, 0.0};
-//    B = { -x, y, 0.0};
-//    C = { 0.0, 0.0, 0.0};
-//    coreCharges = {1 , 1, 8};
-
-
-//    basisCoreA = new H_431G;
-//    basisCoreB = new H_431G;
-//    basisCoreC = new O_431G;
-
-//    basisCoreA->setCorePosition(A);
-//    basisCoreB->setCorePosition(B);
-//    basisCoreC->setCorePosition(C);
-//    int maxAngularMomentum = basisCoreC->getAngularMomentum();
-//    System system(nElectrons, maxAngularMomentum, coreCharges);
-//    system.addBasisSet(basisCoreA);
-//    system.addBasisSet(basisCoreB);
-//    system.addBasisSet(basisCoreC);
-//    HFsolver solver(system);
-//    solver.runSolver();
-
-//}
 

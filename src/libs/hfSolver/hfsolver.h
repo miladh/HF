@@ -23,6 +23,8 @@ public:
     mat getC() const;
 
     double getEnergy() const;
+    void setupTwoParticleMatrix();
+    void setupOneParticleMatrix();
 
 private:
     System *m_system;
@@ -35,8 +37,6 @@ private:
     void normalize();
     void solveSingle();
     void setupFockMatrix();
-    void setupTwoParticleMatrix();
-    void setupOneParticleMatrix();
     void calculateEnergy();
 };
 

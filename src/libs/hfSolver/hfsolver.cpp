@@ -82,7 +82,7 @@ void HFsolver::calculateEnergy()
     }
     m_energy += m_system->getNucleiPotential();
 
-//    cout << "Energy: " << setprecision(10) << m_energy << endl;
+//    cout << "Energy: " << setprecision(14) << m_energy << endl;
 
 }
 
@@ -91,15 +91,15 @@ void HFsolver::setupOneParticleMatrix()
     rowvec oneElectronIntegrals;
 
     for(int p = 0; p < m_nOrbitals; p++){
-        for(int q = 0; q < m_nOrbitals; q++){
+        for(int q = p; q < m_nOrbitals; q++){
             oneElectronIntegrals = m_system->getOneParticleIntegral(p,q);
             m_S(p,q) = oneElectronIntegrals(0);
             m_h(p,q) = oneElectronIntegrals(1);
         }
     }
 
-//    m_S = symmatu(m_S);
-//    m_h = symmatu(m_h);
+    m_S = symmatu(m_S);
+    m_h = symmatu(m_h);
 
 }
 
@@ -108,10 +108,17 @@ void HFsolver::setupTwoParticleMatrix()
 {
     for(int p = 0; p < m_nOrbitals; p++){
         for(int r = 0; r < m_nOrbitals; r++){
-            for(int q = 0; q < m_nOrbitals; q++){
-                for(int s = 0; s < m_nOrbitals; s++){
+            for(int q = p; q < m_nOrbitals; q++){
+                for(int s = r; s < m_nOrbitals; s++){
 
                     m_Q(p,r)(q,s) = m_system->getTwoParticleIntegral(p,q,r,s);
+                    m_Q(q,r)(p,s) = m_Q(p,r)(q,s);
+                    m_Q(p,s)(q,r) = m_Q(p,r)(q,s);
+                    m_Q(q,s)(p,r) = m_Q(p,r)(q,s);
+                    m_Q(r,p)(s,q) = m_Q(p,r)(q,s);
+                    m_Q(s,p)(r,q) = m_Q(p,r)(q,s);
+                    m_Q(r,q)(s,p) = m_Q(p,r)(q,s);
+                    m_Q(s,q)(r,p) = m_Q(p,r)(q,s);
                 }
             }
         }

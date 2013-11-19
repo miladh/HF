@@ -17,43 +17,36 @@
 using namespace arma;
 using namespace std;
 
-class cpmd
+class CPMD
 {
 public:
-    cpmd();
+    CPMD(System *system);
 
     void runDynamics();
 
 private:
-    int m_nElectrons, m_nOrbitals;
+    System* m_system;
+    HFsolver *m_solver;
+
+    int m_nCores, m_nElectrons, m_nOrbitals;
     int m_nSteps, m_eSteps;
 
     double m_dte, m_dtn;
     double m_gammaE, m_gammaN;
-    double m_massE, m_massN;
-    double m_lambda;
+    double m_massE, m_energy;
 
-    rowvec m_energyGradient;
-    rowvec m_coreCharges;
+
+    rowvec m_lambda, m_energyGradient;
     mat m_C, m_Cp, m_Cm;
     mat m_S, m_h, m_F, m_P;
     field<mat> m_Q;
 
     mat pos, posNew, posOld;
 
-//    field<mat> m_dQ;
     field<field<rowvec>> m_dQ;
     field<rowvec> m_dS, m_dh;
 
-    BasisSet *m_basisCoreA;
-    BasisSet *m_basisCoreB;
-    BasisSet *m_basisCoreC;
-    System* m_system;
-    HFsolver *m_solver;
 
-
-
-    void systemConfiguration();
     void setupFockMatrix();
     void setupDerivativeMatrices(const int core);
     void IntegrateWavefunctionForwardInTime(int orb);
@@ -62,6 +55,7 @@ private:
     rowvec calculateEnergy_derivative(int core);
     mat normalize(mat C, mat S);
     void writeToFile(const mat R, int n);
+    void updateCorePositions();
 };
 
 #endif // CPMD_H

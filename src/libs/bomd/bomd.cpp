@@ -11,8 +11,8 @@ BOMD::BOMD(System *system):
 
 
 {
-    m_nSteps = 400;
-    m_dtn   =  1.0;
+    m_nSteps = 300;
+    m_dtn   =  4.3;
     m_dampingFactor = 0.0;
 
     //initialize:
@@ -140,6 +140,7 @@ void BOMD::setupDerivativeMatrices(const int core)
         }
     }
 
+
     //Set up the dQ array:
     for(int p = 0; p < m_nOrbitals; p++){
         for(int r = 0; r < m_nOrbitals; r++){
@@ -147,6 +148,7 @@ void BOMD::setupDerivativeMatrices(const int core)
                 for(int s = 0; s < m_nOrbitals; s++){
 
                     m_dQ(p,r)(q,s) = m_system->getTwoParticleIntegralDerivative(p,q,r,s,core);
+
                 }
             }
         }

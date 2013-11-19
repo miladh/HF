@@ -20,7 +20,8 @@ SOURCES += \
     basisSet/splitValence/h_431g.cpp \
     basisSet/splitValence/o_431g.cpp \
     cpmd/cpmd.cpp \
-    bomd/bomd.cpp
+    bomd/bomd.cpp \
+    basisSet/splitValence/c_321g.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -41,4 +42,5 @@ HEADERS += \
     basisSet/splitValence/o_431g.h \
     cpmd/cpmd.h \
     bomd/bomd.h \
-    includes/defines.h
+    includes/defines.h \
+    basisSet/splitValence/c_321g.h

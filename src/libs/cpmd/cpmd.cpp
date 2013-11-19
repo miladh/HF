@@ -1,40 +1,16 @@
 #include "cpmd.h"
 
-cpmd::cpmd()
+CPMD::CPMD(System *system):
+    m_system(system),
+    m_nCores(system->getNumOfCores()),
+    m_nElectrons(system->getNumOfElectrons()),
+    m_nOrbitals(system->getTotalNumOfBasisFunc()),
+    m_C(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_Cp(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_Cm(zeros(m_nOrbitals,m_nElectrons/2.0))
 {
-    m_coreCharges = {1 , 1};
-    m_nElectrons = 2;
-    m_basisCoreA  =  new H_QuadZeta;
-    m_basisCoreB  =  new H_QuadZeta;
 
-    pos = zeros(m_coreCharges.n_elem, 3);
-    posNew = zeros(m_coreCharges.n_elem, 3);
-    posOld = zeros(m_coreCharges.n_elem, 3);
-
-    pos(0,0) = -0.675;
-    pos(1,0) = 0.675;
-    posOld = pos;
-
-    m_basisCoreA->setCorePosition(pos.row(0));
-    m_basisCoreB->setCorePosition(pos.row(1));
-
-    //NB Need higher maxL !!!!!!
-    m_system = new System(m_nElectrons, m_basisCoreA->getAngularMomentum()+1);
-    m_system->addBasisSet(m_basisCoreA);
-    m_system->addBasisSet(m_basisCoreB);
-
-    m_solver = new HFsolver(m_system);
-
-    systemConfiguration();
-
-}
-
-
-void cpmd::systemConfiguration()
-{
-    m_nOrbitals = m_system->getTotalNumOfBasisFunc();
-
-    m_nSteps = 65;
+    m_nSteps = 300;
     m_eSteps = 50;
 
     m_dte    = 0.1;
@@ -43,9 +19,7 @@ void cpmd::systemConfiguration()
     m_gammaE = 1.0;
     m_gammaN = 0.0;
 
-    m_massE = 0.3;
-//    m_massN  = 1000 * m_massE * 0.5;
-    m_massN = 1836.15*0.5;
+    m_massE = 5.0;
 
     //initialize:
     m_F  = zeros(m_nOrbitals,m_nOrbitals);
@@ -58,7 +32,6 @@ void cpmd::systemConfiguration()
     m_dh.set_size(m_nOrbitals,m_nOrbitals);
     m_dS.set_size(m_nOrbitals,m_nOrbitals);
     m_dQ.set_size(m_nOrbitals, m_nOrbitals);
-
     for(int i = 0; i < m_nOrbitals; i++ ){
         for(int j = 0; j < m_nOrbitals; j++ ){
             m_dh(i,j)  = zeros<rowvec>(3);
@@ -77,24 +50,31 @@ void cpmd::systemConfiguration()
         }
     }
 
+    pos    = zeros(m_nCores, 3);
+    posNew = zeros(m_nCores, 3);
+    posOld = zeros(m_nCores, 3);
+    m_lambda = zeros<rowvec>(m_nElectrons/2.0);
+
+    for(int core = 0; core < m_nCores; core++){
+        pos.row(core) = m_system->m_basisSet.at(core)->corePosition();
+    }
+
+    posOld = pos;
+    m_solver = new HFsolver(m_system);
+
 
 }
 
-/*****************************************************************************************************/
-/*****************************************************************************************************/
-/*****************************************************************************************************/
 
-void cpmd::runDynamics()
+void CPMD::runDynamics()
 {
-    double Eg;
 
     for(int nStep = 0; nStep < m_nSteps; nStep++){
-        writeToFile(pos,nStep);
-        m_solver->runSolver();
+        m_solver->setupOneParticleMatrix();
+        m_solver->setupTwoParticleMatrix();
         m_Q = m_solver->getQmatrix();
         m_h = m_solver->gethmatrix();
         m_S = m_solver->getSmatrix();
-
 
         m_C = normalize(m_C,m_S);
         m_Cm = normalize(m_Cm,m_S);
@@ -102,45 +82,41 @@ void cpmd::runDynamics()
         for(uint orbital = 0; orbital < m_C.n_cols; orbital++ ){
 
             //Loop over time
-            for(int eStep=0; eStep < m_eSteps+1; eStep++){
+            for(int eStep=0; eStep < m_eSteps; eStep++){
                 setupFockMatrix();
                 IntegrateWavefunctionForwardInTime(orbital);
-                Eg = calculateEnergy();
+                m_energy = calculateEnergy();
 
             }// End of time loop electrons
         }
 
+        cout << m_lambda << endl;
 
         //For more then 2 electrons, lambda is different for different Cs!!!
         m_lambda *= (m_massE + m_gammaE * m_dte * 0.5 ) / ( 2 * m_dte * m_dte );
 
-        for(uint core = 0; core < m_coreCharges.n_elem; core++){
+        for(int core = 0; core < m_nCores; core++){
             setupDerivativeMatrices(core);
             m_energyGradient = calculateEnergy_derivative(core);
             IntegrateCoreForwardInTime(core);
         }
 
+        writeToFile(pos,nStep);
+
         posOld = pos;
         pos = posNew;
+        updateCorePositions();
 
 
-        m_basisCoreA->setCorePosition(pos.row(0));
-        m_basisCoreB->setCorePosition(pos.row(1));
-
-
-//                       cout << pos << endl;
-                cout << "[" << abs(pos(0,0)- pos(1,0)) << "," << Eg << "],"<< endl;
-//                cout << abs(pos(0,0)- pos(1,0)) << ","<< endl;
-
-//        cout << "step " << nStep << endl;
-    }// End of time loop nuclei
+        cout << "step " << nStep << " Energy: " << m_energy << endl;
+    }
 
 }
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 
-void cpmd::IntegrateWavefunctionForwardInTime(int orb)
+void CPMD::IntegrateWavefunctionForwardInTime(int orb)
 {
 
     double a, b, c;
@@ -174,14 +150,14 @@ void cpmd::IntegrateWavefunctionForwardInTime(int orb)
     }
 
     if(lambdaVec(0) >= 0.0 ){
-        m_lambda = lambdaVec(0);
+        m_lambda(orb) = lambdaVec(0);
     }else{
-        m_lambda = lambdaVec(1) ;
+        m_lambda(orb) = lambdaVec(1) ;
     }
 
 
     //Calculate C(t+h):
-    m_Cp.col(orb) -= m_lambda * m_S * m_C.col(orb);
+    m_Cp.col(orb) -= m_lambda(orb) * m_S * m_C.col(orb);
 
 
     //update C
@@ -191,9 +167,9 @@ void cpmd::IntegrateWavefunctionForwardInTime(int orb)
 
 
 
-void cpmd::IntegrateCoreForwardInTime(int core)
+void CPMD::IntegrateCoreForwardInTime(int core)
 {
-
+    int coreMass = m_system->m_basisSet.at(core)->coreMass();
     mat tmp = zeros(m_nOrbitals, m_nOrbitals);
 
     for(int i = 0; i < 3; i ++){
@@ -204,15 +180,38 @@ void cpmd::IntegrateCoreForwardInTime(int core)
             }
         }
 
-        posNew(core,i) = ( 2 * pos(core,i) * m_massN - posOld(core,i) * ( m_massN - m_gammaN * m_dtn * 0.5)
-                           - m_dtn * m_dtn * (m_energyGradient(i) + m_lambda * dot(m_C, tmp * m_C) ) )
-                         / (m_massN + m_gammaN * m_dtn * 0.5 );
+        posNew(core,i) = ( 2 * pos(core,i) * coreMass - posOld(core,i) * ( coreMass - m_gammaN * m_dtn * 0.5)
+                           - m_dtn * m_dtn * (m_energyGradient(i) + m_lambda(0) * dot(m_C, tmp * m_C) ) )
+                         / (coreMass + m_gammaN * m_dtn * 0.5 );
     }
-
 
 }
 
-rowvec cpmd::calculateEnergy_derivative(int core)
+double CPMD::calculateEnergy()
+
+{
+    double Eg = 0.0;
+    m_P = 2*m_C*m_C.t();
+    for (int p = 0; p < m_nOrbitals; p++){
+        for (int q = 0; q < m_nOrbitals; q++){
+            Eg += m_P(p, q)*m_h(p, q);
+
+            for (int r = 0; r < m_nOrbitals; r++){
+                for (int s = 0; s < m_nOrbitals; s++){
+                    Eg += 0.5*m_P(p,q)*m_P(s,r)*(m_Q(p,r)(q,s) - 0.5*m_Q(p,r)(s,q));
+                }
+            }
+        }
+    }
+
+    //Nuclear repulsion term
+    Eg +=m_system->getNucleiPotential();
+
+    return Eg;
+
+}
+
+rowvec CPMD::calculateEnergy_derivative(int core)
 {
     rowvec dE  = {0,0,0};
 
@@ -236,7 +235,7 @@ rowvec cpmd::calculateEnergy_derivative(int core)
 }
 
 
-void cpmd::setupDerivativeMatrices(const int core)
+void CPMD::setupDerivativeMatrices(const int core)
 {
     mat diffOneParticleIntegral;
     //Set up the dh and dS matrix:
@@ -264,7 +263,7 @@ void cpmd::setupDerivativeMatrices(const int core)
 
 }
 
-void cpmd::setupFockMatrix()
+void CPMD::setupFockMatrix()
 {
 
     m_P = 2*m_C*m_C.t();
@@ -281,34 +280,20 @@ void cpmd::setupFockMatrix()
             }
         }
     }
+
 }
 
-double cpmd::calculateEnergy()
 
+void CPMD::updateCorePositions()
 {
-    double Eg = 0.0;
 
-    for (int p = 0; p < m_nOrbitals; p++){
-        for (int q = 0; q < m_nOrbitals; q++){
-            Eg += m_P(p, q)*m_h(p, q);
-
-            for (int r = 0; r < m_nOrbitals; r++){
-                for (int s = 0; s < m_nOrbitals; s++){
-                    Eg += 0.5*m_P(p,q)*m_P(s,r)*(m_Q(p,r)(q,s) - 0.5*m_Q(p,r)(s,q));
-                }
-            }
-        }
+    for(int core = 0; core < m_nCores; core++){
+        m_system->m_basisSet.at(core)->setCorePosition(pos.row(core));
     }
 
-    //Nuclear repulsion term
-    Eg +=m_system->getNucleiPotential();
-
-    return Eg;
-
 }
 
-
-mat cpmd::normalize(mat C, mat S){
+mat CPMD::normalize(mat C, mat S){
 
     double norm;
     for (int i = 0; i < m_nElectrons/2; i++){
@@ -320,18 +305,25 @@ mat cpmd::normalize(mat C, mat S){
 }
 
 
-
-void cpmd::writeToFile(const mat R, int n){
+void CPMD::writeToFile(const mat R, int n){
     stringstream outName;
     ofstream myfile;
 
-    outName << "/home/milad/kurs/qmd/H2/data"<< n <<".xyz";
+    outName << "/home/milad/kurs/state"<< n <<".xyz";
     myfile.open(outName.str().c_str(),ios::binary);
-    myfile << 2    << "\n";
+    myfile << m_nCores   << "\n";
     myfile << "Hydrogen atoms  " << "\n";
 
+    vector<string> name;
+    name.push_back("H ");
+    name.push_back("H ");
+
+    if(m_nCores > 2){
+         name.push_back("O ");
+    }
+
     for(uint i=0;  i < R.n_rows; i++){
-        myfile << R.row(i);
+        myfile << name.at(i) << m_energy << R.row(i);
     }
 
     outName.str( std::string() );
