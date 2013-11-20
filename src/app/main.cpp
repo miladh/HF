@@ -29,15 +29,15 @@ int main()
     BasisSet *basisCoreC;
 
 
-    int m_case = 6;
+    int m_case = 2;
     int dynamic = 1;
-    int cpmd = 1;
+    int cpmd = 0;
 
     if(m_case == 1){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-1.5, 0.0, 0.0};
-        B = {1.5, 0.0, 0.0};
+        A = {-0.5, 0.0, 0.0};
+        B = {0.5, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA  = new H_QuadZeta;
@@ -46,8 +46,8 @@ int main()
     }else if(m_case==2){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-0.7, 0.0, 0.0};
-        B = {0.7, 0.0, 0.0};
+        A = {-0.4, 0.0, 0.0};
+        B = {0.4, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA  = new H_321G;
@@ -93,9 +93,9 @@ int main()
         C = { 0.0, 0.0, 0.0};
         coreCharges = {1 , 1, 8};
         coreMass = {1 , 1, 16};
-        basisCoreA = new H_431G;
-        basisCoreB = new H_431G;
-        basisCoreC = new O_431G;
+        basisCoreA = new H_321G;
+        basisCoreB = new H_321G;
+        basisCoreC = new O_321G;
 
     }else if(m_case==7){
         //Carbon dioxide

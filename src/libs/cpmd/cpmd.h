@@ -36,13 +36,14 @@ private:
     double m_massE, m_energy;
 
 
-    rowvec m_lambda, m_energyGradient;
     mat m_C, m_Cp, m_Cm;
     mat m_S, m_h, m_F, m_P;
+    mat m_lambda;
+    mat pos, posOld, posNew;
+
+    rowvec m_energyGradient;
+
     field<mat> m_Q;
-
-    mat pos, posNew, posOld;
-
     field<field<rowvec>> m_dQ;
     field<rowvec> m_dS, m_dh;
 
@@ -51,11 +52,12 @@ private:
     void setupDerivativeMatrices(const int core);
     void IntegrateWavefunctionForwardInTime(int orb);
     void IntegrateCoreForwardInTime(int core);
+    void setupLambdaMatrix(int orb);
+    void updateCorePositions();
+    void writeToFile(const mat R, int n);
     double calculateEnergy();
     rowvec calculateEnergy_derivative(int core);
     mat normalize(mat C, mat S);
-    void writeToFile(const mat R, int n);
-    void updateCorePositions();
 };
 
 #endif // CPMD_H

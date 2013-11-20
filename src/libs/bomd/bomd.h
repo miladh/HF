@@ -31,11 +31,10 @@ private:
 
     double m_dtn;
     double m_dampingFactor;
-    double m_energy;
+    double m_energy, m_fockEnergy;
 
 
-    rowvec m_energyGradient;
-    mat m_C, m_Cp, m_Cm;
+    rowvec m_energyGradient, m_pulayForce;
     mat m_S, m_h, m_P;
 
     mat pos, posNew, posOld;
@@ -43,6 +42,8 @@ private:
     field<mat> m_Q;
     field<field<rowvec>>m_dQ;
     field<rowvec> m_dS, m_dh;
+    field<rowvec> m_pulayS, m_pulayh;
+    field<field<rowvec>>m_pulayQ;
 
 
     void setupDerivativeMatrices(const int core);
@@ -51,8 +52,10 @@ private:
     void IntegrateCoreForwardInTime(int core);
 
     rowvec calculateEnergyGradient(int core);
-    void writeToFile(const mat R, int n);
+    void writeToFile(mat R, int currentTimeStep);
     void updateCorePositions();
+    void setupPulayMatrices(const int core);
+    rowvec calculatePulayForce(int core);
 };
 
 #endif // BOMD_H

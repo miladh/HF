@@ -23,9 +23,11 @@ public:
     mat getC() const;
 
     double getEnergy() const;
+    double getFockEnergy() const;
     void setupTwoParticleMatrix();
     void setupOneParticleMatrix();
 
+    mat getDensityMatrix() const;
 private:
     System *m_system;
 

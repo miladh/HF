@@ -7,7 +7,14 @@ CPMD::CPMD(System *system):
     m_nOrbitals(system->getTotalNumOfBasisFunc()),
     m_C(ones(m_nOrbitals,m_nElectrons/2.0)),
     m_Cp(ones(m_nOrbitals,m_nElectrons/2.0)),
-    m_Cm(zeros(m_nOrbitals,m_nElectrons/2.0))
+    m_Cm(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_F(zeros(m_nOrbitals,m_nOrbitals)),
+    m_P(zeros(m_nOrbitals,m_nOrbitals)),
+    m_lambda(zeros(m_nOrbitals,m_nOrbitals)),
+    pos(zeros(m_nCores, 3)),
+    posOld(zeros(m_nCores, 3)),
+    posNew(zeros(m_nCores, 3))
+
 {
 
     m_nSteps = 300;
@@ -22,13 +29,6 @@ CPMD::CPMD(System *system):
     m_massE = 5.0;
 
     //initialize:
-    m_F  = zeros(m_nOrbitals,m_nOrbitals);
-    m_P  = zeros(m_nOrbitals,m_nOrbitals);
-
-    m_C  = ones(m_nOrbitals,m_nElectrons/2.0);
-    m_Cm = ones(m_nOrbitals,m_nElectrons/2.0);
-    m_Cp = zeros(m_nOrbitals,m_nElectrons/2.0);
-
     m_dh.set_size(m_nOrbitals,m_nOrbitals);
     m_dS.set_size(m_nOrbitals,m_nOrbitals);
     m_dQ.set_size(m_nOrbitals, m_nOrbitals);
@@ -50,10 +50,6 @@ CPMD::CPMD(System *system):
         }
     }
 
-    pos    = zeros(m_nCores, 3);
-    posNew = zeros(m_nCores, 3);
-    posOld = zeros(m_nCores, 3);
-    m_lambda = zeros<rowvec>(m_nElectrons/2.0);
 
     for(int core = 0; core < m_nCores; core++){
         pos.row(core) = m_system->m_basisSet.at(core)->corePosition();
@@ -84,16 +80,17 @@ void CPMD::runDynamics()
             //Loop over time
             for(int eStep=0; eStep < m_eSteps; eStep++){
                 setupFockMatrix();
+                setupLambdaMatrix(orbital);
                 IntegrateWavefunctionForwardInTime(orbital);
                 m_energy = calculateEnergy();
 
             }// End of time loop electrons
         }
+//        sleep(4);
 
-        cout << m_lambda << endl;
 
         //For more then 2 electrons, lambda is different for different Cs!!!
-        m_lambda *= (m_massE + m_gammaE * m_dte * 0.5 ) / ( 2 * m_dte * m_dte );
+//        m_lambda *= (m_massE + m_gammaE * m_dte * 0.5 ) / ( 2 * m_dte * m_dte );
 
         for(int core = 0; core < m_nCores; core++){
             setupDerivativeMatrices(core);
@@ -116,53 +113,18 @@ void CPMD::runDynamics()
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 
+
 void CPMD::IntegrateWavefunctionForwardInTime(int orb)
 {
 
-    double a, b, c;
-    vec2 lambdaVec;
-
     m_Cp.col(orb) = ( 2* m_massE * m_C.col(orb) - (m_massE - m_gammaE * m_dte * 0.5 ) * m_Cm.col(orb)
-                      - 4 * m_dte * m_dte * m_F * m_C.col(orb)) / ( m_massE + m_gammaE * m_dte * 0.5);
-
-
-    //Calculate lambda:
-    a = dot(m_C.col(orb), m_S * m_S *m_S * m_C.col(orb));
-    b = -2 * dot(m_S * m_Cp.col(orb) , m_S * m_C.col(orb));
-    c = dot(m_Cp.col(orb), m_S * m_Cp.col(orb)) - 1.0;
-
-
-    if(b*b - 4*a*c < 0 ){
-        cerr << "Complex!" <<endl;
-        cerr << a << "   "<< b << "   "<< c <<endl;
-        exit (EXIT_FAILURE);
-
-    }
-
-    lambdaVec(0)  = (-b - sqrt(b*b - 4*a*c)) /(2*a);
-    lambdaVec(1)  = (-b + sqrt(b*b - 4*a*c)) /(2*a);
-
-    if(lambdaVec(1) < 0 && lambdaVec(0) < 0 ){
-        cerr << "negative roots!!" <<endl;
-        cerr << lambdaVec <<endl;
-        exit (EXIT_FAILURE);
-
-    }
-
-    if(lambdaVec(0) >= 0.0 ){
-        m_lambda(orb) = lambdaVec(0);
-    }else{
-        m_lambda(orb) = lambdaVec(1) ;
-    }
-
-
-    //Calculate C(t+h):
-    m_Cp.col(orb) -= m_lambda(orb) * m_S * m_C.col(orb);
+                      - 4 * m_dte * m_dte * ( m_F * m_C.col(orb) + m_S * m_lambda.col(orb))) / ( m_massE + m_gammaE * m_dte * 0.5);
 
 
     //update C
     m_Cm.col(orb) = m_C.col(orb);
     m_C.col(orb) = m_Cp.col(orb);
+
 }
 
 
@@ -172,23 +134,39 @@ void CPMD::IntegrateCoreForwardInTime(int core)
     int coreMass = m_system->m_basisSet.at(core)->coreMass();
     mat tmp = zeros(m_nOrbitals, m_nOrbitals);
 
+
+
     for(int i = 0; i < 3; i ++){
 
         for(int k = 0; k < m_nOrbitals; k++){
-            for(int l = 0; l < m_nOrbitals; l++){
-                tmp(k,l) = m_dS(k, l)(i);
-            }
+                tmp(k,k) = m_dS(k, k)(i);
+
         }
 
+
         posNew(core,i) = ( 2 * pos(core,i) * coreMass - posOld(core,i) * ( coreMass - m_gammaN * m_dtn * 0.5)
-                           - m_dtn * m_dtn * (m_energyGradient(i) + m_lambda(0) * dot(m_C, tmp * m_C) ) )
-                         / (coreMass + m_gammaN * m_dtn * 0.5 );
+                           - m_dtn * m_dtn *m_energyGradient(i)) / (coreMass + m_gammaN * m_dtn * 0.5 );
+
+        for(int k = 0; k < m_nOrbitals; k++){
+            posNew(core,i) -=  m_dtn * m_dtn * m_lambda(k,k) * dot(m_C, tmp * m_C)
+                             / (coreMass + m_gammaN * m_dtn * 0.5 );
+
+        }
     }
 
 }
 
-double CPMD::calculateEnergy()
+void CPMD::setupLambdaMatrix(int orb)
+{
+    for(int k = 0; k < m_nOrbitals; k++){
+        m_lambda(k,k) = dot(m_C.col(orb), m_F * m_C.col(orb));
+    }
 
+}
+
+
+
+double CPMD::calculateEnergy()
 {
     double Eg = 0.0;
     m_P = 2*m_C*m_C.t();
@@ -263,6 +241,7 @@ void CPMD::setupDerivativeMatrices(const int core)
 
 }
 
+
 void CPMD::setupFockMatrix()
 {
 
@@ -332,4 +311,51 @@ void CPMD::writeToFile(const mat R, int n){
 
 }
 
+//void CPMD::IntegrateWavefunctionForwardInTime(int orb)
+//{
 
+//    double a, b, c;
+//    vec2 lambdaVec;
+
+//    m_Cp.col(orb) = ( 2* m_massE * m_C.col(orb) - (m_massE - m_gammaE * m_dte * 0.5 ) * m_Cm.col(orb)
+//                      - 4 * m_dte * m_dte * m_F * m_C.col(orb)) / ( m_massE + m_gammaE * m_dte * 0.5);
+
+
+//    //Calculate lambda:
+//    a = dot(m_C.col(orb), m_S * m_S *m_S * m_C.col(orb));
+//    b = -2 * dot(m_S * m_Cp.col(orb) , m_S * m_C.col(orb));
+//    c = dot(m_Cp.col(orb), m_S * m_Cp.col(orb)) - 1.0;
+
+
+//    if(b*b - 4*a*c < 0 ){
+//        cerr << "Complex!" <<endl;
+//        cerr << a << "   "<< b << "   "<< c <<endl;
+//        exit (EXIT_FAILURE);
+
+//    }
+
+//    lambdaVec(0)  = (-b - sqrt(b*b - 4*a*c)) /(2*a);
+//    lambdaVec(1)  = (-b + sqrt(b*b - 4*a*c)) /(2*a);
+
+//    if(lambdaVec(1) < 0 && lambdaVec(0) < 0 ){
+//        cerr << "negative roots!!" <<endl;
+//        cerr << lambdaVec <<endl;
+//        exit (EXIT_FAILURE);
+
+//    }
+
+//    if(lambdaVec(0) >= 0.0 ){
+//        m_lambda(orb) = lambdaVec(0);
+//    }else{
+//        m_lambda(orb) = lambdaVec(1) ;
+//    }
+
+
+//    //Calculate C(t+h):
+//    m_Cp.col(orb) -= m_lambda(orb) * m_S * m_C.col(orb);
+
+
+//    //update C
+//    m_Cm.col(orb) = m_C.col(orb);
+//    m_C.col(orb) = m_Cp.col(orb);
+//}

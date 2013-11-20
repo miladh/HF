@@ -156,6 +156,11 @@ double HFsolver::getEnergy() const
     return m_energy;
 }
 
+double HFsolver::getFockEnergy() const
+{
+     return m_fockEnergy;
+}
+
 field<mat> HFsolver::getQmatrix(){
 
     return m_Q;
@@ -174,6 +179,10 @@ mat HFsolver::getC() const
     return m_C;
 }
 
+mat HFsolver::getDensityMatrix() const
+{
+    return m_P;
+}
 
 
 

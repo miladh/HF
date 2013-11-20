@@ -34,6 +34,8 @@ public:
                                             const int N);
 
 
+    mat getOneParticleDerivativeOfOrbitals(const int a, const int b, const int N);
+    rowvec getTwoParticleIntegralDerivativeOfOrbitals(const int a, const int b, const int c, const int d, const int N);
 private:
     Integrator integrator;
     vector<int > m_coreID;
