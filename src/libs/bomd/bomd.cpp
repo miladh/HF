@@ -176,7 +176,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     // nColumns is the number of data types you want to write. In our case we want to
     // write four - the atom type and the x, y and z components of the position.
     // If you want velocities, forces, etc., just add more columns and write more data.
-    int nColumns = 1 + 1 + 3;
+    int nColumns = 1 + 1 + 1 + 3;
     // We could divide the data into chunks by the LAMMPS file format, but we don't - i.e. only
     // use one chunk. The chunk length is then the same as the number of atoms times the number
     // of columns.
@@ -205,8 +205,8 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
         // as double according to the LAMMPS standard.
         double atomType = atomTypes(i);
         lammpsFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
-
         lammpsFile.write(reinterpret_cast<const char*>(&m_energy), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_energyGradient(0)), sizeof(double));
         // Write the x, y and z-components
         lammpsFile.write(reinterpret_cast<const char*>(&R(i,0)), sizeof(double));
         lammpsFile.write(reinterpret_cast<const char*>(&R(i,1)), sizeof(double));
@@ -248,12 +248,6 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
 //    myfile.close();
 
 //}
-
-
-
-
-
-
 
 
 
