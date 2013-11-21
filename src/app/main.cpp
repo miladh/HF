@@ -31,8 +31,8 @@ int main()
 
 
     int m_case = 2;
-    int dynamic = 0;
-    int analyser = 1;
+    int dynamic = 1;
+    int analyser =0;
     int cpmd = 0;
 
     if(m_case == 1){

@@ -151,13 +151,13 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     ivec atomTypes;
 
     if(m_nCores > 2){
-         atomTypes << 1 << 1 << 8;
+         atomTypes << 1 << 1 << 1 << 1;
     }else{
         atomTypes << 1 << 1;
     }
 
     stringstream outStepName;
-    outStepName <<"/home/milad/kurs/state" << setw(4) << setfill('0')  << currentTimeStep <<".lmp";
+    outStepName <<"/home/milad/kurs/qmd/H2/state" << setw(4) << setfill('0')  << currentTimeStep <<".lmp";
     ofstream lammpsFile(outStepName.str(), ios::out | ios::binary);
 
 
@@ -176,7 +176,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     // nColumns is the number of data types you want to write. In our case we want to
     // write four - the atom type and the x, y and z components of the position.
     // If you want velocities, forces, etc., just add more columns and write more data.
-    int nColumns = 1 + 1 + 1 + 3;
+    int nColumns = 1 + 3 + 2;
     // We could divide the data into chunks by the LAMMPS file format, but we don't - i.e. only
     // use one chunk. The chunk length is then the same as the number of atoms times the number
     // of columns.
@@ -204,13 +204,17 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
         // IMPORTANT: Even though atom numbers are usually integers, they must be written
         // as double according to the LAMMPS standard.
         double atomType = atomTypes(i);
+        double force = -m_energyGradient(0);
         lammpsFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
-        lammpsFile.write(reinterpret_cast<const char*>(&m_energy), sizeof(double));
-        lammpsFile.write(reinterpret_cast<const char*>(&m_energyGradient(0)), sizeof(double));
+
         // Write the x, y and z-components
         lammpsFile.write(reinterpret_cast<const char*>(&R(i,0)), sizeof(double));
         lammpsFile.write(reinterpret_cast<const char*>(&R(i,1)), sizeof(double));
         lammpsFile.write(reinterpret_cast<const char*>(&R(i,2)), sizeof(double));
+
+        lammpsFile.write(reinterpret_cast<const char*>(&m_energy), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&force), sizeof(double));
+
     }
     lammpsFile.close();
 }

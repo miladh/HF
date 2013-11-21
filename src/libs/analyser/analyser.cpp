@@ -2,7 +2,7 @@
 
 Analyser::Analyser(System *system, int nGridPoints):
     m_system(system),
-    bondLength(linspace(0.5,3.0, nGridPoints)),
+    bondLength(linspace(0.5,5.0, nGridPoints)),
     m_energy(zeros(nGridPoints)),
     m_Force(zeros(nGridPoints)),
     solver(new HFsolver(system))
@@ -35,7 +35,7 @@ void Analyser::calculateForces()
 //        cout << "[" << bondLength(i)  << "," << m_Force(i) << "]," << endl;
     }
 
-    writeToFile(m_Force, 1);
+    writeToFile(-m_Force, 1);
 }
 
 
