@@ -21,8 +21,12 @@ class BOMD
 public:
     BOMD(System *system);
     void runDynamics();
+    void solveSingleStep();
 
 
+    rowvec getEnergyGradient() const;
+
+    double getEnergy() const;
 private:
     System* m_system;
     HFsolver *m_solver;

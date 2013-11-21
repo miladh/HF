@@ -179,6 +179,12 @@ mat HFsolver::getC() const
     return m_C;
 }
 
+mat HFsolver::getF()
+{
+    setupFockMatrix();
+    return m_F;
+}
+
 mat HFsolver::getDensityMatrix() const
 {
     return m_P;

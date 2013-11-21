@@ -4,7 +4,6 @@ Analyser::Analyser(System *system, int nGridPoints):
     m_system(system),
     bondLength(linspace(0.5,5.0, nGridPoints)),
     m_energy(zeros(nGridPoints)),
-    m_Force(zeros(nGridPoints)),
     solver(new HFsolver(system))
 {
 }
@@ -27,16 +26,6 @@ void Analyser::calculatePES()
 
 }
 
-void Analyser::calculateForces()
-{
-    for(int i = 0; i < m_energy.n_elem-1; i++){
-        m_Force(i) = (m_energy(i+1) - m_energy(i) ) / (bondLength(i+1)- bondLength(i));
-
-//        cout << "[" << bondLength(i)  << "," << m_Force(i) << "]," << endl;
-    }
-
-    writeToFile(-m_Force, 1);
-}
 
 
 
@@ -44,7 +33,7 @@ void Analyser::writeToFile(const vec R, int n){
     stringstream outName;
     ofstream myfile;
 
-    outName << "/home/milad/kurs/Data"<< n <<".dat";
+    outName << "/home/milad/kurs/energies.dat";
     myfile.open(outName.str().c_str(),ios::binary);
 
 

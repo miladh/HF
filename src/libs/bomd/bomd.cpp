@@ -51,19 +51,8 @@ void BOMD::runDynamics()
 {
 
     for(int nStep = 0; nStep < m_nSteps; nStep++){
-        m_solver->runSolver();
-        m_P = m_solver->getDensityMatrix();
-        m_energy  = m_solver->getEnergy();
-        m_fockEnergy = m_solver->getFockEnergy();
-
-        for(int core = 0; core < m_nCores; core++){
-            setupDerivativeMatrices(core);
-            m_energyGradient = calculateEnergyGradient(core);
-            IntegrateCoreForwardInTime(core);
-        }
-
+        solveSingleStep();
         writeToFile(pos,nStep);
-
         posOld = pos;
         pos = posNew;
         updateCorePositions();
@@ -73,11 +62,25 @@ void BOMD::runDynamics()
 
 }
 
+void BOMD::solveSingleStep()
+{
+    m_solver->runSolver();
+    m_P = m_solver->getDensityMatrix();
+    m_energy  = m_solver->getEnergy();
+
+    for(int core = 0; core < m_nCores; core++){
+        setupDerivativeMatrices(core);
+        m_energyGradient = calculateEnergyGradient(core);
+        IntegrateCoreForwardInTime(core);
+    }
+}
+
+
+
 
 void BOMD::IntegrateCoreForwardInTime(int core)
 {
     int coreMass = m_system->m_basisSet.at(core)->coreMass();
-
 
     posNew.row(core) = 2 * pos.row(core) - posOld.row(core)
             - m_dtn * m_dtn * m_energyGradient / coreMass;
@@ -95,14 +98,41 @@ rowvec BOMD::calculateEnergyGradient(int core)
 
             for (int r = 0; r < m_nOrbitals; r++){
                 for (int s = 0; s < m_nOrbitals; s++){
-                    dE += 0.5*m_P(p,q)*m_P(s,r)*(m_dQ(p,r)(q,s)- 0.5*m_dQ(p,r)(s,q));
+                    dE += 0.5*m_P(p,q)*m_P(s,r)*(m_dQ(p,r)(q,s) - 0.5*m_dQ(p,r)(s,q));
                 }
             }
         }
     }
 
 
-//    Nuclear repulsion term
+    mat dSx, dSy,dSz;
+    dSx = zeros(m_nOrbitals,m_nOrbitals);
+    dSy = zeros(m_nOrbitals,m_nOrbitals);
+    dSz = zeros(m_nOrbitals,m_nOrbitals);
+    for(int i = 0; i < m_nOrbitals; i++){
+        for(int j = 0; j < m_nOrbitals; j++){
+            dSx(i,j) = m_dS(i, j)(0);
+            dSy(i,j) = m_dS(i, j)(1);
+            dSz(i,j) = m_dS(i, j)(2);
+        }
+    }
+    mat F = m_solver->getF();
+
+//    for (int p = 0; p < m_nOrbitals; p++){
+//        for (int q = 0; q < m_nOrbitals; q++){
+
+//            dE(0) -= m_D(p,q) * dSx(p,q) * m_D(p,q) * F(p,q);
+//            dE(1) -= m_D(p,q) * dSx(p,q) * m_D(p,q) * F(p,q);
+//            dE(2) -= m_D(p,q) * dSx(p,q) * m_D(p,q) * F(p,q);
+
+//        }
+//    }
+
+    dE(0) -= 0.5 * trace(m_P*dSx*m_P*F);
+    dE(1) -= 0.5 * trace(m_P*dSy*m_P*F);
+    dE(2) -= 0.5 * trace(m_P*dSz*m_P*F);
+
+    //    Nuclear repulsion term
     dE  +=m_system->getNucleiPotential_derivative(core);
 
     return dE;
@@ -147,11 +177,22 @@ void BOMD::updateCorePositions()
 
 }
 
+rowvec BOMD::getEnergyGradient() const
+{
+    return m_energyGradient;
+}
+
+double BOMD::getEnergy() const
+{
+    return m_energy;
+}
+
+
 void BOMD::writeToFile(mat R, int currentTimeStep) {
     ivec atomTypes;
 
     if(m_nCores > 2){
-         atomTypes << 1 << 1 << 1 << 1;
+        atomTypes << 1 << 1 << 8;
     }else{
         atomTypes << 1 << 1;
     }
@@ -204,7 +245,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
         // IMPORTANT: Even though atom numbers are usually integers, they must be written
         // as double according to the LAMMPS standard.
         double atomType = atomTypes(i);
-        double force = -m_energyGradient(0);
+        double force = m_energyGradient(0);
         lammpsFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
 
         // Write the x, y and z-components

@@ -28,6 +28,7 @@ public:
     void setupOneParticleMatrix();
 
     mat getDensityMatrix() const;
+    mat getF();
 private:
     System *m_system;
 

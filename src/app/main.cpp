@@ -32,7 +32,7 @@ int main()
 
     int m_case = 2;
     int dynamic = 1;
-    int analyser =0;
+    int analyser = 0;
     int cpmd = 0;
 
     if(m_case == 1){
@@ -48,8 +48,8 @@ int main()
     }else if(m_case==2){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-1.4, 0.0, 0.0};
-        B = {1.4, 0.0, 0.0};
+        A = {-0.5, 0.0, 0.0};
+        B = {0.5, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA  = new H_321G;
@@ -160,7 +160,6 @@ int main()
         if(analyser){
             Analyser analyser(system, 1e3);
             analyser.calculatePES();
-            analyser.calculateForces();
         }
         HFsolver solver(system);
         solver.runSolver();

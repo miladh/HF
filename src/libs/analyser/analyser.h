@@ -16,10 +16,9 @@ class Analyser
 public:
     Analyser(System *system, int nGridPoints);
     void calculatePES();
-    void calculateForces();
 private:
     System *m_system;
-    vec bondLength, m_energy, m_Force;
+    vec bondLength, m_energy;
     HFsolver* solver;
 
     void writeToFile(const vec R, int n);
