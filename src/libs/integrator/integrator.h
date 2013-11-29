@@ -50,8 +50,8 @@ public:
     double electronRepulsionIntegral(int iA, int jA, int kA, int iB, int jB, int kB,
                                      int iC, int jC, int kC, int iD, int jD, int kD);
 
-    void updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral);
-    void updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral);
+    void updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral, bool kin= true);
+    void updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral, bool kin =true);
 
 
    rowvec overlapIntegral_derivative(int iA, int jA, int kA, int iB, int jB, int kB);

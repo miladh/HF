@@ -14,10 +14,10 @@ class HermiteCoefficients
 public:
     HermiteCoefficients();
     void setupE(const double &a, const double &b,
-                const rowvec3 &R, field<cube> &E);
+                const rowvec3 &R, field<cube> &E, bool kin = true);
 
-    void setup_dEdR(const double &a,const double &b,const rowvec3 &R,
-                    field<cube> &E, field<cube> &dE);
+    void setup_dEdR(const double &a, const double &b, const rowvec3 &R,
+                    field<cube> &E, field<cube> &dE, bool kin=true);
 
 
 private:

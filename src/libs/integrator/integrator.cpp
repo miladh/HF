@@ -31,6 +31,7 @@ void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
         m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
     }
 
+
     int nMax_en = 2 * m_maxAngularMomentum + 1;
     m_Ren.set_size(nMax_en);
     for(int n = 0; n < nMax_en; n++){
@@ -134,36 +135,47 @@ void Integrator::setExponentD(double exponentD)
 }
 
 
-void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral)
+void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral, bool kin)
 {
 
     if(oneParticleIntegral){
-        m_hermiteCoefficients.setupE(m_exponentA, m_exponentB,
+        if(kin){
+                m_hermiteCoefficients.setupE(m_exponentA, m_exponentB,
                                      m_corePositionA - m_corePositionB,
                                      m_Eab);
+        }else{
+            m_hermiteCoefficients.setupE(m_exponentA, m_exponentB,
+                                 m_corePositionA - m_corePositionB,
+                                 m_Eab,false);
+        }
 
     }else if(twoParticleIntegral){
         m_hermiteCoefficients.setupE(m_exponentC, m_exponentD,
                                      m_corePositionC - m_corePositionD,
-                                     m_Ecd);
+                                     m_Ecd, false);
     }else{
         cerr << "Hermite coefficients not updated!" << endl;
     }
 }
 
-void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral)
+void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral,bool kin)
 {
 
     if(oneParticleIntegral){
+        if(kin){
         m_hermiteCoefficients.setup_dEdR(m_exponentA, m_exponentB,
                                          m_corePositionA - m_corePositionB,
                                          m_Eab, m_dEab);
-
+        }else{
+            m_hermiteCoefficients.setup_dEdR(m_exponentA, m_exponentB,
+                                             m_corePositionA - m_corePositionB,
+                                             m_Eab, m_dEab, false);
+        }
 
     }else if(twoParticleIntegral){
         m_hermiteCoefficients.setup_dEdR(m_exponentC, m_exponentD,
                                          m_corePositionC - m_corePositionD,
-                                         m_Ecd,m_dEcd);
+                                         m_Ecd,m_dEcd, false);
     }else{
         cerr << "Hermite coefficients not updated!" << endl;
     }

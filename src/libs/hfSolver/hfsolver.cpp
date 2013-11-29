@@ -82,7 +82,7 @@ void HFsolver::calculateEnergy()
     }
     m_energy += m_system->getNucleiPotential();
 
-//    cout << "Energy: " << setprecision(14) << m_energy << endl;
+    cout << "Energy: " << setprecision(14) << m_energy << endl;
 
 }
 

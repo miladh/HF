@@ -118,16 +118,6 @@ rowvec BOMD::calculateEnergyGradient(int core)
     }
     mat F = m_solver->getF();
 
-//    for (int p = 0; p < m_nOrbitals; p++){
-//        for (int q = 0; q < m_nOrbitals; q++){
-
-//            dE(0) -= m_D(p,q) * dSx(p,q) * m_D(p,q) * F(p,q);
-//            dE(1) -= m_D(p,q) * dSx(p,q) * m_D(p,q) * F(p,q);
-//            dE(2) -= m_D(p,q) * dSx(p,q) * m_D(p,q) * F(p,q);
-
-//        }
-//    }
-
     dE(0) -= 0.5 * trace(m_P*dSx*m_P*F);
     dE(1) -= 0.5 * trace(m_P*dSy*m_P*F);
     dE(2) -= 0.5 * trace(m_P*dSz*m_P*F);
@@ -192,7 +182,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     ivec atomTypes;
 
     if(m_nCores > 2){
-        atomTypes << 1 << 1 << 8;
+        atomTypes << 1 << 1 << 8 << 1;
     }else{
         atomTypes << 1 << 1;
     }
@@ -259,97 +249,3 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     }
     lammpsFile.close();
 }
-
-
-
-
-
-
-
-
-//void BOMD::writeToFile(const mat R, int n){
-//    stringstream outName;
-//    ofstream myfile;
-
-//    outName << "/home/milad/kurs/state"<< n <<".xyz";
-//    myfile.open(outName.str().c_str(),ios::binary);
-//    myfile << m_nCores   << "\n";
-//    myfile << "Hydrogen atoms  " << "\n";
-
-//    vector<string> name;
-//    name.push_back("H ");
-//    name.push_back("H ");
-
-//    if(m_nCores > 2){
-//         name.push_back("O ");
-//    }
-
-//    for(uint i=0;  i < R.n_rows; i++){
-//        myfile << name.at(i) << m_energy << R.row(i);
-//    }
-
-//    outName.str( std::string() );
-//    outName.clear();
-//    myfile.close();
-
-//}
-
-
-
-//rowvec BOMD::calculatePulayForce(int core)
-//{
-//    rowvec dE  = {0,0,0};
-
-//    for (int p = 0; p < m_nOrbitals; p++){
-//        for (int q = 0; q < m_nOrbitals; q++){
-//            dE += m_P(p, q)*m_pulayh(p, q);
-
-//            for (int r = 0; r < m_nOrbitals; r++){
-//                for (int s = 0; s < m_nOrbitals; s++){
-//                    dE += 0.5*m_P(p,q)*m_P(s,r)*(m_pulayQ(p,r)(q,s) - 0.5*m_pulayQ(p,r)(s,q));
-//                }
-//            }
-//        }
-//    }
-
-//    return dE;
-//}
-
-//void BOMD::setupPulayMatrices(const int core)
-//{
-//    mat diffOneParticleIntegral;
-//    //Set up the dh and dS matrix:
-//    for(int p = 0; p < m_nOrbitals; p++){
-//        for(int q = 0; q < m_nOrbitals; q++){
-//            diffOneParticleIntegral = m_system->getOneParticleDerivativeOfOrbitals(p,q,core);
-//            m_pulayS(p,q) = diffOneParticleIntegral.row(0);
-//            m_pulayh(p,q) = diffOneParticleIntegral.row(1);
-//        }
-//    }
-
-
-//    //Set up the dQ array:
-//    for(int p = 0; p < m_nOrbitals; p++){
-//        for(int r = 0; r < m_nOrbitals; r++){
-//            for(int q = 0; q < m_nOrbitals; q++){
-//                for(int s = 0; s < m_nOrbitals; s++){
-
-//                    m_pulayQ(p,r)(q,s) = m_system->getTwoParticleIntegralDerivativeOfOrbitals(p,q,r,s,core);
-
-//                }
-//            }
-//        }
-//    }
-
-//}
-
-
-
-
-
-
-
-
-
-
-

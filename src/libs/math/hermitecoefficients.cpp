@@ -15,7 +15,7 @@ bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
 
 
 void HermiteCoefficients::setupE(const double &a, const double &b,
-                                 const rowvec3 &R, field<cube> &E)
+                                 const rowvec3 &R, field<cube> &E, bool kin)
 {
 
     int iAmax = E(0).n_rows;
@@ -23,9 +23,17 @@ void HermiteCoefficients::setupE(const double &a, const double &b,
     int tmax  = E(0).n_slices;
 
 
-    for(int cor = 0; cor < 3; cor++){
-        E(cor) = zeros(iAmax, iBmax, tmax);
+    if(!kin){
+        iAmax -= 2;
+        iBmax -= 2;
+        tmax  -= iAmax + iBmax;
     }
+
+
+
+//    for(int cor = 0; cor < 3; cor++){
+//        E(cor) = zeros(iAmax, iBmax, tmax);
+//    }
 
     double p = a + b;
     double factor = -(a * b / p);
@@ -105,7 +113,7 @@ void HermiteCoefficients::setupE(const double &a, const double &b,
 
 
 void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowvec3 &R,
-                                     field<cube> &E, field<cube> &dE)
+                                     field<cube> &E, field<cube> &dE,bool kin)
 {
 
     int iAmax = dE(0).n_rows;
@@ -113,9 +121,15 @@ void HermiteCoefficients::setup_dEdR(const double &a,const double &b,const rowve
     int tmax  = dE(0).n_slices;
 
 
-    for(int cor = 0; cor < 3; cor++){
-        dE(cor) = zeros(iAmax, iBmax, tmax);
+    if(!kin){
+        iAmax -= 2;
+        iBmax -= 2;
+        tmax  -= iAmax + iBmax;
     }
+
+//    for(int cor = 0; cor < 3; cor++){
+//        dE(cor) = zeros(iAmax, iBmax, tmax);
+//    }
 
 
     double p = a + b;
