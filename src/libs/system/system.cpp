@@ -55,21 +55,19 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
 
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-        const rowvec &powA = primitiveA.powers();
-        integrator.setExponentA(primitiveA.exponent());
+        integrator.setPrimitiveA(primitiveA);
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-            const rowvec &powB = primitiveB.powers();
-            integrator.setExponentB(primitiveB.exponent());
+            integrator.setPrimitiveB(primitiveB);
 
             integrator.updateHermiteCoefficients(true, false);
 
-            Sab += integrator.overlapIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
+            Sab += integrator.overlapIntegral()
                     * primitiveA.weight() * primitiveB.weight();
 
             hab += primitiveA.weight() * primitiveB.weight() *
-                    integrator.kineticIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+                    integrator.kineticIntegral();
 
 
             for(uint c = 0; c < m_basisSet.size(); c++){
@@ -77,8 +75,7 @@ rowvec System::getOneParticleIntegral(const int a, const int b)
                 const int coreCharge = coreC->coreCharge();
                 integrator.setCorePositionC(coreC->corePosition());
                 hab -= coreCharge * primitiveA.weight() * primitiveB.weight()*
-                        integrator.nuclearAttractionIntegral(powA(0), powA(1), powA(2),
-                                                             powB(0), powB(1), powB(2));
+                        integrator.nuclearAttractionIntegral();
 
             }
 
@@ -121,31 +118,33 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
 
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-        const rowvec &powA = primitiveA.powers();
-        integrator.setExponentA(primitiveA.exponent());
+        integrator.setPrimitiveA(primitiveA);
+//        const rowvec &powA = primitiveA.powers();
+//        integrator.setExponentA(primitiveA.exponent());
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-            const rowvec &powB = primitiveB.powers();
-            integrator.setExponentB(primitiveB.exponent());
+            integrator.setPrimitiveB(primitiveB);
+//            const rowvec &powB = primitiveB.powers();
+//            integrator.setExponentB(primitiveB.exponent());
 
             integrator.updateHermiteCoefficients(true, false);
             integrator.updateHermiteCoefficients_derivative(true,false);
 
 
             if(differentiateWrtA){
-            dhab.row(0) += integrator.overlapIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
+            dhab.row(0) += integrator.overlapIntegral_derivative()
                         * primitiveA.weight() * primitiveB.weight();
 
             dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
-                        integrator.kineticIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+                        integrator.kineticIntegral_derivative();
             }
             else if(differentiateWrtB){
-                dhab.row(0) -= integrator.overlapIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2))
+                dhab.row(0) -= integrator.overlapIntegral_derivative()
                             * primitiveA.weight() * primitiveB.weight();
 
                 dhab.row(1) -= primitiveA.weight() * primitiveB.weight() *
-                            integrator.kineticIntegral_derivative(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2));
+                            integrator.kineticIntegral_derivative();
             }
 
             for(uint c = 0; c < m_basisSet.size(); c++){
@@ -160,9 +159,7 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
                 }
 
                 dhab.row(1) -= coreCharge* primitiveA.weight() * primitiveB.weight()*
-                            integrator.nuclearAttractionIntegral_derivative(powA(0), powA(1), powA(2),
-                                                                            powB(0), powB(1), powB(2),
-                                                                            differentiateWrtA,
+                            integrator.nuclearAttractionIntegral_derivative(differentiateWrtA,
                                                                             differentiateWrtB,
                                                                             differentiateWrtC);
             }
@@ -226,36 +223,36 @@ rowvec System::getTwoParticleIntegralDerivative(const int a, const int b, const 
 
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-        const rowvec &powA = primitiveA.powers();
-        integrator.setExponentA(primitiveA.exponent());
+        integrator.setPrimitiveA(primitiveA);
+//        const rowvec &powA = primitiveA.powers();
+//        integrator.setExponentA(primitiveA.exponent());
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-            const rowvec &powB = primitiveB.powers();
-            integrator.setExponentB(primitiveB.exponent());
+            integrator.setPrimitiveB(primitiveB);
+//            const rowvec &powB = primitiveB.powers();
+//            integrator.setExponentB(primitiveB.exponent());
 
             integrator.updateHermiteCoefficients(true, false, false);
             integrator.updateHermiteCoefficients_derivative(true, false,false);
 
             for(int k = 0; k < contractedC.getNumPrimitives(); k++){
                 const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
-                const rowvec &powC = primitiveC.powers();
-                integrator.setExponentC(primitiveC.exponent());
+                integrator.setPrimitiveC(primitiveC);
+//                const rowvec &powC = primitiveC.powers();
+//                integrator.setExponentC(primitiveC.exponent());
 
                 for(int l = 0; l < contractedD.getNumPrimitives(); l++){
                     const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
-                    const rowvec &powD = primitiveD.powers();
-                    integrator.setExponentD(primitiveD.exponent());
+                    integrator.setPrimitiveD(primitiveD);
+//                    const rowvec &powD = primitiveD.powers();
+//                    integrator.setExponentD(primitiveD.exponent());
 
                     integrator.updateHermiteCoefficients(false, true, false);
                     integrator.updateHermiteCoefficients_derivative(false, true,false);
 
                     dQabcd += primitiveA.weight() * primitiveB.weight() * primitiveC.weight() * primitiveD.weight()
-                            * integrator.electronRepulsionIntegral_derivative(powA(0), powA(1), powA(2),
-                                                                              powB(0), powB(1), powB(2),
-                                                                              powC(0), powC(1), powC(2),
-                                                                              powD(0), powD(1), powD(2),
-                                                                              differentiateWrtA, differentiateWrtB,
+                            * integrator.electronRepulsionIntegral_derivative(differentiateWrtA, differentiateWrtB,
                                                                               differentiateWrtC, differentiateWrtD);
 
                 }
@@ -287,31 +284,34 @@ double System::getTwoParticleIntegral(const int a, const int b, const int c, con
 
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-        const rowvec &powA = primitiveA.powers();
-        integrator.setExponentA(primitiveA.exponent());
+        integrator.setPrimitiveA(primitiveA);
+//        const rowvec &powA = primitiveA.powers();
+//        integrator.setExponentA(primitiveA.exponent());
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-            const rowvec &powB = primitiveB.powers();
-            integrator.setExponentB(primitiveB.exponent());
+            integrator.setPrimitiveB(primitiveB);
+//            const rowvec &powB = primitiveB.powers();
+//            integrator.setExponentB(primitiveB.exponent());
 
             integrator.updateHermiteCoefficients(true, false);
 
             for(int k = 0; k < contractedC.getNumPrimitives(); k++){
                 const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
-                const rowvec &powC = primitiveC.powers();
-                integrator.setExponentC(primitiveC.exponent());
+                integrator.setPrimitiveC(primitiveC);
+//                const rowvec &powC = primitiveC.powers();
+//                integrator.setExponentC(primitiveC.exponent());
 
                 for(int l = 0; l < contractedD.getNumPrimitives(); l++){
                     const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
-                    const rowvec &powD = primitiveD.powers();
-                    integrator.setExponentD(primitiveD.exponent());
+                    integrator.setPrimitiveD(primitiveD);
+//                    const rowvec &powD = primitiveD.powers();
+//                    integrator.setExponentD(primitiveD.exponent());
 
                     integrator.updateHermiteCoefficients(false, true);
 
                     Qabcd += primitiveA.weight() * primitiveB.weight() * primitiveC.weight() * primitiveD.weight()
-                            * integrator.electronRepulsionIntegral(powA(0), powA(1), powA(2),powB(0), powB(1), powB(2),
-                                                                   powC(0), powC(1), powC(2),powD(0), powD(1), powD(2));
+                            * integrator.electronRepulsionIntegral();
 
                 }
             }

@@ -96,9 +96,9 @@ int main()
 
         coreCharges = {1 , 1, 8};
         coreMass = {1 , 1, 16};
-        basisCoreA = new H_321G;
-        basisCoreB = new H_321G;
-        basisCoreC = new O_321G;
+        basisCoreA = new H_431G;
+        basisCoreB = new H_431G;
+        basisCoreC = new O_431G;
 
 
     }else if(m_case==7){
