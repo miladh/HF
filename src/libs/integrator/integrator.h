@@ -16,7 +16,7 @@ class Integrator
 public:
     Integrator();
 
-    uint maxAngularMomentum() const;
+    int maxAngularMomentum() const;
     void setMaxAngularMomentum(const uint &maxAngularMomentum);
 
 

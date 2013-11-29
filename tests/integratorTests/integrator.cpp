@@ -1,30 +1,36 @@
-//#include <unittest++/UnitTest++.h>
-//#include <integrator/integrator.h>
+#include <unittest++/UnitTest++.h>
+#include <integrator/integrator.h>
 
-//#include <armadillo>
-//#include <iostream>
-//#include <fstream>
+#include <armadillo>
+#include <iostream>
+#include <fstream>
 
-//using namespace std;
-//using namespace arma;
+using namespace std;
+using namespace arma;
 
-//TEST(GTOoverlapIntegral)
-//{
-//    Integrator integrator;
+TEST(GTOoverlapIntegral)
+{
+    Integrator integrator;
 
-//    rowvec posA = {1.2,2.3,3.4};
-//    rowvec posB = {-1.3,1.4,-2.4};
-//    integrator.setCorePositionA(posA);
-//    integrator.setCorePositionB(posB);
-//    integrator.setExponentA(0.2);
-//    integrator.setExponentB(0.3);
+    rowvec posA = {1.2,2.3,3.4};
+    rowvec posB = {-1.3,1.4,-2.4};
+    integrator.setCorePositionA(posA);
+    integrator.setCorePositionB(posB);
 
-//    integrator.setMaxAngularMomentum(2);
+    PrimitiveGTO primitiveA(0.2, 1.0);
+    PrimitiveGTO primitiveB(0.3, 1.0);
 
-//    integrator.updateHermiteCoefficients(true, false);
+    integrator.setPrimitiveA(primitiveA);
+    integrator.setPrimitiveB(primitiveB);
+    integrator.setMaxAngularMomentum(2);
 
-//    CHECK_CLOSE(1.191723635809e-01, integrator.overlapIntegral(0,0,0,0,0,0), 1e-5);
-//    CHECK_CLOSE(2.764798835076e-01, integrator.overlapIntegral(0,0,0,0,0,1), 1e-5);
+    integrator.updateHermiteCoefficients(true, false);
+
+    CHECK_CLOSE(1.191723635809e-01, integrator.overlapIntegral(), 1e-5);
+
+    primitiveB.setZPower(1);integrator.setPrimitiveB(primitiveB);
+    CHECK_CLOSE(2.764798835076e-01, integrator.overlapIntegral(), 1e-5);
+
 //    CHECK_CLOSE(7.606056933184e-01, integrator.overlapIntegral(0,0,0,0,0,2), 1e-5);
 //    CHECK_CLOSE(4.290205088911e-02, integrator.overlapIntegral(0,0,0,0,1,0), 1e-5);
 //    CHECK_CLOSE(9.953275806273e-02, integrator.overlapIntegral(0,0,0,0,1,1), 1e-5);
@@ -123,7 +129,7 @@
 //    CHECK_CLOSE(6.911997087690e-02, integrator.overlapIntegral(2,0,0,1,0,1), 1e-5);
 //    CHECK_CLOSE(1.072551272228e-02, integrator.overlapIntegral(2,0,0,1,1,0), 1e-5);
 //    CHECK_CLOSE(2.979309089521e-01, integrator.overlapIntegral(2,0,0,2,0,0), 1e-5);
-//}
+}
 
 //TEST(GTOoverlapIntegral_derivative)
 //{

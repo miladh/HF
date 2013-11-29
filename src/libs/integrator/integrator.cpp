@@ -7,7 +7,6 @@ Integrator::Integrator():
     m_corePositionD(rowvec(3))
 
 {
-    //        setMaxAngularMomentum(0);
 }
 
 void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
@@ -45,8 +44,9 @@ void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
 
 }
 
-uint Integrator::maxAngularMomentum() const
+int Integrator::maxAngularMomentum() const
 {
+    cout << m_primitiveA.exponent() << endl;
     return m_maxAngularMomentum;
 }
 
@@ -284,8 +284,7 @@ double Integrator::nuclearAttractionIntegral()
     const double &b  = m_primitiveB.exponent();
 
     double p = a + b;
-    rowvec P  = (a*A + b*B)/p;
-    rowvec PC = P - C;
+    rowvec PC = (a*A + b*B)/p - C;
 
     m_hermiteIntegrals->setupR(PC,p, m_Ren);
 
@@ -390,8 +389,7 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(bool differentiateWrtA, 
     const double &b  = m_primitiveB.exponent();
 
     double p = a + b;
-    rowvec P  = (a*A + b*B)/p;
-    rowvec PC = P - C;
+    rowvec PC = (a*A + b*B)/p - C;
 
     m_hermiteIntegrals->setupR(PC,p, m_Ren);
 
@@ -438,11 +436,9 @@ double Integrator::electronRepulsionIntegral()
 
     double p = a + b;
     double q = c + d;
-    rowvec P  = (a*A + b*B)/p;
-    rowvec Q  = (c*C + d*D)/q;
 
     double alpha = p*q/(p+q);
-    rowvec PQ = P - Q;
+    rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
 
     m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
 
@@ -503,11 +499,8 @@ rowvec Integrator::electronRepulsionIntegral_derivative(bool differentiateWrtA, 
 
     double p = a + b;
     double q = c + d;
-    rowvec P  = (a*A + b*B)/p;
-    rowvec Q  = (c*C + d*D)/q;
-
     double alpha = p*q/(p+q);
-    rowvec PQ = P - Q;
+    rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
 
 
 

@@ -188,7 +188,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     }
 
     stringstream outStepName;
-    outStepName <<"/home/milad/kurs/qmd/H2/state" << setw(4) << setfill('0')  << currentTimeStep <<".lmp";
+    outStepName <<"/home/milad/kurs/qmd/state" << setw(4) << setfill('0')  << currentTimeStep <<".lmp";
     ofstream lammpsFile(outStepName.str(), ios::out | ios::binary);
 
 

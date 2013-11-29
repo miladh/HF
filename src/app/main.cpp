@@ -3,7 +3,6 @@
 
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
-#include<analyser/analyser.h>
 #include<cpmd/cpmd.h>
 #include<bomd/bomd.h>
 #include<basisSet/h_quadzeta.h>
@@ -32,7 +31,6 @@ int main()
 
     int m_case = 5;
     int dynamic = 0;
-    int analyser = 0;
     int cpmd = 0;
 
     if(m_case == 1){
@@ -159,10 +157,6 @@ int main()
             boSolver.runDynamics();
         }
     }else{
-        if(analyser){
-            Analyser analyser(system, 1e3);
-            analyser.calculatePES();
-        }
         HFsolver solver(system);
         solver.runSolver();
     }

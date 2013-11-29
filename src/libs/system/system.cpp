@@ -119,14 +119,10 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
         integrator.setPrimitiveA(primitiveA);
-//        const rowvec &powA = primitiveA.powers();
-//        integrator.setExponentA(primitiveA.exponent());
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
             integrator.setPrimitiveB(primitiveB);
-//            const rowvec &powB = primitiveB.powers();
-//            integrator.setExponentB(primitiveB.exponent());
 
             integrator.updateHermiteCoefficients(true, false);
             integrator.updateHermiteCoefficients_derivative(true,false);
@@ -224,14 +220,10 @@ rowvec System::getTwoParticleIntegralDerivative(const int a, const int b, const 
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
         integrator.setPrimitiveA(primitiveA);
-//        const rowvec &powA = primitiveA.powers();
-//        integrator.setExponentA(primitiveA.exponent());
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
             integrator.setPrimitiveB(primitiveB);
-//            const rowvec &powB = primitiveB.powers();
-//            integrator.setExponentB(primitiveB.exponent());
 
             integrator.updateHermiteCoefficients(true, false, false);
             integrator.updateHermiteCoefficients_derivative(true, false,false);
@@ -239,14 +231,10 @@ rowvec System::getTwoParticleIntegralDerivative(const int a, const int b, const 
             for(int k = 0; k < contractedC.getNumPrimitives(); k++){
                 const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
                 integrator.setPrimitiveC(primitiveC);
-//                const rowvec &powC = primitiveC.powers();
-//                integrator.setExponentC(primitiveC.exponent());
 
                 for(int l = 0; l < contractedD.getNumPrimitives(); l++){
                     const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
                     integrator.setPrimitiveD(primitiveD);
-//                    const rowvec &powD = primitiveD.powers();
-//                    integrator.setExponentD(primitiveD.exponent());
 
                     integrator.updateHermiteCoefficients(false, true, false);
                     integrator.updateHermiteCoefficients_derivative(false, true,false);
@@ -285,28 +273,20 @@ double System::getTwoParticleIntegral(const int a, const int b, const int c, con
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
         integrator.setPrimitiveA(primitiveA);
-//        const rowvec &powA = primitiveA.powers();
-//        integrator.setExponentA(primitiveA.exponent());
 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
             integrator.setPrimitiveB(primitiveB);
-//            const rowvec &powB = primitiveB.powers();
-//            integrator.setExponentB(primitiveB.exponent());
 
             integrator.updateHermiteCoefficients(true, false);
 
             for(int k = 0; k < contractedC.getNumPrimitives(); k++){
                 const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
                 integrator.setPrimitiveC(primitiveC);
-//                const rowvec &powC = primitiveC.powers();
-//                integrator.setExponentC(primitiveC.exponent());
 
                 for(int l = 0; l < contractedD.getNumPrimitives(); l++){
                     const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
                     integrator.setPrimitiveD(primitiveD);
-//                    const rowvec &powD = primitiveD.powers();
-//                    integrator.setExponentD(primitiveD.exponent());
 
                     integrator.updateHermiteCoefficients(false, true);
 
