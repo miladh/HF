@@ -13,7 +13,6 @@ void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
 {
     m_maxAngularMomentum = maxAngularMomentum;
 
-
     m_Eab.set_size(3);  m_Ecd.set_size(3);
     m_dEab.set_size(3); m_dEcd.set_size(3);
     int iAmax = m_maxAngularMomentum + 3;
@@ -116,17 +115,17 @@ void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoPar
 {
     if(oneParticleIntegral){
         if(kin){
-                m_hermiteCoefficients.setupE(m_primitiveA.exponent(), m_primitiveB.exponent(),
+                m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
                                      m_corePositionA - m_corePositionB,
                                      m_Eab);
         }else{
-            m_hermiteCoefficients.setupE(m_primitiveA.exponent(), m_primitiveB.exponent(),
+            m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
                                  m_corePositionA - m_corePositionB,
                                  m_Eab,false);
         }
 
     }else if(twoParticleIntegral){
-        m_hermiteCoefficients.setupE(m_primitiveC.exponent(), m_primitiveD.exponent(),
+        m_hermiteCoefficients.setupE(m_primitiveC, m_primitiveD,
                                      m_corePositionC - m_corePositionD,
                                      m_Ecd, false);
     }else{
@@ -139,17 +138,17 @@ void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, 
 
     if(oneParticleIntegral){
         if(kin){
-        m_hermiteCoefficients.setup_dEdR(m_primitiveA.exponent(), m_primitiveB.exponent(),
+        m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB,
                                          m_corePositionA - m_corePositionB,
                                          m_Eab, m_dEab);
         }else{
-            m_hermiteCoefficients.setup_dEdR(m_primitiveA.exponent(), m_primitiveB.exponent(),
+            m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB,
                                              m_corePositionA - m_corePositionB,
                                              m_Eab, m_dEab, false);
         }
 
     }else if(twoParticleIntegral){
-        m_hermiteCoefficients.setup_dEdR(m_primitiveC.exponent(), m_primitiveD.exponent(),
+        m_hermiteCoefficients.setup_dEdR(m_primitiveC, m_primitiveD,
                                          m_corePositionC - m_corePositionD,
                                          m_Ecd,m_dEcd, false);
     }else{
@@ -286,7 +285,7 @@ double Integrator::nuclearAttractionIntegral()
     double p = a + b;
     rowvec PC = (a*A + b*B)/p - C;
 
-    m_hermiteIntegrals->setupR(PC,p, m_Ren);
+    m_hermiteIntegrals->setupR(PC,p, m_Ren, m_primitiveA.powers()+m_primitiveB.powers());
 
     double result = 0.0;
 
@@ -391,7 +390,7 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(bool differentiateWrtA, 
     double p = a + b;
     rowvec PC = (a*A + b*B)/p - C;
 
-    m_hermiteIntegrals->setupR(PC,p, m_Ren);
+    m_hermiteIntegrals->setupR(PC,p, m_Ren, m_primitiveA.powers()+m_primitiveB.powers());
 
     int iA = m_primitiveA.xPower();
     int jA = m_primitiveA.yPower();
@@ -440,7 +439,8 @@ double Integrator::electronRepulsionIntegral()
     double alpha = p*q/(p+q);
     rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
 
-    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, m_primitiveA.powers()+m_primitiveB.powers()
+                               + m_primitiveC.powers()+m_primitiveD.powers());
 
 
     double result = 0.0;
@@ -504,7 +504,8 @@ rowvec Integrator::electronRepulsionIntegral_derivative(bool differentiateWrtA, 
 
 
 
-    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, m_primitiveA.powers()+m_primitiveB.powers()+
+                               m_primitiveC.powers()+m_primitiveD.powers());
 
 
     int iA = m_primitiveA.xPower();

@@ -13,7 +13,7 @@ class HermiteIntegrals
 {
 public:
     HermiteIntegrals(const int highestOrder);
-    void setupR(const rowvec &PQ, const double &alpha, field<cube> &R);
+    void setupR(const rowvec &PQ, const double &alpha, field<cube> &R, const rowvec &maxValues);
 
 private:
     Boys *m_boys;

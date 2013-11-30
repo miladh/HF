@@ -20,7 +20,7 @@ using namespace std;
 
 int main()
 {
-    double start_time = time(NULL);
+    clock_t begin = clock();
     int nElectrons;
     rowvec coreCharges,coreMass, A, B, C;
 
@@ -29,7 +29,7 @@ int main()
     BasisSet *basisCoreC;
 
 
-    int m_case = 5;
+    int m_case = 2;
     int dynamic = 0;
     int cpmd = 0;
 
@@ -46,8 +46,8 @@ int main()
     }else if(m_case==2){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-1.35, 0.0, 0.0};
-        B = {1.35, 0.0, 0.0};
+        A = {-2.25, 0.0, 0.0};
+        B = {2.25, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA  = new H_321G;
@@ -162,9 +162,10 @@ int main()
     }
 
 
-    double end_time = time(NULL);
+    sleep(1.2);
+    clock_t end = clock();
     cout << "-------------------------------"  << endl;
-    cout << "Elapsed time: "  << end_time-start_time << "s" << endl;
+    cout << "Elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
 
 
     return 0;

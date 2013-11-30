@@ -5,13 +5,19 @@ HermiteIntegrals::HermiteIntegrals(const int highestOrder):
 {
 }
 
-void HermiteIntegrals::setupR(const rowvec &PQ, const double &alpha, field<cube> &R){
+void HermiteIntegrals::setupR(const rowvec &PQ, const double &alpha, field<cube> &R,
+                              const rowvec &maxValues){
 
 
     int tMax  = R(0).n_rows   - 1;
     int uMax  = R(0).n_cols   - 1;
     int vMax  = R(0).n_slices - 1;
     int nMax  = R.n_elem      - 1;
+
+//    int tMax  = maxValues(0);
+//    int uMax  = maxValues(1);
+//    int vMax  = maxValues(2);
+//    int nMax  = tMax + uMax + vMax;
 
     m_boys->evaluateBoysFunctions(alpha*dot(PQ,PQ));
 

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <armadillo>
 
+#include<primitiveGTO/primitiveGTO.h>
+
 
 using namespace arma;
 using namespace std;
@@ -13,10 +15,10 @@ class HermiteCoefficients
 
 public:
     HermiteCoefficients();
-    void setupE(const double &a, const double &b,
+    void setupE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
                 const rowvec3 &R, field<cube> &E, bool kin = true);
 
-    void setup_dEdR(const double &a, const double &b, const rowvec3 &R,
+    void setup_dEdR(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, const rowvec3 &R,
                     field<cube> &E, field<cube> &dE, bool kin=true);
 
 

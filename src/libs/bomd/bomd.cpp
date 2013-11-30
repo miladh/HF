@@ -72,6 +72,7 @@ void BOMD::solveSingleStep()
         setupDerivativeMatrices(core);
         m_energyGradient = calculateEnergyGradient(core);
         IntegrateCoreForwardInTime(core);
+//        cout << "core " << core <<" of " << m_nCores << endl;
     }
 }
 
