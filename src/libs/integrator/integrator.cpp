@@ -9,7 +9,7 @@ Integrator::Integrator():
 {
 }
 
-void Integrator::setMaxAngularMomentum(const uint &maxAngularMomentum)
+void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 {
     m_maxAngularMomentum = maxAngularMomentum;
 
@@ -115,13 +115,13 @@ void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoPar
 {
     if(oneParticleIntegral){
         if(kin){
-                m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
-                                     m_corePositionA - m_corePositionB,
-                                     m_Eab);
+            m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
+                                         m_corePositionA - m_corePositionB,
+                                         m_Eab);
         }else{
             m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
-                                 m_corePositionA - m_corePositionB,
-                                 m_Eab,false);
+                                         m_corePositionA - m_corePositionB,
+                                         m_Eab,false);
         }
 
     }else if(twoParticleIntegral){

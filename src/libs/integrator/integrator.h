@@ -17,7 +17,7 @@ public:
     Integrator();
 
     int maxAngularMomentum() const;
-    void setMaxAngularMomentum(const uint &maxAngularMomentum);
+    void setMaxAngularMomentum(const int maxAngularMomentum);
 
 
     void setPrimitiveA(const PrimitiveGTO &primitiveA);

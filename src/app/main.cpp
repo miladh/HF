@@ -72,8 +72,8 @@ int main()
         B = { 1.14, 0.0, 0.0};
         coreMass = {16 , 16};
         coreCharges = {8 , 8};
-        basisCoreA = new BasisSet("infiles/turbomole/O_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/O_3-21G");
+        basisCoreA = new BasisSet("infiles/turbomole/O_4-31G");
+        basisCoreB = new BasisSet("infiles/turbomole/O_4-31G");
 
     }else if(m_case==6){
         double l = 1.797;

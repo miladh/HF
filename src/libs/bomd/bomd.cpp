@@ -8,7 +8,7 @@ BOMD::BOMD(System *system):
 
 
 {
-    m_nSteps = 500;
+    m_nSteps = 50;
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 

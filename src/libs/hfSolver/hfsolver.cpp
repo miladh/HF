@@ -60,6 +60,8 @@ void HFsolver::solveSingle()
 
     normalize();
 
+
+//    m_P = 0.5*m_P + m_C * m_C.t();  // Interpolate between new and old density matrix
     m_P = 2*m_C*m_C.t();
 
     m_fockEnergy = eigVal(0);
