@@ -18,6 +18,7 @@ public:
     int getNumPrimitives() const;
     const PrimitiveGTO &getPrimitive(const int p) const;
 
+    double evaluate(const rowvec &R, const double &x, const double &y, const double &z) const;
 private:
     vector<PrimitiveGTO> m_primitivesGTOs;
 };

@@ -11,17 +11,9 @@ SOURCES += \
     math/hermitecoefficients.cpp \
     hfSolver/hfsolver.cpp \
     basisSet/basisset.cpp \
-    basisSet/splitValence/h_321g.cpp \
-    basisSet/h_quadzeta.cpp \
-    basisSet/splitValence/o_321g.cpp \
     math/hermiteintegrals.cpp \
-    basisSet/splitValence/li_321g.cpp \
-    basisSet/splitValence/splitvalence.cpp \
-    basisSet/splitValence/h_431g.cpp \
-    basisSet/splitValence/o_431g.cpp \
     cpmd/cpmd.cpp \
-    bomd/bomd.cpp \
-    basisSet/splitValence/c_321g.cpp
+    bomd/bomd.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -32,15 +24,7 @@ HEADERS += \
     math/hermitecoefficients.h \
     hfSolver/hfsolver.h \
     basisSet/basisset.h \
-    basisSet/splitValence/h_321g.h \
-    basisSet/h_quadzeta.h \
-    basisSet/splitValence/o_321g.h \
     math/hermiteintegrals.h \
-    basisSet/splitValence/li_321g.h \
-    basisSet/splitValence/splitvalence.h \
-    basisSet/splitValence/h_431g.h \
-    basisSet/splitValence/o_431g.h \
     cpmd/cpmd.h \
     bomd/bomd.h \
-    includes/defines.h \
-    basisSet/splitValence/c_321g.h
+    includes/defines.h

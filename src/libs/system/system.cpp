@@ -342,3 +342,65 @@ rowvec System::getNucleiPotential_derivative(int activeCore)
 
 }
 
+
+
+
+double System::particleDensity(const mat &C, const double &x, const double &y, const double &z)
+{
+
+    if(C.n_rows < m_basisSet.size() || C.n_cols < m_nElectrons / 2) {
+        cout << "C matrix has the wrong dimensions" << endl;
+//        throw exception();
+        exit(0);
+    }
+    double result = 0;
+
+    int nk = m_nElectrons / 2;
+    nk = max(nk, 1);
+
+    int cId = 0;
+    for(int i = 0; i < nk; i++) {
+        double innerResult = 0;
+
+        for(uint j = 0; j < m_basisSet.size(); j++) {
+            const BasisSet *core = m_basisSet.at(j);
+
+            for(int k = 0; k < core->getNumContracted(); k++){
+                const ContractedGTO &cGTO = core->getContracted(k);
+
+                double evaluation = cGTO.evaluate( core->corePosition(),x,y,z);
+                innerResult += C(k+cId,i) * C(k+cId,i) * evaluation * evaluation;
+            }
+            cId+=core->getNumContracted();
+        }
+        cId = 0;
+        result += innerResult * innerResult;
+    }
+
+    return result;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

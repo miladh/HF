@@ -5,8 +5,6 @@
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
 #include<bomd/bomd.h>
-#include<basisSet/h_quadzeta.h>
-#include<basisSet/splitValence/h_321g.h>
 
 using namespace std;
 using namespace arma;

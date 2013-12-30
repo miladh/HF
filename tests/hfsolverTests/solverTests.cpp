@@ -1,10 +1,6 @@
 #include <unittest++/UnitTest++.h>
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
-#include<basisSet/splitValence/h_321g.h>
-#include<basisSet/splitValence/h_431g.h>
-#include<basisSet/splitValence/o_431g.h>
-#include<basisSet/h_quadzeta.h>
 
 #include <armadillo>
 #include <iostream>
@@ -27,8 +23,8 @@ TEST(H2_QZ)
     B = {0.5, 0.0, 0.0};
     coreCharges = {1 , 1};
     coreMass = {1 , 1};
-    basisCoreA  = new H_QuadZeta;
-    basisCoreB  = new H_QuadZeta;
+    basisCoreA = new BasisSet("infiles/turbomole/H_Qzeta");
+    basisCoreB = new BasisSet("infiles/turbomole/H_Qzeta");
 
     int maxAngularMomentum = basisCoreA->getAngularMomentum();
     basisCoreA->setCoreCharge(coreCharges(0));
@@ -61,8 +57,9 @@ TEST(H2_321G)
     B = {0.7, 0.0, 0.0};
     coreCharges = {1 , 1};
     coreMass = {1 , 1};
-    basisCoreA  = new H_321G;
-    basisCoreB  = new H_321G;
+
+    basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
+    basisCoreB = new BasisSet("infiles/turbomole/H_3-21G");
 
     int maxAngularMomentum = basisCoreA->getAngularMomentum();
     basisCoreA->setCoreCharge(coreCharges(0));
@@ -96,8 +93,9 @@ TEST(H2_431G)
     B = {0.69, 0.0, 0.0};
     coreCharges = {1 , 1};
     coreMass = {1 , 1};
-    basisCoreA  = new H_431G;
-    basisCoreB  = new H_431G;
+
+    basisCoreA = new BasisSet("infiles/turbomole/H_4-31G");
+    basisCoreB = new BasisSet("infiles/turbomole/H_4-31G");
 
     int maxAngularMomentum = basisCoreA->getAngularMomentum();
     basisCoreA->setCoreCharge(coreCharges(0));
@@ -136,9 +134,10 @@ TEST(H2O_431G)
     C = { 0.0, 0.0, 0.0};
     coreCharges = {1 , 1, 8};
     coreMass = {1 , 1, 16};
-    basisCoreA = new H_431G;
-    basisCoreB = new H_431G;
-    basisCoreC = new O_431G;
+
+    basisCoreA = new BasisSet("infiles/turbomole/H_4-31G");
+    basisCoreB = new BasisSet("infiles/turbomole/H_4-31G");
+    basisCoreC = new BasisSet("infiles/turbomole/O_4-31G");
 
     int maxAngularMomentum = basisCoreC->getAngularMomentum();
     basisCoreA->setCoreCharge(coreCharges(0));

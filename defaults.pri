@@ -1,5 +1,4 @@
-LIBS += -llapack -larmadillo -lconfig++
-
+LIBS += -llapack -larmadillo -lconfig++ -lboost_regex
 
 COMMON_CXXFLAGS = -std=c++0x
 QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS
@@ -15,6 +14,7 @@ INCLUDEPATH += $$TOP_PWD/src/libs
 SRC_DIR = $$TOP_PWD
 
 
+#Copy infiles
 copydata.commands = $(COPY_DIR) $$PWD/infiles $$OUT_PWD
 first.depends = $(first) copydata
 export(first.depends)

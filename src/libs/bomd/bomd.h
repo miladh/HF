@@ -6,12 +6,6 @@
 
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
-#include<basisSet/h_quadzeta.h>
-#include<basisSet/splitValence/h_321g.h>
-#include<basisSet/splitValence/h_431g.h>
-#include<basisSet/splitValence/li_321g.h>
-#include<basisSet/splitValence/o_321g.h>
-#include<basisSet/splitValence/o_431g.h>
 
 using namespace arma;
 using namespace std;
@@ -60,6 +54,9 @@ private:
     void updateCorePositions();
     void setupPulayMatrices(const int core);
     rowvec calculatePulayForce(int core);
+    void calculateOnebodyDensity(int step);
+
+    cube m_density;
 };
 
 #endif // BOMD_H

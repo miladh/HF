@@ -1,18 +1,23 @@
 #ifndef BASISSET_H
 #define BASISSET_H
 
+
 #include <iostream>
 #include <armadillo>
-#include<includes/defines.h>
+
+#include <includes/defines.h>
 #include <contractedGTO/contractedGTO.h>
+
 
 using namespace arma;
 using namespace std;
+using namespace boost;
 
 class BasisSet
 {
 public:
     BasisSet();
+    BasisSet(string inFileName);
 
     rowvec corePosition() const;
     int coreCharge() const;
@@ -23,11 +28,10 @@ public:
 
     const ContractedGTO &getContracted(const int c) const;
     int getNumContracted() const;
+    int getAngularMomentum() const;
 
-    virtual int getAngularMomentum() const = 0;
 
-
-protected:
+private:
     vector<ContractedGTO> m_contractedGTOs;
     rowvec m_corePosition;
     int m_coreCharge, m_coreMass;

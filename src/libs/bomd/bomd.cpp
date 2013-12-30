@@ -8,7 +8,7 @@ BOMD::BOMD(System *system):
 
 
 {
-    m_nSteps = 300;
+    m_nSteps = 500;
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 
@@ -55,6 +55,7 @@ void BOMD::runDynamics()
         writeToFile(pos,nStep);
         posOld = pos;
         pos = posNew;
+        calculateOnebodyDensity(nStep);
         updateCorePositions();
 
         cout << "step " << nStep << " Energy: " << m_energy << endl;
@@ -76,7 +77,45 @@ void BOMD::solveSingleStep()
     }
 }
 
+void BOMD::calculateOnebodyDensity(int step)
+{
+    vec x = linspace(-5, 5, 300);
+    vec y = linspace(-5, 5, 300);
+    vec z = linspace(-5, 5, 300);
 
+    double dx = x(1) - x(0);
+    double dy = y(1) - y(0);
+    double dz = z(1) - z(0);
+    double densitySum = 0;
+
+    mat C = m_solver->getC();
+
+    m_density = cube(x.n_elem, y.n_elem, z.n_elem);
+    for(uint i = 0; i < x.n_elem; i++) {
+        cout << "Calculating density for x = " << x(i) << endl;
+        for(uint j = 0; j < y.n_elem; j++) {
+            for(uint k = 0; k < z.n_elem; k++) {
+                double density = m_system->particleDensity(C, x(i), y(j), z(k));
+                densitySum += density * dx * dy * dz;
+                m_density(i,j,k) = density;
+            }
+        }
+    }
+
+
+    cout << "Density sum: " << densitySum << endl;
+    m_density -= m_density.min();
+    m_density += 1e-6;
+    m_density = sqrt(m_density);
+
+    stringstream outStepName;
+    outStepName <<"/home/milad/kurs/qmd/density/density" << setw(4) << setfill('0')  << step<<".dat";
+
+    mat tmp = m_density.slice(0);
+    tmp.save(outStepName.str(),raw_ascii);
+//    m_density.save(outStepName.str(), raw_ascii);
+
+}
 
 
 void BOMD::IntegrateCoreForwardInTime(int core)
