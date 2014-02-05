@@ -158,12 +158,15 @@ void HFsolver::calculateDensity()
 
     cout << "Calculating density..... " << endl;
 
-    vec x = linspace(-10, 10, 50);
-    vec y = linspace(-10, 10, 50);
-    vec z = linspace(-10, 10, 50);
+    vec x = linspace(-5, 5, 50);
+    vec y = linspace(-5, 5, 50);
+    vec z = linspace(-5, 5, 50);
+    double dx = x(1) - x(0);
+    double dy = y(1) - y(0);
+    double dz = z(1) - z(0);
 
     m_density = zeros(x.n_elem, y.n_elem, z.n_elem);
-
+    double sumDensity =0;
     for(uint i = 0; i < x.n_elem; i++) {
         for(uint j = 0; j < y.n_elem; j++) {
             for(uint k = 0; k < z.n_elem; k++) {
@@ -172,6 +175,7 @@ void HFsolver::calculateDensity()
                     for(int q = p; q < m_nOrbitals; q++){
 
                         double innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
+                        sumDensity += m_P(p,q) * innerProduct * dx * dy * dz;
                         m_density(i,j,k) += m_P(p,q) * innerProduct;
 
                     }
@@ -181,6 +185,7 @@ void HFsolver::calculateDensity()
         }
     }
 
+    cout << "density sum: " << sumDensity << endl;
     densityOutput(x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
 
 }

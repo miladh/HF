@@ -23,8 +23,8 @@ int main()
     BasisSet *basisCoreE;
 
 
-    int m_case = 9;
-    int dynamic = 0;
+    int m_case = 2;
+    int dynamic = 1;
     int cpmd = 0;
 
     if(m_case == 1){
@@ -40,8 +40,8 @@ int main()
     }else if(m_case==2){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-0.5, 0.0, 0.0};
-        B = {0.5, 0.0, 0.0};
+        A = {-2.5, 0.0, 0.0};
+        B = {2.5, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
