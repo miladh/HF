@@ -14,14 +14,16 @@ int main()
 {
     clock_t begin = clock();
     int nElectrons;
-    rowvec coreCharges,coreMass, A, B, C;
+    rowvec coreCharges,coreMass, A, B, C, D, E;
 
     BasisSet *basisCoreA;
     BasisSet *basisCoreB;
     BasisSet *basisCoreC;
+    BasisSet *basisCoreD;
+    BasisSet *basisCoreE;
 
 
-    int m_case = 1;
+    int m_case = 9;
     int dynamic = 0;
     int cpmd = 0;
 
@@ -38,8 +40,8 @@ int main()
     }else if(m_case==2){
         //Hydrogen molecule
         nElectrons = 2;
-        A = {-2.25, 0.0, 0.0};
-        B = {2.25, 0.0, 0.0};
+        A = {-0.5, 0.0, 0.0};
+        B = {0.5, 0.0, 0.0};
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
         basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
@@ -106,9 +108,47 @@ int main()
         basisCoreB = new BasisSet("infiles/turbomole/O_3-21G");
         basisCoreC = new BasisSet("infiles/turbomole/C_3-21G");
 
+    }else if(m_case==8){
+        //SiO4
+        nElectrons = 46;
+        A = {0.0, 0.0, 0.0};
+        B = {1.0, 1.0, 1.0};
+        C = {-1.0, -1.0, 1.0};
+        D = {1.0, -1.0, -1.0};
+        E = {-1.0, 1.0, -1.0};
+
+        B *=4.9;C *=4.9;D *=4.9;E *=4.9;
+
+        coreCharges = {14, 8 , 8, 8, 8};
+        coreMass = {28 , 16, 16, 16, 16};
+
+        basisCoreA = new BasisSet("infiles/turbomole/Si_3-21G");
+        basisCoreB = new BasisSet("infiles/turbomole/O_3-21G");
+        basisCoreC = new BasisSet("infiles/turbomole/O_3-21G");
+        basisCoreD = new BasisSet("infiles/turbomole/O_3-21G");
+        basisCoreE = new BasisSet("infiles/turbomole/O_3-21G");
+
+    }else if(m_case==9){
+        //CH4
+        nElectrons = 10;
+        A = {0.0, 0.0, 0.0};
+        B = {1.0, 1.0, 1.0};
+        C = {-1.0, -1.0, 1.0};
+        D = {1.0, -1.0, -1.0};
+        E = {-1.0, 1.0, -1.0};
+
+        B *=2.043/sqrt(3);C *=2.043/sqrt(3);D *=2.043/sqrt(3);E *=2.043/sqrt(3);
+
+        coreCharges = {6, 1 , 1, 1, 1};
+        coreMass = {6 , 1, 1, 1, 1};
+
+        basisCoreA = new BasisSet("infiles/turbomole/C_4-31G");
+        basisCoreB = new BasisSet("infiles/turbomole/H_4-31G");
+        basisCoreC = new BasisSet("infiles/turbomole/H_4-31G");
+        basisCoreD = new BasisSet("infiles/turbomole/H_4-31G");
+        basisCoreE = new BasisSet("infiles/turbomole/H_4-31G");
+
     }
-
-
     /********************************************************/
 
     int maxAngularMomentum = basisCoreA->getAngularMomentum();
@@ -129,6 +169,20 @@ int main()
 
     }
 
+    if(m_case==8 ||m_case == 9){
+        basisCoreC->setCorePosition(C);
+        basisCoreC->setCoreCharge(coreCharges(2));
+        basisCoreC->setCoreMass(coreMass(2));
+
+        basisCoreD->setCorePosition(D);
+        basisCoreD->setCoreCharge(coreCharges(3));
+        basisCoreD->setCoreMass(coreMass(3));
+
+        basisCoreE->setCorePosition(E);
+        basisCoreE->setCoreCharge(coreCharges(4));
+        basisCoreE->setCoreMass(coreMass(4));
+    }
+
 
     if(dynamic){
         maxAngularMomentum +=1;
@@ -142,10 +196,16 @@ int main()
         system->addBasisSet(basisCoreC);
     }
 
+    if(m_case == 8 ||m_case == 9 ){
+        system->addBasisSet(basisCoreC);
+        system->addBasisSet(basisCoreD);
+        system->addBasisSet(basisCoreE);
+    }
+
     if(dynamic){
         if(cpmd){
-          CPMD cpSolver(system);
-          cpSolver.runDynamics();
+            CPMD cpSolver(system);
+            cpSolver.runDynamics();
 
         }else{
             BOMD boSolver(system);

@@ -8,7 +8,8 @@ HFsolver::HFsolver(System *system):
     m_h(zeros(m_nOrbitals,m_nOrbitals)),
     m_F(zeros(m_nOrbitals,m_nOrbitals)),
     m_P(zeros(m_nOrbitals,m_nOrbitals)),
-    m_C(ones(m_nOrbitals,m_nElectrons/2.0))
+    m_C(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_step(0)
 
 {
     m_Q.set_size(m_nOrbitals, m_nOrbitals);
@@ -27,6 +28,7 @@ void HFsolver::runSolver()
     int step = 0;
     int maxStep = 100;
 
+
     setupOneParticleMatrix();
     setupTwoParticleMatrix();
 
@@ -41,7 +43,10 @@ void HFsolver::runSolver()
         }
     }
 
+
     calculateEnergy();
+    calculateDensity();
+    m_step+=1;
 }
 
 void HFsolver::solveSingle()
@@ -84,7 +89,9 @@ void HFsolver::calculateEnergy()
     }
     m_energy += m_system->getNucleiPotential();
 
-    cout << "Energy: " << setprecision(14) << m_energy << endl;
+    cout << setprecision(14) << "configuration " << m_step << " Energy: "  << m_energy << endl;
+
+
 
 }
 
@@ -144,6 +151,103 @@ void HFsolver::setupFockMatrix()
         }
     }
 }
+
+
+void HFsolver::calculateDensity()
+{
+
+    cout << "Calculating density..... " << endl;
+
+    vec x = linspace(-10, 10, 50);
+    vec y = linspace(-10, 10, 50);
+    vec z = linspace(-10, 10, 50);
+
+    m_density = zeros(x.n_elem, y.n_elem, z.n_elem);
+
+    for(uint i = 0; i < x.n_elem; i++) {
+        for(uint j = 0; j < y.n_elem; j++) {
+            for(uint k = 0; k < z.n_elem; k++) {
+
+                for(int p = 0; p < m_nOrbitals; p++){
+                    for(int q = p; q < m_nOrbitals; q++){
+
+                        double innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
+                        m_density(i,j,k) += m_P(p,q) * innerProduct;
+
+                    }
+                }
+
+            }
+        }
+    }
+
+    densityOutput(x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
+
+}
+
+
+void HFsolver::densityOutput(const double &xMin, const double &xMax,
+                             const double &yMin, const double &yMax,
+                             const double &zMin, const double &zMax)
+{
+
+    stringstream cubeFileName;
+    cubeFileName<<"/home/milad/kurs/qmd/density/cubeFile" << setw(4) << setfill('0')  << m_step <<".bin";
+    ofstream cubeFile(cubeFileName.str(), ios::out | ios::binary);
+
+    //Header
+    double nCores = m_system->getNumOfCores();
+    vec origo = {0,0,0};
+    vec xLimits = {xMin, xMax};
+    vec yLimits = {yMin, yMax};
+    vec zLimits = {zMin, zMax};
+    double nX = m_density.n_rows;
+    double nY = m_density.n_cols;
+    double nZ = m_density.n_slices;
+
+    cubeFile.write(reinterpret_cast<const char*>(&nCores), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&origo(0)), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&origo(1)), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&origo(2)), sizeof(double));
+
+    cubeFile.write(reinterpret_cast<const char*>(&nX), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&xLimits(0)), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&xLimits(1)), sizeof(double));
+
+    cubeFile.write(reinterpret_cast<const char*>(&nY), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&yLimits(0)), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&yLimits(1)), sizeof(double));
+
+    cubeFile.write(reinterpret_cast<const char*>(&nZ), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&zLimits(0)), sizeof(double));
+    cubeFile.write(reinterpret_cast<const char*>(&zLimits(1)), sizeof(double));
+
+    for(int core = 0; core < nCores; core++){
+        rowvec3 R = m_system->m_basisSet.at(core)->corePosition();
+        double atomType = m_system->m_basisSet.at(core)->coreCharge();
+
+        cubeFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
+        cubeFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
+
+        // Write the x, y and z-components
+        cubeFile.write(reinterpret_cast<const char*>(&R(0)), sizeof(double));
+        cubeFile.write(reinterpret_cast<const char*>(&R(1)), sizeof(double));
+        cubeFile.write(reinterpret_cast<const char*>(&R(2)), sizeof(double));
+    }
+
+    //density data
+    for(uint k = 0; k < m_density.n_slices; k++) {
+        for(uint i = 0; i < m_density.n_rows; i++) {
+            for(uint j = 0; j < m_density.n_cols; j++) {
+
+                cubeFile.write(reinterpret_cast<const char*>(&m_density(i,j,k)), sizeof(double));
+            }
+        }
+    }
+
+    cubeFile.close();
+}
+
 
 void HFsolver::normalize()
 {

@@ -36,7 +36,8 @@ public:
 
     mat getOneParticleDerivativeOfOrbitals(const int a, const int b, const int N);
     rowvec getTwoParticleIntegralDerivativeOfOrbitals(const int a, const int b, const int c, const int d, const int N);
-    double particleDensity(const mat &C, const double &x, const double &y, const double &z);
+    double gaussianProduct(const int a, const int b, const double &x, const double &y, const double &z);
+
 private:
     Integrator integrator;
     vector<int > m_coreID;

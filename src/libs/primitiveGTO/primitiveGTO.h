@@ -31,6 +31,7 @@ public:
     int zPower() const;
     void setZPower(int zPower);
 
+    double evaluate(const double &x, const double &y, const double &z) const;
 private:
     double m_exponent;
     double m_weight;

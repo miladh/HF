@@ -8,7 +8,7 @@ BOMD::BOMD(System *system):
 
 
 {
-    m_nSteps = 50;
+    m_nSteps = 150;
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 
@@ -49,16 +49,13 @@ BOMD::BOMD(System *system):
 
 void BOMD::runDynamics()
 {
-
     for(int nStep = 0; nStep < m_nSteps; nStep++){
         solveSingleStep();
         writeToFile(pos,nStep);
         posOld = pos;
         pos = posNew;
-        calculateOnebodyDensity(nStep);
         updateCorePositions();
 
-        cout << "step " << nStep << " Energy: " << m_energy << endl;
     }
 
 }
@@ -73,49 +70,9 @@ void BOMD::solveSingleStep()
         setupDerivativeMatrices(core);
         m_energyGradient = calculateEnergyGradient(core);
         IntegrateCoreForwardInTime(core);
-//        cout << "core " << core <<" of " << m_nCores << endl;
     }
 }
 
-void BOMD::calculateOnebodyDensity(int step)
-{
-    vec x = linspace(-5, 5, 300);
-    vec y = linspace(-5, 5, 300);
-    vec z = linspace(-5, 5, 300);
-
-    double dx = x(1) - x(0);
-    double dy = y(1) - y(0);
-    double dz = z(1) - z(0);
-    double densitySum = 0;
-
-    mat C = m_solver->getC();
-
-    m_density = cube(x.n_elem, y.n_elem, z.n_elem);
-    for(uint i = 0; i < x.n_elem; i++) {
-        cout << "Calculating density for x = " << x(i) << endl;
-        for(uint j = 0; j < y.n_elem; j++) {
-            for(uint k = 0; k < z.n_elem; k++) {
-                double density = m_system->particleDensity(C, x(i), y(j), z(k));
-                densitySum += density * dx * dy * dz;
-                m_density(i,j,k) = density;
-            }
-        }
-    }
-
-
-    cout << "Density sum: " << densitySum << endl;
-    m_density -= m_density.min();
-    m_density += 1e-6;
-    m_density = sqrt(m_density);
-
-    stringstream outStepName;
-    outStepName <<"/home/milad/kurs/qmd/density/density" << setw(4) << setfill('0')  << step<<".dat";
-
-    mat tmp = m_density.slice(0);
-    tmp.save(outStepName.str(),raw_ascii);
-//    m_density.save(outStepName.str(), raw_ascii);
-
-}
 
 
 void BOMD::IntegrateCoreForwardInTime(int core)
@@ -171,6 +128,7 @@ rowvec BOMD::calculateEnergyGradient(int core)
 
 void BOMD::setupDerivativeMatrices(const int core)
 {
+
     mat diffOneParticleIntegral;
     //Set up the dh and dS matrix:
     for(int p = 0; p < m_nOrbitals; p++){
@@ -178,6 +136,7 @@ void BOMD::setupDerivativeMatrices(const int core)
             diffOneParticleIntegral = m_system->getOneParticleDerivative(p,q,core);
             m_dS(p,q) = diffOneParticleIntegral.row(0);
             m_dh(p,q) = diffOneParticleIntegral.row(1);
+//            cout << "one-particle derivative" << endl;
         }
     }
 
@@ -187,7 +146,7 @@ void BOMD::setupDerivativeMatrices(const int core)
         for(int r = 0; r < m_nOrbitals; r++){
             for(int q = 0; q < m_nOrbitals; q++){
                 for(int s = 0; s < m_nOrbitals; s++){
-
+//                    cout << "two-particle derivative" << endl;
                     m_dQ(p,r)(q,s) = m_system->getTwoParticleIntegralDerivative(p,q,r,s,core);
 
                 }
@@ -289,3 +248,4 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     }
     lammpsFile.close();
 }
+

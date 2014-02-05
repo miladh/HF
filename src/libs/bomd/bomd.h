@@ -54,9 +54,7 @@ private:
     void updateCorePositions();
     void setupPulayMatrices(const int core);
     rowvec calculatePulayForce(int core);
-    void calculateOnebodyDensity(int step);
 
-    cube m_density;
 };
 
 #endif // BOMD_H
