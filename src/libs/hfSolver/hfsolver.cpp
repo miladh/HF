@@ -4,6 +4,7 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),
     m_system(system),
+
     m_nElectrons(system->getNumOfElectrons()),
     m_nOrbitals(system->getTotalNumOfBasisFunc()),
     m_S(zeros(m_nOrbitals,m_nOrbitals)),
