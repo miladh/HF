@@ -1,4 +1,4 @@
-#ifndef HFSOLVER_H
+ #ifndef HFSOLVER_H
 #define HFSOLVER_H
 
 #include <iostream>
@@ -13,7 +13,7 @@ using namespace std;
 class HFsolver
 {
 public:
-    HFsolver(System *system);
+    HFsolver(System *system, const int &rank, const int &nProcs);
     void runSolver();
 
     field<mat> getQmatrix();
@@ -33,12 +33,14 @@ public:
 
     int m_step;
 private:
+    int m_rank, m_nProcs;
     System *m_system;
     cube m_density;
 
     int m_nElectrons, m_nOrbitals;
     mat m_S, m_h, m_F, m_P, m_C;
     field<mat> m_Q;
+
     double m_energy, m_fockEnergy;
 
     void normalize();

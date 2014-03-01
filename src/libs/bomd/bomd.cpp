@@ -1,6 +1,8 @@
 #include "bomd.h"
 
-BOMD::BOMD(System *system):
+BOMD::BOMD(System *system, const int &rank, const int &nProcs):
+    m_rank(rank),
+    m_nProcs(nProcs),
     m_system(system),
     m_nCores(system->getNumOfCores()),
     m_nElectrons(system->getNumOfElectrons()),
@@ -8,7 +10,7 @@ BOMD::BOMD(System *system):
 
 
 {
-    m_nSteps = 10;
+    m_nSteps = 300;
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 
@@ -43,7 +45,7 @@ BOMD::BOMD(System *system):
     }
 
     posOld = pos;
-    m_solver = new HFsolver(m_system);
+    m_solver = new HFsolver(m_system, m_rank, m_nProcs);
 }
 
 

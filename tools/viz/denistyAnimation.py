@@ -305,7 +305,7 @@ class surf2DRepresentation(cubeVizualizer):
                 self.yLim[0], self.yLim[1],
                 log10(self.vmax), log10(self.vmin)]
         densityPlot = mlab.surf(densityValues[:,:,0],opacity=0.8,
-                           extent=extent)
+                           colormap = "Blues",extent=extent)
                            
         mlab.outline()
         mlab.axes()

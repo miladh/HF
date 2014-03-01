@@ -14,11 +14,12 @@ using namespace std;
 class CPMD
 {
 public:
-    CPMD(System *system);
+    CPMD(System *system, const int &rank, const int &nProcs);
 
     void runDynamics();
 
 private:
+    int m_rank, m_nProcs;
     System* m_system;
     HFsolver *m_solver;
 

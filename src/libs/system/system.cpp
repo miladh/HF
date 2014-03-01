@@ -353,8 +353,15 @@ double System::gaussianProduct(const int a, const int b, const double &x, const 
     const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
     const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
 
-    const rowvec &RA = coreA->corePosition();
-    const rowvec &RB = coreB->corePosition();
+    const rowvec &corePositionA = coreA->corePosition();
+    const rowvec &corePositionB = coreB->corePosition();
+
+    double Xa = x - corePositionA(0); double Xb = x - corePositionB(0);
+    double Ya = y - corePositionA(1); double Yb = y - corePositionB(1);
+    double Za = z - corePositionA(2); double Zb = z - corePositionB(2);
+
+    double Ra = Xa * Xa + Ya * Ya + Za * Za;
+    double Rb = Xb * Xb + Yb * Yb + Zb * Zb;
 
     for(int i = 0; i < contractedA.getNumPrimitives(); i++){
         const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
@@ -362,8 +369,11 @@ double System::gaussianProduct(const int a, const int b, const double &x, const 
         for(int j = 0; j < contractedB.getNumPrimitives(); j++){
             const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
 
-            Gab += primitiveA.evaluate(x - RA(0), y - RA(1), z - RA(2))
-                   * primitiveB.evaluate(x - RB(0), y - RB(1), z - RB(2));
+            Gab +=  primitiveA.weight() * primitiveB.weight()
+                    * pow(Xa, primitiveA.xPower()) * pow(Xb, primitiveB.xPower())
+                    * pow(Ya, primitiveA.yPower()) * pow(Yb, primitiveB.yPower())
+                    * pow(Za, primitiveA.zPower()) * pow(Zb, primitiveB.zPower())
+                    * exp(-primitiveA.exponent()*Ra - primitiveB.exponent()*Rb);
 
         }
     }

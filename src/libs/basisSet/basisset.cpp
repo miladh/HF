@@ -12,6 +12,13 @@ BasisSet::BasisSet(string inFileName)
     rowvec pow3 = {0, 1, 0};
     rowvec pow4 = {0, 0, 1};
 
+    rowvec pow5  = {2, 0, 0};
+    rowvec pow6  = {0, 2, 0};
+    rowvec pow7  = {0, 0, 2};
+    rowvec pow8  = {1, 1, 0};
+    rowvec pow9  = {1, 0, 1};
+    rowvec pow10 = {0, 1, 1};
+
     string line, stringToSearch;
     fstream file;
     file.open(inFileName);
@@ -46,6 +53,7 @@ BasisSet::BasisSet(string inFileName)
         string orbitalType = CGTOs->str(1).c_str();
         regex searchs("[0-9]\\s+s");
         regex searchp("[0-9]\\s+p");
+        regex searchd("[0-9]\\s+d");
 
 
         if(regex_match(orbitalType, searchs)){
@@ -84,6 +92,39 @@ BasisSet::BasisSet(string inFileName)
             m_contractedGTOs.push_back(contractedGTOx);
             m_contractedGTOs.push_back(contractedGTOy);
             m_contractedGTOs.push_back(contractedGTOz);
+        }
+        else if(regex_match(orbitalType, searchd)){
+            m_angularMomentum = 2;
+            ContractedGTO contractedGTOxx, contractedGTOyy, contractedGTOzz,
+                          contractedGTOxy, contractedGTOxz, contractedGTOyz ;
+
+            for(; PGTOs!=endPGTOs; PGTOs++){
+                double exponent = atof(PGTOs->str(1).c_str());
+                double weight   = atof(PGTOs->str(2).c_str());
+                weight = pow(2*exponent / M_PI, 0.75) * 2 * sqrt(exponent) * weight;
+
+                PrimitiveGTO primitiveGTOxx(exponent,weight,pow5);
+                PrimitiveGTO primitiveGTOyy(exponent,weight,pow6);
+                PrimitiveGTO primitiveGTOzz(exponent,weight,pow7);
+                PrimitiveGTO primitiveGTOxy(exponent,weight,pow8);
+                PrimitiveGTO primitiveGTOxz(exponent,weight,pow9);
+                PrimitiveGTO primitiveGTOyz(exponent,weight,pow10);
+
+
+                contractedGTOxx.addPrimitive(primitiveGTOxx);
+                contractedGTOyy.addPrimitive(primitiveGTOyy);
+                contractedGTOzz.addPrimitive(primitiveGTOzz);
+                contractedGTOxy.addPrimitive(primitiveGTOxy);
+                contractedGTOxz.addPrimitive(primitiveGTOxz);
+                contractedGTOyz.addPrimitive(primitiveGTOyz);
+            }
+
+            m_contractedGTOs.push_back(contractedGTOxx);
+            m_contractedGTOs.push_back(contractedGTOyy);
+            m_contractedGTOs.push_back(contractedGTOzz);
+            m_contractedGTOs.push_back(contractedGTOxy);
+            m_contractedGTOs.push_back(contractedGTOxz);
+            m_contractedGTOs.push_back(contractedGTOyz);
         }
 
     }

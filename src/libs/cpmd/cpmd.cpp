@@ -1,6 +1,8 @@
 #include "cpmd.h"
 
-CPMD::CPMD(System *system):
+CPMD::CPMD(System *system, const int &rank, const int &nProcs):
+    m_rank(rank),
+    m_nProcs(nProcs),
     m_system(system),
     m_nCores(system->getNumOfCores()),
     m_nElectrons(system->getNumOfElectrons()),
@@ -56,7 +58,7 @@ CPMD::CPMD(System *system):
     }
 
     posOld = pos;
-    m_solver = new HFsolver(m_system);
+    m_solver = new HFsolver(m_system,m_rank,m_nProcs);
 
 
 }

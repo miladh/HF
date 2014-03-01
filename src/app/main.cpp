@@ -1,5 +1,6 @@
 #include <iostream>
 #include <armadillo>
+#include <mpi.h>
 
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
@@ -10,8 +11,15 @@ using namespace arma;
 using namespace std;
 
 
-int main()
+int main(int argc, char **argv)
 {
+
+    MPI::Init(argc, argv);
+
+    // get the number of processes, and the id of this process
+    int rank = MPI::COMM_WORLD.Get_rank();
+    int nProcs = MPI::COMM_WORLD.Get_size();
+
     clock_t begin = clock();
     int nElectrons;
     rowvec coreCharges,coreMass, A, B, C, D, E;
@@ -23,8 +31,8 @@ int main()
     BasisSet *basisCoreE;
 
 
-    int m_case = 2;
-    int dynamic = 1;
+    int m_case = 6;
+    int dynamic = 0;
     int cpmd = 0;
 
     if(m_case == 1){
@@ -69,13 +77,13 @@ int main()
 
     }else if(m_case==5){
         //Oxygen molecule
-        nElectrons = 16;
+        nElectrons = 8;
         A = {-1.14, 0.0, 0.0};
         B = { 1.14, 0.0, 0.0};
         coreMass = {16 , 16};
         coreCharges = {8 , 8};
         basisCoreA = new BasisSet("infiles/turbomole/O_4-31G");
-        basisCoreB = new BasisSet("infiles/turbomole/O_4-31G");
+//        basisCoreB = new BasisSet("infiles/turbomole/O_4-31G");
 
     }else if(m_case==6){
         double l = 1.797;
@@ -117,7 +125,7 @@ int main()
         D = {1.0, -1.0, -1.0};
         E = {-1.0, 1.0, -1.0};
 
-        B *=4.9;C *=4.9;D *=4.9;E *=4.9;
+        B *=4.9/sqrt(3);C *=4.9/sqrt(3);D *=4.9/sqrt(3);E *=4.9/sqrt(3);
 
         coreCharges = {14, 8 , 8, 8, 8};
         coreMass = {28 , 16, 16, 16, 16};
@@ -204,25 +212,25 @@ int main()
 
     if(dynamic){
         if(cpmd){
-            CPMD cpSolver(system);
+            CPMD cpSolver(system, rank, nProcs);
             cpSolver.runDynamics();
 
         }else{
-            BOMD boSolver(system);
+            BOMD boSolver(system, rank, nProcs);
             boSolver.runDynamics();
         }
     }else{
-        HFsolver solver(system);
+        HFsolver solver(system, rank, nProcs);
         solver.runSolver();
     }
 
-
-    sleep(1.2);
     clock_t end = clock();
-    cout << "-------------------------------"  << endl;
-    cout << "Elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
+    if(rank==0){
+        cout << "-------------------------------"  << endl;
+        cout << "Elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
+    }
 
-
+    MPI::Finalize();
     return 0;
 }
 

@@ -1,6 +1,8 @@
 #include "hfsolver.h"
 
-HFsolver::HFsolver(System *system):
+HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
+    m_rank(rank),
+    m_nProcs(nProcs),
     m_system(system),
     m_nElectrons(system->getNumOfElectrons()),
     m_nOrbitals(system->getTotalNumOfBasisFunc()),
@@ -8,7 +10,7 @@ HFsolver::HFsolver(System *system):
     m_h(zeros(m_nOrbitals,m_nOrbitals)),
     m_F(zeros(m_nOrbitals,m_nOrbitals)),
     m_P(zeros(m_nOrbitals,m_nOrbitals)),
-    m_C(ones(m_nOrbitals,m_nElectrons/2.0)),
+    m_C(ones(m_nOrbitals,m_nOrbitals)),
     m_step(0)
 
 {
@@ -45,7 +47,7 @@ void HFsolver::runSolver()
 
 
     calculateEnergy();
-    calculateDensity();
+//    calculateDensity();
     m_step+=1;
 }
 
@@ -61,13 +63,13 @@ void HFsolver::solveSingle()
 
 
     eig_sym(eigVal, eigVec, m_F);
-    m_C = V*eigVec.cols(0, m_nElectrons/2.0-1);
+    m_C = V*eigVec;
 
     normalize();
 
 
 //    m_P = 0.5*m_P + m_C * m_C.t();  // Interpolate between new and old density matrix
-    m_P = 2*m_C*m_C.t();
+    m_P = 2*m_C.cols(0, m_nElectrons/2.0-1)*m_C.cols(0, m_nElectrons/2.0-1).t();
 
     m_fockEnergy = eigVal(0);
 }
@@ -156,27 +158,42 @@ void HFsolver::setupFockMatrix()
 void HFsolver::calculateDensity()
 {
 
-    cout << "Calculating density..... " << endl;
+    cout << "---Calculating density---" << endl;
 
-    vec x = linspace(-5, 5, 50);
-    vec y = linspace(-5, 5, 50);
-    vec z = linspace(-5, 5, 50);
-    double dx = x(1) - x(0);
-    double dy = y(1) - y(0);
-    double dz = z(1) - z(0);
+    vec x = linspace(-10, 10, m_nProcs * 10);
+    vec y = linspace(-10, 10, m_nProcs * 10);
+    vec z = linspace(-10, 10, m_nProcs * 10);
+    double dr = (x(1) - x(0)) * (y(1) - y(0)) * (z(1) - z(0));
 
     m_density = zeros(x.n_elem, y.n_elem, z.n_elem);
     double sumDensity =0;
-    for(uint i = 0; i < x.n_elem; i++) {
-        for(uint j = 0; j < y.n_elem; j++) {
-            for(uint k = 0; k < z.n_elem; k++) {
+
+
+    int xElements = x.n_elem/m_nProcs;
+    int yElements = y.n_elem/m_nProcs;
+    int zElements = z.n_elem/m_nProcs;
+
+    int xMin = m_rank % m_nProcs * xElements;
+    int yMin = m_rank / m_nProcs * yElements;
+    int zMin = m_rank / m_nProcs * zElements;
+
+    int xMax = xMin + xElements;
+    int yMax = m_nProcs * yElements;
+    int zMax = m_nProcs *  zElements;
+
+    for(int i = xMin; i < xMax; i++) {
+        for(int j = yMin; j < yMax; j++) {
+            for(int k = zMin; k < zMax; k++) {
 
                 for(int p = 0; p < m_nOrbitals; p++){
-                    for(int q = p; q < m_nOrbitals; q++){
+                    double innerProduct = m_system->gaussianProduct(p, p, x(i), y(j), z(k));
+                    sumDensity += m_P(p,p) * innerProduct * dr;
+                    m_density(j,i,k) += m_P(p,p) * innerProduct ;
 
-                        double innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
-                        sumDensity += m_P(p,q) * innerProduct * dx * dy * dz;
-                        m_density(i,j,k) += m_P(p,q) * innerProduct;
+                    for(int q = p+1; q < m_nOrbitals; q++){
+                        innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
+                        sumDensity += 2.0 * m_P(p,q) * innerProduct * dr;
+                        m_density(j,i,k) += 2.0 * m_P(p,q) * innerProduct ;
 
                     }
                 }
@@ -185,7 +202,31 @@ void HFsolver::calculateDensity()
         }
     }
 
+
+//    for(int i = xMin; i < xMax; i++) {
+//        for(int j = yMin; j < yMax; j++) {
+//            for(int k = zMin; k < zMax; k++) {
+
+//                for(int p = 0; p < m_nOrbitals; p++){
+//                    for(int q = 0; q < m_nOrbitals; q++){
+//                        double innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
+//                        m_density(j,i,k) += 2.0 * m_C(p,6)* m_C(q,6) * innerProduct ;
+
+//                    }
+//                }
+
+//            }
+//        }
+//    }
+
+
+
+
     cout << "density sum: " << sumDensity << endl;
+//    cout << m_density << endl;
+//    cout <<"rank: "<<m_rank<<" xLim: " <<xMin << "   "<< xMax << endl;
+//    cout <<"rank: "<<m_rank<<" yLim: "<< yMin << "   "<< yMax << endl;
+//    cout <<"rank: "<<m_rank<<" zLim: "<< zMin << "   "<< zMax << endl;
     densityOutput(x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
 
 }
@@ -197,7 +238,7 @@ void HFsolver::densityOutput(const double &xMin, const double &xMax,
 {
 
     stringstream cubeFileName;
-    cubeFileName<<"/home/milad/kurs/qmd/density/cubeFile" << setw(4) << setfill('0')  << m_step <<".bin";
+    cubeFileName<<"/home/milad/kurs/qmd/density/id"<< m_rank <<"_cubeFile" << setw(4) << setfill('0')  << m_step <<".bin";
     ofstream cubeFile(cubeFileName.str(), ios::out | ios::binary);
 
     //Header

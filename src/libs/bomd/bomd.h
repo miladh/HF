@@ -13,7 +13,7 @@ using namespace std;
 class BOMD
 {
 public:
-    BOMD(System *system);
+    BOMD(System *system, const int &rank, const int &nProcs);
     void runDynamics();
     void solveSingleStep();
 
@@ -21,7 +21,9 @@ public:
     rowvec getEnergyGradient() const;
 
     double getEnergy() const;
+
 private:
+    int m_rank, m_nProcs;
     System* m_system;
     HFsolver *m_solver;
     int m_nCores, m_nElectrons, m_nOrbitals;
