@@ -343,10 +343,3 @@ mat HFsolver::getDensityMatrix() const
 {
     return m_P;
 }
-
-
-
-
-
-
-

@@ -39,10 +39,10 @@ TEST(H2_QZ)
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    HFsolver solver(system,0,1);
-    solver.runSolver();
+    HFsolver *solver = new HFsolver(system,0,1);
+    solver->runSolver();
 
-    CHECK_CLOSE(-1.078547609, solver.getEnergy(), 1e-9);
+    CHECK_CLOSE(-1.078547609, solver->getEnergy(), 1e-9);
 }
 TEST(H2_321G)
 {
@@ -74,10 +74,10 @@ TEST(H2_321G)
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    HFsolver solver(system,0,1);
-    solver.runSolver();
+    HFsolver *solver = new HFsolver(system,0,1);
+    solver->runSolver();
 
-    CHECK_CLOSE(-1.122933364, solver.getEnergy(), 1e-9);
+    CHECK_CLOSE(-1.122933364, solver->getEnergy(), 1e-9);
 
 }
 TEST(H2_431G)
@@ -110,10 +110,10 @@ TEST(H2_431G)
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    HFsolver solver(system,0,1);
-    solver.runSolver();
+    HFsolver *solver = new HFsolver(system,0,1);
+    solver->runSolver();
 
-    CHECK_CLOSE(-1.12682776, solver.getEnergy(), 1e-9);
+    CHECK_CLOSE(-1.12682776, solver->getEnergy(), 1e-9);
 
 }
 TEST(H2O_431G)
@@ -157,9 +157,9 @@ TEST(H2O_431G)
     system->addBasisSet(basisCoreB);
     system->addBasisSet(basisCoreC);
 
-    HFsolver solver(system,0,1);
-    solver.runSolver();
+    HFsolver *solver = new HFsolver(system,0,1);
+    solver->runSolver();
 
-    CHECK_CLOSE(-75.907340813845, solver.getEnergy(), 1e-9);
+    CHECK_CLOSE(-75.907340813845, solver->getEnergy(), 1e-9);
 
 }

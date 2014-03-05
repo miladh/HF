@@ -31,11 +31,12 @@ int main(int argc, char **argv)
     BasisSet *basisCoreE;
 
 
-    int m_case = 6;
+    int m_case = 8;
     int dynamic = 0;
     int cpmd = 0;
 
     if(m_case == 1){
+
         //Hydrogen molecule
         nElectrons = 2;
         A = {-0.5, 0.0, 0.0};
@@ -156,6 +157,23 @@ int main(int argc, char **argv)
         basisCoreD = new BasisSet("infiles/turbomole/H_4-31G");
         basisCoreE = new BasisSet("infiles/turbomole/H_4-31G");
 
+    }else if(m_case==10){
+        //2Fe-2S
+        nElectrons = 84;
+        A = {0.0, 1.0 , 0.0};
+        B = {1.0 , 0.0, 0.0};
+        C = {0.0, 0.0, 0.0};
+        D = {1.0, 1.0, 0.0};
+
+//        B *=4.556/sqrt(2); C *=2.043/sqrt(3); D *=2.043/sqrt(3);
+
+        coreCharges = {26, 26 , 16, 16};
+        coreMass = {56 , 56, 32, 32};
+
+        basisCoreA = new BasisSet("infiles/turbomole/Fe_3-21G");
+        basisCoreB = new BasisSet("infiles/turbomole/Fe_3-21G");
+        basisCoreC = new BasisSet("infiles/turbomole/S_3-21G");
+        basisCoreD = new BasisSet("infiles/turbomole/S_3-21G");
     }
     /********************************************************/
 
@@ -175,6 +193,17 @@ int main(int argc, char **argv)
         basisCoreC->setCoreCharge(coreCharges(2));
         basisCoreC->setCoreMass(coreMass(2));
 
+    }
+
+
+    if(m_case==10){
+        basisCoreC->setCorePosition(C);
+        basisCoreC->setCoreCharge(coreCharges(2));
+        basisCoreC->setCoreMass(coreMass(2));
+
+        basisCoreD->setCorePosition(D);
+        basisCoreD->setCoreCharge(coreCharges(3));
+        basisCoreD->setCoreMass(coreMass(3));
     }
 
     if(m_case==8 ||m_case == 9){
@@ -204,6 +233,11 @@ int main(int argc, char **argv)
         system->addBasisSet(basisCoreC);
     }
 
+    if(m_case == 10){
+        system->addBasisSet(basisCoreC);
+        system->addBasisSet(basisCoreD);
+    }
+
     if(m_case == 8 ||m_case == 9 ){
         system->addBasisSet(basisCoreC);
         system->addBasisSet(basisCoreD);
@@ -220,8 +254,8 @@ int main(int argc, char **argv)
             boSolver.runDynamics();
         }
     }else{
-        HFsolver solver(system, rank, nProcs);
-        solver.runSolver();
+        HFsolver *solver = new HFsolver(system, rank, nProcs);
+        solver->runSolver();
     }
 
     clock_t end = clock();
