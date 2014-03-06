@@ -54,20 +54,22 @@ const int& PrimitiveGTO::xPower() const
 {
     return m_xPower;
 }
-
 void PrimitiveGTO::setXPower(int xPower)
 {
     m_xPower = xPower;
 }
+
+
 const int& PrimitiveGTO::yPower() const
 {
     return m_yPower;
 }
-
 void PrimitiveGTO::setYPower(int yPower)
 {
     m_yPower = yPower;
 }
+
+
 const int& PrimitiveGTO::zPower() const
 {
     return m_zPower;

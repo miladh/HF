@@ -20,15 +20,15 @@ public:
     BasisSet(string inFileName);
 
     rowvec corePosition() const;
-    int coreCharge() const;
-    int coreMass() const;
+    const int &coreCharge() const;
+    const int &coreMass() const;
     void setCorePosition(const rowvec &corePosition);
     void setCoreCharge(const int &coreCharge);
     void setCoreMass(const int &coreMass);
 
     const ContractedGTO &getContracted(const int c) const;
     int getNumContracted() const;
-    int getAngularMomentum() const;
+    const int &getAngularMomentum() const;
 
 
 private:

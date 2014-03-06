@@ -1,6 +1,7 @@
 #include "hfsolver.h"
 
 HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
+    m_step(0),
     m_rank(rank),
     m_nProcs(nProcs),
     m_system(system),
@@ -11,8 +12,7 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_h(zeros(m_nOrbitals,m_nOrbitals)),
     m_F(zeros(m_nOrbitals,m_nOrbitals)),
     m_P(zeros(m_nOrbitals,m_nOrbitals)),
-    m_C(ones(m_nOrbitals,m_nOrbitals)),
-    m_step(0)
+    m_C(ones(m_nOrbitals,m_nOrbitals))
 
 {
     m_Q.set_size(m_nOrbitals, m_nOrbitals);

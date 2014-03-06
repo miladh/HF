@@ -148,7 +148,7 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
                 const int coreCharge = coreC->coreCharge();
                 integrator.setCorePositionC(coreC->corePosition());
 
-                if(N == c){
+                if((unsigned)N == c){
                     differentiateWrtC = true;
                 }else{
                     differentiateWrtC = false;
@@ -328,9 +328,9 @@ rowvec System::getNucleiPotential_derivative(int activeCore)
         for(uint b = a+1; b < m_basisSet.size(); b++){
             R = m_basisSet.at(a)->corePosition() - m_basisSet.at(b)->corePosition();
 
-            if(activeCore == a){
+            if((unsigned)activeCore == a){
                 dVnm -= R * m_basisSet.at(a)->coreCharge() * m_basisSet.at(b)->coreCharge()/pow(dot(R,R),1.5);
-            }else if(activeCore == b){
+            }else if((unsigned)activeCore == b){
                 dVnm += R * m_basisSet.at(a)->coreCharge() * m_basisSet.at(b)->coreCharge()/pow(dot(R,R),1.5);
             }
 
