@@ -24,6 +24,7 @@ int main(int argc, char **argv)
     int nElectrons;
     rowvec coreCharges,coreMass, A, B, C, D, E;
 
+
     BasisSet *basisCoreA;
     BasisSet *basisCoreB;
     BasisSet *basisCoreC;
