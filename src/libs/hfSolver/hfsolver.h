@@ -10,6 +10,8 @@
 using namespace arma;
 using namespace std;
 
+namespace hf
+{
 class HFsolver
 {
 public:
@@ -30,14 +32,12 @@ public:
    mat getDensityMatrix() const;
    mat getF();
 
-
-   int m_step;
 private:
-   int m_rank, m_nProcs;
+   int m_rank, m_nProcs, m_step;
    System *m_system;
    cube m_density;
 
-   int m_nElectrons, m_nOrbitals;
+   int m_nElectrons, m_nBasisFunctions;
    mat m_S, m_h, m_F, m_P, m_C;
    field<mat> m_Q;
 
@@ -50,5 +50,5 @@ private:
    void calculateDensity();
    void densityOutput(const double &xMin, const double &xMax, const double &yMin, const double &yMax, const double &zMin, const double &zMax);
 };
-
+}
 #endif // HFSOLVER_H

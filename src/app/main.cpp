@@ -9,6 +9,8 @@
 
 using namespace arma;
 using namespace std;
+using namespace hf;
+
 
 
 int main(int argc, char **argv)

@@ -13,7 +13,8 @@ SOURCES += \
     basisSet/basisset.cpp \
     math/hermiteintegrals.cpp \
     cpmd/cpmd.cpp \
-    bomd/bomd.cpp
+    bomd/bomd.cpp \
+    geometricalDerivative/geometricalderivative.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -27,4 +28,5 @@ HEADERS += \
     math/hermiteintegrals.h \
     cpmd/cpmd.h \
     bomd/bomd.h \
-    includes/defines.h
+    includes/defines.h \
+    geometricalDerivative/geometricalderivative.h

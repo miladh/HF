@@ -1,24 +1,26 @@
 #include "hfsolver.h"
 
+using namespace hf;
+
 HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),
+    m_step(0),
     m_system(system),
 
     m_nElectrons(system->getNumOfElectrons()),
-    m_nOrbitals(system->getTotalNumOfBasisFunc()),
-    m_S(zeros(m_nOrbitals,m_nOrbitals)),
-    m_h(zeros(m_nOrbitals,m_nOrbitals)),
-    m_F(zeros(m_nOrbitals,m_nOrbitals)),
-    m_P(zeros(m_nOrbitals,m_nOrbitals)),
-    m_C(ones(m_nOrbitals,m_nOrbitals)),
-    m_step(0)
+    m_nBasisFunctions(system->getTotalNumOfBasisFunc()),
+    m_S(zeros(m_nBasisFunctions,m_nBasisFunctions)),
+    m_h(zeros(m_nBasisFunctions,m_nBasisFunctions)),
+    m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
+    m_P(zeros(m_nBasisFunctions,m_nBasisFunctions)),
+    m_C(ones(m_nBasisFunctions,m_nBasisFunctions))
 
 {
-    m_Q.set_size(m_nOrbitals, m_nOrbitals);
-    for(int i = 0; i < m_nOrbitals; i++){
-        for(int j = 0; j < m_nOrbitals; j++){
-            m_Q(i,j) = zeros(m_nOrbitals,m_nOrbitals);
+    m_Q.set_size(m_nBasisFunctions, m_nBasisFunctions);
+    for(int i = 0; i < m_nBasisFunctions; i++){
+        for(int j = 0; j < m_nBasisFunctions; j++){
+            m_Q(i,j) = zeros(m_nBasisFunctions,m_nBasisFunctions);
         }
     }
 
@@ -79,12 +81,12 @@ void HFsolver::calculateEnergy()
 {
     m_energy = 0;
 
-    for (int p = 0; p < m_nOrbitals; p++){
-        for (int q = 0; q < m_nOrbitals; q++){
+    for (int p = 0; p < m_nBasisFunctions; p++){
+        for (int q = 0; q < m_nBasisFunctions; q++){
             m_energy += m_P(p, q)*m_h(p, q);
 
-            for (int r = 0; r < m_nOrbitals; r++){
-                for (int s = 0; s < m_nOrbitals; s++){
+            for (int r = 0; r < m_nBasisFunctions; r++){
+                for (int s = 0; s < m_nBasisFunctions; s++){
                     m_energy += 0.5*m_P(p,q)*m_P(s,r)*(m_Q(p,r)(q,s) - 0.5*m_Q(p,r)(s,q));
                 }
             }
@@ -102,8 +104,8 @@ void HFsolver::setupOneParticleMatrix()
 {
     rowvec oneElectronIntegrals;
 
-    for(int p = 0; p < m_nOrbitals; p++){
-        for(int q = p; q < m_nOrbitals; q++){
+    for(int p = 0; p < m_nBasisFunctions; p++){
+        for(int q = p; q < m_nBasisFunctions; q++){
             oneElectronIntegrals = m_system->getOneParticleIntegral(p,q);
             m_S(p,q) = oneElectronIntegrals(0);
             m_h(p,q) = oneElectronIntegrals(1);
@@ -119,10 +121,10 @@ void HFsolver::setupOneParticleMatrix()
 
 void HFsolver::setupTwoParticleMatrix()
 {
-    for(int p = 0; p < m_nOrbitals; p++){
-        for(int r = 0; r < m_nOrbitals; r++){
-            for(int q = p; q < m_nOrbitals; q++){
-                for(int s = r; s < m_nOrbitals; s++){
+    for(int p = 0; p < m_nBasisFunctions; p++){
+        for(int r = 0; r < m_nBasisFunctions; r++){
+            for(int q = p; q < m_nBasisFunctions; q++){
+                for(int s = r; s < m_nBasisFunctions; s++){
 
                     m_Q(p,r)(q,s) = m_system->getTwoParticleIntegral(p,q,r,s);
                     m_Q(q,r)(p,s) = m_Q(p,r)(q,s);
@@ -141,13 +143,13 @@ void HFsolver::setupTwoParticleMatrix()
 
 void HFsolver::setupFockMatrix()
 {
-    for (int p = 0; p < m_nOrbitals; p++){
-        for (int q = 0; q < m_nOrbitals; q++){
+    for (int p = 0; p < m_nBasisFunctions; p++){
+        for (int q = 0; q < m_nBasisFunctions; q++){
 
             m_F(p,q) = m_h(p,q);
 
-            for (int r = 0; r < m_nOrbitals; r++){
-                for (int s = 0; s < m_nOrbitals; s++){
+            for (int r = 0; r < m_nBasisFunctions; r++){
+                for (int s = 0; s < m_nBasisFunctions; s++){
                     m_F(p,q) += 0.5 * m_P(s,r) * (2 * m_Q(p,r)(q,s) - m_Q(p,r)(s,q));
                 }
             }
@@ -186,12 +188,12 @@ void HFsolver::calculateDensity()
         for(int j = yMin; j < yMax; j++) {
             for(int k = zMin; k < zMax; k++) {
 
-                for(int p = 0; p < m_nOrbitals; p++){
+                for(int p = 0; p < m_nBasisFunctions; p++){
                     double innerProduct = m_system->gaussianProduct(p, p, x(i), y(j), z(k));
                     sumDensity += m_P(p,p) * innerProduct * dr;
                     m_density(j,i,k) += m_P(p,p) * innerProduct ;
 
-                    for(int q = p+1; q < m_nOrbitals; q++){
+                    for(int q = p+1; q < m_nBasisFunctions; q++){
                         innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
                         sumDensity += 2.0 * m_P(p,q) * innerProduct * dr;
                         m_density(j,i,k) += 2.0 * m_P(p,q) * innerProduct ;
@@ -208,8 +210,8 @@ void HFsolver::calculateDensity()
 //        for(int j = yMin; j < yMax; j++) {
 //            for(int k = zMin; k < zMax; k++) {
 
-//                for(int p = 0; p < m_nOrbitals; p++){
-//                    for(int q = 0; q < m_nOrbitals; q++){
+//                for(int p = 0; p < m_nBasisFunctions; p++){
+//                    for(int q = 0; q < m_nBasisFunctions; q++){
 //                        double innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
 //                        m_density(j,i,k) += 2.0 * m_C(p,6)* m_C(q,6) * innerProduct ;
 
@@ -343,3 +345,4 @@ mat HFsolver::getDensityMatrix() const
 {
     return m_P;
 }
+

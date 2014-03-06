@@ -1,4 +1,5 @@
 #include "bomd.h"
+using namespace hf;
 
 BOMD::BOMD(System *system, const int &rank, const int &nProcs):
     m_rank(rank),
@@ -46,6 +47,7 @@ BOMD::BOMD(System *system, const int &rank, const int &nProcs):
 
     posOld = pos;
     m_solver = new HFsolver(m_system, m_rank, m_nProcs);
+    m_GD = new GeometricalDerivative(m_system,m_solver);
 }
 
 
@@ -69,8 +71,7 @@ void BOMD::solveSingleStep()
     m_energy  = m_solver->getEnergy();
 
     for(int core = 0; core < m_nCores; core++){
-        setupDerivativeMatrices(core);
-        m_energyGradient = calculateEnergyGradient(core);
+        m_energyGradient = m_GD->energyGradient(core);
         IntegrateCoreForwardInTime(core);
     }
 }
@@ -87,81 +88,10 @@ void BOMD::IntegrateCoreForwardInTime(int core)
 
 }
 
-rowvec BOMD::calculateEnergyGradient(int core)
-{
-    rowvec dE  = {0,0,0};
-
-    for (int p = 0; p < m_nOrbitals; p++){
-        for (int q = 0; q < m_nOrbitals; q++){
-            dE += m_P(p, q)*m_dh(p, q);
-
-            for (int r = 0; r < m_nOrbitals; r++){
-                for (int s = 0; s < m_nOrbitals; s++){
-                    dE += 0.5*m_P(p,q)*m_P(s,r)*(m_dQ(p,r)(q,s) - 0.5*m_dQ(p,r)(s,q));
-                }
-            }
-        }
-    }
-
-
-    mat dSx, dSy,dSz;
-    dSx = zeros(m_nOrbitals,m_nOrbitals);
-    dSy = zeros(m_nOrbitals,m_nOrbitals);
-    dSz = zeros(m_nOrbitals,m_nOrbitals);
-    for(int i = 0; i < m_nOrbitals; i++){
-        for(int j = 0; j < m_nOrbitals; j++){
-            dSx(i,j) = m_dS(i, j)(0);
-            dSy(i,j) = m_dS(i, j)(1);
-            dSz(i,j) = m_dS(i, j)(2);
-        }
-    }
-    mat F = m_solver->getF();
-
-    dE(0) -= 0.5 * trace(m_P*dSx*m_P*F);
-    dE(1) -= 0.5 * trace(m_P*dSy*m_P*F);
-    dE(2) -= 0.5 * trace(m_P*dSz*m_P*F);
-
-    //    Nuclear repulsion term
-    dE  +=m_system->getNucleiPotential_derivative(core);
-
-    return dE;
-}
-
-
-void BOMD::setupDerivativeMatrices(const int core)
-{
-
-    mat diffOneParticleIntegral;
-    //Set up the dh and dS matrix:
-    for(int p = 0; p < m_nOrbitals; p++){
-        for(int q = 0; q < m_nOrbitals; q++){
-            diffOneParticleIntegral = m_system->getOneParticleDerivative(p,q,core);
-            m_dS(p,q) = diffOneParticleIntegral.row(0);
-            m_dh(p,q) = diffOneParticleIntegral.row(1);
-//            cout << "one-particle derivative" << endl;
-        }
-    }
-
-
-    //Set up the dQ array:
-    for(int p = 0; p < m_nOrbitals; p++){
-        for(int r = 0; r < m_nOrbitals; r++){
-            for(int q = 0; q < m_nOrbitals; q++){
-                for(int s = 0; s < m_nOrbitals; s++){
-//                    cout << "two-particle derivative" << endl;
-                    m_dQ(p,r)(q,s) = m_system->getTwoParticleIntegralDerivative(p,q,r,s,core);
-
-                }
-            }
-        }
-    }
-
-}
 
 
 void BOMD::updateCorePositions()
 {
-
     for(int core = 0; core < m_nCores; core++){
         m_system->m_basisSet.at(core)->setCorePosition(pos.row(core));
     }

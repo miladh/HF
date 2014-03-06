@@ -4,28 +4,30 @@
 #include <iostream>
 #include <armadillo>
 
-#include<system/system.h>
-#include<hfSolver/hfsolver.h>
+#include <system/system.h>
+#include <hfSolver/hfsolver.h>
+#include <geometricalDerivative/geometricalderivative.h>
 
 using namespace arma;
 using namespace std;
+
+namespace hf{
 
 class BOMD
 {
 public:
     BOMD(System *system, const int &rank, const int &nProcs);
+
     void runDynamics();
     void solveSingleStep();
-
-
-    rowvec getEnergyGradient() const;
-
     double getEnergy() const;
+    rowvec getEnergyGradient() const;
 
 private:
     int m_rank, m_nProcs;
     System* m_system;
     HFsolver *m_solver;
+    GeometricalDerivative* m_GD;
     int m_nCores, m_nElectrons, m_nOrbitals;
     int m_nSteps;
 
@@ -36,7 +38,6 @@ private:
 
     rowvec m_energyGradient, m_pulayForce;
     mat m_S, m_h, m_P;
-
     mat pos, posNew, posOld;
 
     field<mat> m_Q;
@@ -46,19 +47,13 @@ private:
     field<field<rowvec>>m_pulayQ;
 
 
-    void setupDerivativeMatrices(const int core);
-
-    void IntegrateWavefunctionForwardInTime(int orb);
     void IntegrateCoreForwardInTime(int core);
-
-    rowvec calculateEnergyGradient(int core);
     void writeToFile(mat R, int currentTimeStep);
     void updateCorePositions();
-    void setupPulayMatrices(const int core);
-    rowvec calculatePulayForce(int core);
+
 
 };
-
+}
 #endif // BOMD_H
 
 

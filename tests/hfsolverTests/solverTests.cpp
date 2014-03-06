@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace arma;
+using namespace hf;
 
 TEST(H2_QZ)
 {

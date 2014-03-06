@@ -1,5 +1,6 @@
 #include "basisset.h"
 
+using namespace hf;
 
 BasisSet::BasisSet()
 {
@@ -143,7 +144,7 @@ void BasisSet::setCorePosition(const rowvec &corePosition)
     m_corePosition = corePosition;
 }
 
-const ContractedGTO &BasisSet::getContracted(const int c) const
+const ContractedGTO& BasisSet::getContracted(const int c) const
 {
     return m_contractedGTOs.at(c);
 }
@@ -153,12 +154,12 @@ int BasisSet::getNumContracted() const
     return m_contractedGTOs.size();
 }
 
-int BasisSet::getAngularMomentum() const
+const int& BasisSet::getAngularMomentum() const
 {
     return m_angularMomentum;
 }
 
-int BasisSet::coreCharge() const
+const int& BasisSet::coreCharge() const
 {
     return m_coreCharge;
 }
@@ -167,7 +168,7 @@ void BasisSet::setCoreCharge(const int &coreCharge)
 {
     m_coreCharge = coreCharge;
 }
-int BasisSet::coreMass() const
+const int& BasisSet::coreMass() const
 {
     return m_coreMass;
 }

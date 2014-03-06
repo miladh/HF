@@ -1,5 +1,5 @@
 #include "hermiteintegrals.h"
-
+using namespace hf;
 HermiteIntegrals::HermiteIntegrals(const int highestOrder):
     m_boys(new Boys(highestOrder))
 {

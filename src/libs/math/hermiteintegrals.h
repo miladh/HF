@@ -9,6 +9,8 @@
 using namespace arma;
 using namespace std;
 
+namespace hf
+{
 class HermiteIntegrals
 {
 public:
@@ -18,5 +20,5 @@ public:
 private:
     Boys *m_boys;
 };
-
+}
 #endif // HERMITEINTEGRALS_H

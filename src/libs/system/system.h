@@ -11,6 +11,9 @@
 using namespace arma;
 using namespace std;
 
+namespace hf
+{
+
 class System
 {
 public:
@@ -47,4 +50,5 @@ private:
     int m_nElectrons;
 };
 
+}
 #endif // SYSTEM_H
