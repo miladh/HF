@@ -45,6 +45,7 @@ public:
     rowvec getTwoParticleIntegralDerivativeOfOrbitals(const int a, const int b, const int c, const int d, const int N);
     double gaussianProduct(const int a, const int b, const double &x, const double &y, const double &z);
 
+    double evaluateCGTO(const int a, const double &x, const double &y, const double &z);
 private:
     Integrator integrator;
     vector<int > m_coreID;

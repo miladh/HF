@@ -153,18 +153,18 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
 
 
             if(differentiateWrtA){
-            dhab.row(0) += integrator.overlapIntegral_derivative()
+                dhab.row(0) += integrator.overlapIntegral_derivative()
                         * primitiveA.weight() * primitiveB.weight();
 
-            dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
+                dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
                         integrator.kineticIntegral_derivative();
             }
             else if(differentiateWrtB){
                 dhab.row(0) -= integrator.overlapIntegral_derivative()
-                            * primitiveA.weight() * primitiveB.weight();
+                        * primitiveA.weight() * primitiveB.weight();
 
                 dhab.row(1) -= primitiveA.weight() * primitiveB.weight() *
-                            integrator.kineticIntegral_derivative();
+                        integrator.kineticIntegral_derivative();
             }
 
             for(uint c = 0; c < m_basisSet.size(); c++){
@@ -179,9 +179,9 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
                 }
 
                 dhab.row(1) -= coreCharge* primitiveA.weight() * primitiveB.weight()*
-                            integrator.nuclearAttractionIntegral_derivative(differentiateWrtA,
-                                                                            differentiateWrtB,
-                                                                            differentiateWrtC);
+                        integrator.nuclearAttractionIntegral_derivative(differentiateWrtA,
+                                                                        differentiateWrtB,
+                                                                        differentiateWrtC);
             }
 
         }
@@ -362,7 +362,7 @@ rowvec System::getNucleiPotential_derivative(int activeCore)
     }
 
 
-  return dVnm;
+    return dVnm;
 
 }
 
@@ -401,6 +401,37 @@ double System::gaussianProduct(const int a, const int b, const double &x, const 
 
         }
     }
+
+    return Gab;
+
+}
+
+
+double System::evaluateCGTO(const int a, const double &x, const double &y, const double &z)
+{
+    double  Gab = 0.0;
+
+    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
+    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
+
+    const rowvec &corePositionA = coreA->corePosition();
+
+    double Xa = x - corePositionA(0);
+    double Ya = y - corePositionA(1);
+    double Za = z - corePositionA(2);
+
+    double Ra = Xa * Xa + Ya * Ya + Za * Za;
+
+    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
+        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
+        Gab +=  primitiveA.weight()
+                * pow(Xa, primitiveA.xPower())
+                * pow(Ya, primitiveA.yPower())
+                * pow(Za, primitiveA.zPower())
+                * exp(-primitiveA.exponent()*Ra);
+
+    }
+
 
     return Gab;
 
