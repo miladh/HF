@@ -8,15 +8,15 @@ PrimitiveGTO::PrimitiveGTO(const double &exponent, const double &weight, const r
 }
 
 
-double PrimitiveGTO::evaluate(const double &x,const double &y,const double &z) const
+const double& PrimitiveGTO::evaluate(const double &x,const double &y,const double &z)
 {
-    double result = m_weight * pow(x, m_xPower) * pow (y, m_yPower) * pow(z, m_zPower)
+    m_value = m_weight * pow(x, m_xPower) * pow (y, m_yPower) * pow(z, m_zPower)
             * exp(-m_exponent * (x*x + y*y + z*z));
 
-    return result;
+    return m_value;
 }
 
-double PrimitiveGTO::exponent() const
+const double& PrimitiveGTO::exponent() const
 {
     return m_exponent;
 }
@@ -26,7 +26,7 @@ void PrimitiveGTO::setExponent(const double &exponent)
     m_exponent = exponent;
 }
 
-double PrimitiveGTO::weight() const
+const double& PrimitiveGTO::weight() const
 {
     return m_weight;
 }
@@ -36,7 +36,7 @@ void PrimitiveGTO::setWeight(const double &weight)
     m_weight = weight;
 }
 
-rowvec PrimitiveGTO::powers() const
+const rowvec& PrimitiveGTO::powers() const
 {
     return m_powers;
 }
@@ -50,7 +50,7 @@ void PrimitiveGTO::setPowers(const rowvec &powers)
 }
 
 
-int PrimitiveGTO::xPower() const
+const int& PrimitiveGTO::xPower() const
 {
     return m_xPower;
 }
@@ -59,7 +59,7 @@ void PrimitiveGTO::setXPower(int xPower)
 {
     m_xPower = xPower;
 }
-int PrimitiveGTO::yPower() const
+const int& PrimitiveGTO::yPower() const
 {
     return m_yPower;
 }
@@ -68,7 +68,7 @@ void PrimitiveGTO::setYPower(int yPower)
 {
     m_yPower = yPower;
 }
-int PrimitiveGTO::zPower() const
+const int& PrimitiveGTO::zPower() const
 {
     return m_zPower;
 }

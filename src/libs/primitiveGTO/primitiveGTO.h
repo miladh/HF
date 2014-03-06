@@ -13,26 +13,27 @@ class PrimitiveGTO
 public:
     PrimitiveGTO(const double &exponent = 0.0, const double &weight = 0.0 , const rowvec &powers = {0,0,0});
 
-    double exponent() const;
+    const double &exponent() const;
     void setExponent(const double &exponent);
 
-    double weight() const;
+    const double &weight() const;
     void setWeight(const double &weight);
 
-    rowvec powers() const;
+    const rowvec &powers() const;
     void setPowers(const rowvec &powers);
 
-    int xPower() const;
+    const int &xPower() const;
     void setXPower(int xPower);
 
-    int yPower() const;
+    const int &yPower() const;
     void setYPower(int yPower);
 
-    int zPower() const;
+    const int &zPower() const;
     void setZPower(int zPower);
 
-    double evaluate(const double &x, const double &y, const double &z) const;
+    const double &evaluate(const double &x, const double &y, const double &z);
 private:
+    double m_value;
     double m_exponent;
     double m_weight;
     int m_xPower, m_yPower, m_zPower;
