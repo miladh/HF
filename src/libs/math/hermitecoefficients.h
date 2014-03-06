@@ -10,6 +10,8 @@
 using namespace arma;
 using namespace std;
 
+namespace hf
+{
 class HermiteCoefficients
 {
 
@@ -26,5 +28,5 @@ private:
     bool interiorPoint(int iA, int iB, int t);
 
 };
-
+}
 #endif // HERMITECOEFFICIENTS_H

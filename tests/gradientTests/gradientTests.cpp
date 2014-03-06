@@ -8,6 +8,7 @@
 
 using namespace std;
 using namespace arma;
+using namespace hf;
 
 TEST(energyGradient_H2)
 {

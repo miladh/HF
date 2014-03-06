@@ -1,5 +1,7 @@
 #include "integrator.h"
 
+using namespace hf;
+
 Integrator::Integrator():
     m_corePositionA(rowvec(3)),
     m_corePositionB(rowvec(3)),

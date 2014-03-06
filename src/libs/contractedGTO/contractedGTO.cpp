@@ -1,5 +1,6 @@
 #include "contractedGTO.h"
 
+using namespace hf;
 ContractedGTO::ContractedGTO()
 {
 }

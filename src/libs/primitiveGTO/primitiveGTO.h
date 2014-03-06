@@ -7,7 +7,8 @@
 using namespace arma;
 using namespace std;
 
-
+namespace hf
+{
 class PrimitiveGTO
 {
 public:
@@ -41,4 +42,6 @@ private:
 
 
 };
+
+}
 #endif // PRIMITIVEGTO_H

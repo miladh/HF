@@ -11,7 +11,8 @@
 
 using namespace arma;
 using namespace std;
-
+namespace hf
+{
 class CPMD
 {
 public:
@@ -55,5 +56,5 @@ private:
     rowvec calculateEnergy_derivative(int core);
     mat normalize(mat C, mat S);
 };
-
+}
 #endif // CPMD_H

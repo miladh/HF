@@ -1,5 +1,5 @@
 #include "primitiveGTO.h"
-
+using namespace hf;
 PrimitiveGTO::PrimitiveGTO(const double &exponent, const double &weight, const rowvec &powers)
 {
     setExponent(exponent);

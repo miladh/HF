@@ -1,5 +1,6 @@
 #include "basisset.h"
 
+using namespace hf;
 
 BasisSet::BasisSet()
 {

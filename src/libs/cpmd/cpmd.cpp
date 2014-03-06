@@ -1,5 +1,5 @@
 #include "cpmd.h"
-
+using namespace hf;
 CPMD::CPMD(System *system, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),

@@ -1,5 +1,5 @@
 #include "boys.h"
-
+using namespace hf;
 Boys::Boys(uint highestOrder):
     m_highestOrder(highestOrder),
     m_results(zeros<rowvec>(highestOrder+1))

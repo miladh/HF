@@ -7,6 +7,9 @@
 using namespace arma;
 using namespace std;
 
+
+namespace hf
+{
 class Boys
 {
 public:
@@ -30,5 +33,5 @@ private:
     double taylorExpandendBoys(uint nterms = 6, double dxt = 50.0/999) const;
     double asymptoticBoys() const;
 };
-
+}
 #endif // BOYSFUNCTION_H

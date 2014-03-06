@@ -10,6 +10,8 @@
 using namespace arma;
 using namespace std;
 
+namespace hf
+{
 class HFsolver
 {
 public:
@@ -48,5 +50,5 @@ private:
    void calculateDensity();
    void densityOutput(const double &xMin, const double &xMax, const double &yMin, const double &yMax, const double &zMin, const double &zMax);
 };
-
+}
 #endif // HFSOLVER_H

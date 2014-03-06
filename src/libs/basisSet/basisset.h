@@ -13,6 +13,9 @@ using namespace arma;
 using namespace std;
 using namespace boost;
 
+
+namespace hf{
+
 class BasisSet
 {
 public:
@@ -38,5 +41,5 @@ private:
     int m_angularMomentum;
 
 };
-
+}
 #endif // BASISSET_H

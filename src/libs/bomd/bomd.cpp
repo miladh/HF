@@ -1,4 +1,5 @@
 #include "bomd.h"
+using namespace hf;
 
 BOMD::BOMD(System *system, const int &rank, const int &nProcs):
     m_rank(rank),

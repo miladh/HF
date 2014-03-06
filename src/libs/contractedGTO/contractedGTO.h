@@ -8,7 +8,8 @@
 using namespace arma;
 using namespace std;
 
-
+namespace hf
+{
 class ContractedGTO
 {
 public:
@@ -21,6 +22,6 @@ public:
 private:
     vector<PrimitiveGTO> m_primitivesGTOs;
 };
-
+}
 
 #endif // CONTRACTEDGTO_H

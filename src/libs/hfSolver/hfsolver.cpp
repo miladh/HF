@@ -1,5 +1,7 @@
 #include "hfsolver.h"
 
+using namespace hf;
+
 HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),

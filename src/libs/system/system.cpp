@@ -1,5 +1,7 @@
 #include "system.h"
 
+using namespace hf;
+
 System::System(int nElectrons, int maxAngularMomentum):
     m_nElectrons(nElectrons)
 {

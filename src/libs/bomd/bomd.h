@@ -10,7 +10,8 @@
 
 using namespace arma;
 using namespace std;
-using namespace hf;
+
+namespace hf{
 
 class BOMD
 {
@@ -19,8 +20,8 @@ public:
 
     void runDynamics();
     void solveSingleStep();
-    rowvec getEnergyGradient() const;
     double getEnergy() const;
+    rowvec getEnergyGradient() const;
 
 private:
     int m_rank, m_nProcs;
@@ -37,7 +38,6 @@ private:
 
     rowvec m_energyGradient, m_pulayForce;
     mat m_S, m_h, m_P;
-
     mat pos, posNew, posOld;
 
     field<mat> m_Q;
@@ -47,17 +47,13 @@ private:
     field<field<rowvec>>m_pulayQ;
 
 
-
-    void IntegrateWavefunctionForwardInTime(int orb);
     void IntegrateCoreForwardInTime(int core);
-
     void writeToFile(mat R, int currentTimeStep);
     void updateCorePositions();
-    void setupPulayMatrices(const int core);
-    rowvec calculatePulayForce(int core);
+
 
 };
-
+}
 #endif // BOMD_H
 
 

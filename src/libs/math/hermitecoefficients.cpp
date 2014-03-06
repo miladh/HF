@@ -1,5 +1,5 @@
 #include "hermitecoefficients.h"
-
+using namespace hf;
 HermiteCoefficients::HermiteCoefficients()
 {
 }

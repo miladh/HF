@@ -11,6 +11,8 @@
 using namespace arma;
 using namespace std;
 
+namespace hf
+{
 class Integrator
 {
 public:
@@ -95,6 +97,6 @@ private:
 
     rowvec electronRepulsionIntegral_Pcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB, int iC, int jC, int kC, int iD, int jD, int kD);
 };
-
+}
 #endif // INTEGRATOR_H
 
