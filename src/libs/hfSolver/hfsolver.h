@@ -30,14 +30,12 @@ public:
    mat getDensityMatrix() const;
    mat getF();
 
-
-   int m_step;
 private:
-   int m_rank, m_nProcs;
+   int m_rank, m_nProcs, m_step;
    System *m_system;
    cube m_density;
 
-   int m_nElectrons, m_nOrbitals;
+   int m_nElectrons, m_nBasisFunctions;
    mat m_S, m_h, m_F, m_P, m_C;
    field<mat> m_Q;
 
