@@ -6,6 +6,7 @@
 #include <armadillo>
 #include <system/system.h>
 #include <hfSolver/hfsolver.h>
+#include <hfSolver/rhf.h>
 
 using namespace arma;
 using namespace std;
@@ -15,12 +16,12 @@ namespace hf {
 class GeometricalDerivative
 {
 public:
-    GeometricalDerivative(System *system, HFsolver *solver);
+    GeometricalDerivative(System *system, RHF *solver);
     rowvec energyGradient(const int core);
 
 private:
     System *m_system;
-    HFsolver *m_solver;
+    RHF *m_solver;
     field<field<rowvec>>m_dQ;
     field<rowvec> m_dS, m_dh;
 

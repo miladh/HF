@@ -1,7 +1,8 @@
 #include <unittest++/UnitTest++.h>
 #include<system/system.h>
-#include<hfSolver/hfsolver.h>
-
+#include <hfSolver/hfsolver.h>
+#include <hfSolver/rhf.h>
+#include <hfSolver/uhf.h>
 #include <armadillo>
 #include <iostream>
 #include <fstream>
@@ -40,7 +41,7 @@ TEST(H2_QZ)
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    HFsolver *solver = new HFsolver(system,0,1);
+    RHF *solver = new RHF(system,0,1);
     solver->runSolver();
 
     CHECK_CLOSE(-1.078547609, solver->getEnergy(), 1e-9);
@@ -75,12 +76,50 @@ TEST(H2_321G)
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    HFsolver *solver = new HFsolver(system,0,1);
+    RHF *solver = new RHF(system,0,1);
     solver->runSolver();
 
     CHECK_CLOSE(-1.122933364, solver->getEnergy(), 1e-9);
 
 }
+
+TEST(UHF_H2_321G)
+{
+    int nElectrons;
+    rowvec coreCharges,coreMass, A, B;
+
+    BasisSet *basisCoreA;
+    BasisSet *basisCoreB;
+
+    nElectrons = 2;
+    A = {-0.7, 0.0, 0.0};
+    B = {0.7, 0.0, 0.0};
+    coreCharges = {1 , 1};
+    coreMass = {1 , 1};
+
+    basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
+    basisCoreB = new BasisSet("infiles/turbomole/H_3-21G");
+
+    int maxAngularMomentum = basisCoreA->getAngularMomentum();
+    basisCoreA->setCoreCharge(coreCharges(0));
+    basisCoreA->setCoreMass(coreMass(0));
+    basisCoreA->setCorePosition(A);
+
+    basisCoreB->setCorePosition(B);
+    basisCoreB->setCoreCharge(coreCharges(1));
+    basisCoreB->setCoreMass(coreMass(1));
+
+    System *system = new System(nElectrons, maxAngularMomentum);
+    system->addBasisSet(basisCoreA);
+    system->addBasisSet(basisCoreB);
+
+    UHF *solver = new UHF(system,0,1);
+    solver->runSolver();
+
+    CHECK_CLOSE(-1.122933364, solver->getEnergy(), 1e-9);
+
+}
+
 TEST(H2_431G)
 {
     int nElectrons;
@@ -111,7 +150,7 @@ TEST(H2_431G)
     system->addBasisSet(basisCoreA);
     system->addBasisSet(basisCoreB);
 
-    HFsolver *solver = new HFsolver(system,0,1);
+    RHF *solver = new RHF(system,0,1);
     solver->runSolver();
 
     CHECK_CLOSE(-1.12682776, solver->getEnergy(), 1e-9);
@@ -158,7 +197,7 @@ TEST(H2O_431G)
     system->addBasisSet(basisCoreB);
     system->addBasisSet(basisCoreC);
 
-    HFsolver *solver = new HFsolver(system,0,1);
+    RHF *solver = new RHF(system,0,1);
     solver->runSolver();
 
     CHECK_CLOSE(-75.907340813845, solver->getEnergy(), 1e-9);

@@ -1,4 +1,5 @@
 #include "bomd.h"
+
 using namespace hf;
 
 BOMD::BOMD(System *system, const int &rank, const int &nProcs):
@@ -46,7 +47,7 @@ BOMD::BOMD(System *system, const int &rank, const int &nProcs):
     }
 
     posOld = pos;
-    m_solver = new HFsolver(m_system, m_rank, m_nProcs);
+    m_solver = new RHF(m_system, m_rank, m_nProcs);
     m_GD = new GeometricalDerivative(m_system,m_solver);
 }
 

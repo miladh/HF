@@ -4,6 +4,7 @@
 
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
+#include <hfSolver/rhf.h>
 #include<cpmd/cpmd.h>
 #include<bomd/bomd.h>
 
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
     BasisSet *basisCoreE;
 
 
-    int m_case = 8;
+    int m_case = 1;
     int dynamic = 0;
     int cpmd = 0;
 
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
         coreMass = {16 , 16};
         coreCharges = {8 , 8};
         basisCoreA = new BasisSet("infiles/turbomole/O_4-31G");
-//        basisCoreB = new BasisSet("infiles/turbomole/O_4-31G");
+        basisCoreB = new BasisSet("infiles/turbomole/O_4-31G");
 
     }else if(m_case==6){
         double l = 1.797;
@@ -257,7 +258,7 @@ int main(int argc, char **argv)
             boSolver.runDynamics();
         }
     }else{
-        HFsolver *solver = new HFsolver(system, rank, nProcs);
+        RHF *solver = new RHF(system, rank, nProcs);
         solver->runSolver();
     }
 

@@ -2,7 +2,7 @@
 
 using namespace hf;
 
-GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
+GeometricalDerivative::GeometricalDerivative(System *system, RHF *solver):
     m_system(system),
     m_solver(solver),
     m_nBasisFunctions(system->getTotalNumOfBasisFunc())
@@ -74,7 +74,7 @@ void GeometricalDerivative::setupDerivativeMatrices()
 rowvec GeometricalDerivative::calculateEnergyGradient()
 {
     rowvec dE  = {0,0,0};
-    mat F = m_solver->getF();
+    mat F = m_solver->getFockMatrix();
     mat P = m_solver->getDensityMatrix();
 
     for (int p = 0; p < m_nBasisFunctions; p++){

@@ -7,6 +7,7 @@
 
 #include<system/system.h>
 #include<hfSolver/hfsolver.h>
+#include<hfSolver/rhf.h>
 
 
 using namespace arma;
@@ -23,7 +24,7 @@ public:
 private:
     int m_rank, m_nProcs;
     System* m_system;
-    HFsolver *m_solver;
+    RHF *m_solver;
 
     int m_nCores, m_nElectrons, m_nOrbitals;
     int m_nSteps, m_eSteps;

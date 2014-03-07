@@ -14,7 +14,9 @@ SOURCES += \
     math/hermiteintegrals.cpp \
     cpmd/cpmd.cpp \
     bomd/bomd.cpp \
-    geometricalDerivative/geometricalderivative.cpp
+    geometricalDerivative/geometricalderivative.cpp \
+    hfSolver/uhf.cpp \
+    hfSolver/rhf.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -29,4 +31,6 @@ HEADERS += \
     cpmd/cpmd.h \
     bomd/bomd.h \
     includes/defines.h \
-    geometricalDerivative/geometricalderivative.h
+    geometricalDerivative/geometricalderivative.h \
+    hfSolver/uhf.h \
+    hfSolver/rhf.h

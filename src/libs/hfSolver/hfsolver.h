@@ -22,32 +22,28 @@ public:
    mat gethmatrix();
    mat getSmatrix();
 
-   mat getC() const;
-
    double getEnergy() const;
    double getFockEnergy() const;
    void setupTwoParticleMatrix();
    void setupOneParticleMatrix();
 
-   mat getDensityMatrix() const;
-   mat getF();
-
-private:
+protected:
    int m_rank, m_nProcs, m_step;
    System *m_system;
    cube m_density;
 
    int m_nElectrons, m_nBasisFunctions;
-   mat m_S, m_h, m_F, m_P, m_C;
+   int m_nSpinUpElectrons, m_nSpinDownElectrons;
+   mat m_S, m_h;
    field<mat> m_Q;
 
    double m_energy, m_fockEnergy;
 
-   void normalize();
-   void solveSingle();
-   void setupFockMatrix();
-   void calculateEnergy();
-   void calculateDensity();
+   virtual void normalize() = 0;
+   virtual void solveSingle() = 0;
+   virtual void updateFockMatrix() = 0;
+   virtual void calculateEnergy()=0;
+   virtual void calculateDensity()= 0;
    void densityOutput(const double &xMin, const double &xMax, const double &yMin, const double &yMax, const double &zMin, const double &zMax);
 };
 }
