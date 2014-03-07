@@ -5,7 +5,7 @@
 #include <iostream>
 #include <armadillo>
 
-#include "../includes/defines.h"
+#include "../defines.h"
 #include "../contractedGTO/contractedGTO.h"
 
 

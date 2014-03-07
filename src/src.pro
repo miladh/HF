@@ -33,7 +33,7 @@ HEADERS += \
     math/hermiteintegrals.h \
     cpmd/cpmd.h \
     bomd/bomd.h \
-    includes/defines.h \
+    defines.h \
     geometricalDerivative/geometricalderivative.h \
     hfSolver/uhf.h \
     hfSolver/rhf.h

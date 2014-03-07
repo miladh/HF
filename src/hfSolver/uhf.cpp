@@ -11,8 +11,8 @@ UHF::UHF(System *system, const int &rank, const int &nProcs):
     m_Cd(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_Pd(randn(m_nBasisFunctions,m_nBasisFunctions))
 {
-    m_nSpinUpElectrons =1;
-    m_nSpinDownElectrons =1;
+    m_nSpinUpElectrons = 5;
+    m_nSpinDownElectrons =5;
 }
 
 void UHF::solveSingle()

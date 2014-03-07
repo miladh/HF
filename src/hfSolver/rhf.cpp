@@ -29,7 +29,8 @@ void RHF::solveSingle()
 
     normalize();
 
-    m_P = 2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
+    m_P = 0.5 * m_P + m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
+//    m_P = 2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
 
     m_fockEnergy = eigVal(0);
 }

@@ -37,7 +37,7 @@ TEST(energyGradient_H2)
 
 
     //Domain
-    vec bondLength = linspace(0.2, 3.0, 50);
+    vec bondLength = linspace(0.2, 0.9, 10);
     vec gradient   = 0*bondLength;
     vec numericalGradient = 0*bondLength;
 
@@ -121,7 +121,7 @@ TEST(energyGradient_H2)
 //        system->m_basisSet.at(1)->setCorePosition(X *  0.5);
 //        BOSolver.solveSingleStep();
 
-////        cout << setprecision(14) << "[" << bondLength(x) << "," << BOSolver.getEnergy() << "]," <<endl;
+//        cout << setprecision(14) << "[" << bondLength(x) << "," << BOSolver.getEnergy() << "]," <<endl;
 //    }
 
 //}

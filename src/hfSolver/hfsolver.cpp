@@ -49,7 +49,10 @@ void HFsolver::runSolver()
     }
 
     calculateEnergy();
-    cout << setprecision(14) << "configuration " << m_step << " Energy: "  << m_energy << endl;
+    cout << setprecision(14)
+         << "configuration " << m_step
+         << " - steps " << step
+         << " - Energy: "  << m_energy << endl;
 
     //    calculateDensity();
     m_step+=1;

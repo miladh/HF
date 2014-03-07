@@ -4,7 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <armadillo>
-#include "../includes/defines.h"
+#include "../defines.h"
 #include "../system/system.h"
 
 using namespace arma;
