@@ -1,7 +1,10 @@
 TEMPLATE = subdirs
+CONFIG -= app_bundle
+CONFIG -= qt
 CONFIG += ordered
 
-SUBDIRS += src tests
+SUBDIRS += src apps
 
-BUILD_DIR = $$OUT_PWD
+OTHER_FILES += .qmake.conf .gitignore README.md LICENSE.txt
+
 
