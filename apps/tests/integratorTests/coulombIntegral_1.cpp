@@ -10,9 +10,17 @@ using namespace arma;
 using namespace hf;
 
 
-
+SUITE(DEVELOPMENT){
 TEST(GTOnuclearAttractionIntegral)
 {
+    /*
+     * test case:   electron-nucleus integral
+     * max angular momentum:    2
+     *
+     * source:
+     *      numerical integration
+     *      python scripts
+     * */
 
     Integrator integrator;
 
@@ -467,4 +475,5 @@ TEST(GTOnuclearAttractionIntegral)
     integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);
     CHECK_CLOSE(6.422210627967e-02, integrator.nuclearAttractionIntegral(), 1e-5);
 
+}
 }

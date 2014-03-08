@@ -6,35 +6,63 @@ UHF::UHF(System *system, const int &rank, const int &nProcs):
     HFsolver(system, rank, nProcs),
     m_Fu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Cu(ones(m_nBasisFunctions,m_nBasisFunctions)),
-    m_Pu(randu(m_nBasisFunctions,m_nBasisFunctions)),
+    m_Pu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Fd(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Cd(ones(m_nBasisFunctions,m_nBasisFunctions)),
-    m_Pd(randn(m_nBasisFunctions,m_nBasisFunctions))
+    m_Pd(zeros(m_nBasisFunctions,m_nBasisFunctions))
 {
-    m_nSpinUpElectrons = 5;
-    m_nSpinDownElectrons =5;
+    m_nSpinUpElectrons   = 5;
+    m_nSpinDownElectrons = 5;
+    m_Pu(0,0) = 1.0;
 }
+
+
+
+void UHF::advance()
+{
+    double fockEnergyUOld, fockEnergyDOld;
+    double energyDiff = 1.0;
+    int step = 0;
+    int maxStep = 100;
+
+    while (energyDiff > HFSOLVERTOLERANCE){
+        fockEnergyUOld = m_fockEnergyU;
+        fockEnergyDOld = m_fockEnergyD;
+        solveSingle();
+        energyDiff = max(fabs(fockEnergyUOld - m_fockEnergyU),fabs(fockEnergyDOld - m_fockEnergyD));
+        updateFockMatrix();
+
+        step+=1;
+        if(step > maxStep){
+            cerr << "Energy has not converged! " << endl;
+            exit(1);
+        }
+    }
+
+}
+
 
 void UHF::solveSingle()
 {
     vec eigVal;
-    mat eigVec;
-    eig_sym(eigVal, eigVec, m_S);
+    mat eigVec, V;
 
-    mat V = eigVec*diagmat(1.0/sqrt(eigVal));
+    eig_sym(eigVal, eigVec, m_S);
+    V = eigVec*diagmat(1.0/sqrt(eigVal));
 
     eig_sym(eigVal, eigVec, V.t()*m_Fu*V);
-    eig_sym(eigVal, eigVec, V.t()*m_Fd*V);
-
     m_Cu = V*eigVec;
+    m_fockEnergyU = eigVal(0);
+
+    eig_sym(eigVal, eigVec, V.t()*m_Fd*V);
     m_Cd = V*eigVec;
+    m_fockEnergyD = eigVal(0);
+
 
     normalize();
 
-    m_Pu = m_Cu.cols(0, m_nSpinUpElectrons-1) * m_Cu.cols(0, m_nSpinUpElectrons-1).t();
-    m_Pd = m_Cd.cols(0, m_nSpinDownElectrons-1) * m_Cd.cols(0, m_nSpinDownElectrons-1).t();
-
-    m_fockEnergy = eigVal(0);
+    m_Pu = 0.5 * m_Pu + 0.5*m_Cu.cols(0, m_nSpinUpElectrons-1) * m_Cu.cols(0, m_nSpinUpElectrons-1).t();
+    m_Pd = 0.5 * m_Pd + 0.5*m_Cd.cols(0, m_nSpinDownElectrons-1) * m_Cd.cols(0, m_nSpinDownElectrons-1).t();
 }
 
 void UHF::updateFockMatrix()
@@ -48,8 +76,8 @@ void UHF::updateFockMatrix()
             for (int r = 0; r < m_nBasisFunctions; r++){
                 for (int s = 0; s < m_nBasisFunctions; s++){
 
-                    m_Fu(p,q) += m_Pu(r,s) * (m_Q(p,r)(q,s) - m_Q(p,r)(s,q)) + m_Pd(r,s) * m_Q(p,r)(q,s);
-                    m_Fd(p,q) += m_Pd(r,s) * (m_Q(p,r)(q,s) - m_Q(p,r)(s,q)) + m_Pu(r,s) * m_Q(p,r)(q,s);
+                    m_Fu(p,q) += m_Pu(s,r) * (m_Q(p,r)(q,s) - m_Q(p,r)(s,q)) + m_Pd(s,r) * m_Q(p,r)(q,s);
+                    m_Fd(p,q) += m_Pd(s,r) * (m_Q(p,r)(q,s) - m_Q(p,r)(s,q)) + m_Pu(s,r) * m_Q(p,r)(q,s);
                 }
             }
         }
@@ -76,6 +104,7 @@ void UHF::normalize()
         m_Cd.col(i) = m_Cd.col(i)/sqrt(norm);
     }
 }
+
 
 void UHF::calculateDensity()
 {

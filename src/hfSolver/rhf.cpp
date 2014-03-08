@@ -15,6 +15,27 @@ RHF::RHF(System *system, const int &rank, const int &nProcs):
 //    m_nElectrons = m_nSpinUpElectrons + m_nSpinDownElectrons;
 }
 
+void RHF::advance()
+{
+    double fockEnergyOld;
+    double energyDiff = 1.0;
+    int step = 0;
+    int maxStep = 100;
+
+    while (energyDiff > HFSOLVERTOLERANCE){
+        fockEnergyOld = m_fockEnergy;
+        solveSingle();
+        energyDiff = fabs(fockEnergyOld - m_fockEnergy);
+        updateFockMatrix();
+
+        step+=1;
+        if(step > maxStep){
+            cerr << "Energy has not converged! " << endl;
+            exit(1);
+        }
+    }
+
+}
 void RHF::solveSingle()
 {
     vec eigVal;
@@ -70,6 +91,9 @@ mat RHF::getExpansionCoeff() const
 {
     return m_C;
 }
+
+
+
 
 mat RHF::getFockMatrix()
 {

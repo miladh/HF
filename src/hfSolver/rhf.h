@@ -22,8 +22,11 @@ public:
 private:
     mat m_F, m_C, m_P;
     int m_nElectrons;
+    double m_fockEnergy;
+
+protected:
+    void advance();
     void solveSingle();
-    void setupFockMatrix();
     void calculateEnergy();
     void updateFockMatrix();
     void calculateDensity();

@@ -8,9 +8,18 @@
 using namespace std;
 using namespace arma;
 using namespace hf;
-
+SUITE(DEVELOPMENT){
 TEST(GTOoverlapIntegral)
 {
+    /*
+     * test case:   overlap integral S
+     * max angular momentum:    2
+     *
+     * source:
+     *      numerical integration
+     *      python scripts
+     * */
+
     Integrator integrator;
 
     rowvec posA = {1.2,2.3,3.4};
@@ -983,4 +992,4 @@ TEST(GTOoverlapIntegral_derivative)
     CHECK_ARRAY_CLOSE(integrator.overlapIntegral_derivative(),Sab,3, 1e-5);
 
 }
-
+}

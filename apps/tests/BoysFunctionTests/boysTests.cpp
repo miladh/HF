@@ -9,6 +9,8 @@
 using namespace std;
 using namespace arma;
 using namespace hf;
+SUITE(DEVELOPMENT) {
+
 
 TEST(BoysfactorialFunctions)
 {
@@ -92,6 +94,7 @@ TEST(boysFunction)
     CHECK_CLOSE(F0(18,0), 8.9788048355705335e-02, 1e-10);
     CHECK_CLOSE(F0(19,0), 8.8622692545275800e-02, 1e-10);
 }
+
 TEST(BoysDownwardrecursionFunction)
 {
 
@@ -191,3 +194,6 @@ TEST(BoysDownwardrecursionFunction)
     CHECK_CLOSE(F0(18,0), 8.9788048355705335e-02, 1e-10);
     CHECK_CLOSE(F0(19,0), 8.8622692545275800e-02, 1e-10);
 }
+
+}
+

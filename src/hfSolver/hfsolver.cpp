@@ -25,33 +25,15 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
 
 void HFsolver::runSolver()
 {
-    double fockEnergyOld;
-    double energyDiff = 1.0;
-    int step = 0;
-    int maxStep = 100;
-
 
     setupOneParticleMatrix();
     setupTwoParticleMatrix();
     updateFockMatrix();
-
-    while (energyDiff > HFSOLVERTOLERANCE){
-        fockEnergyOld = m_fockEnergy;
-        solveSingle();
-        energyDiff = fabs(fockEnergyOld - m_fockEnergy);
-        updateFockMatrix();
-
-        step+=1;
-        if(step > maxStep){
-            cerr << "Energy has not converged! " << endl;
-            exit(1);
-        }
-    }
-
+    advance();
     calculateEnergy();
+
     cout << setprecision(14)
          << "configuration " << m_step
-         << " - steps " << step
          << " - Energy: "  << m_energy << endl;
 
     //    calculateDensity();
@@ -105,11 +87,6 @@ void HFsolver::setupTwoParticleMatrix()
 double HFsolver::getEnergy() const
 {
     return m_energy;
-}
-
-double HFsolver::getFockEnergy() const
-{
-    return m_fockEnergy;
 }
 
 field<mat> HFsolver::getQmatrix(){

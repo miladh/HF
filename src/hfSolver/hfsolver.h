@@ -23,7 +23,6 @@ public:
    mat getSmatrix();
 
    double getEnergy() const;
-   double getFockEnergy() const;
    void setupTwoParticleMatrix();
    void setupOneParticleMatrix();
 
@@ -37,8 +36,9 @@ protected:
    mat m_S, m_h;
    field<mat> m_Q;
 
-   double m_energy, m_fockEnergy;
+   double m_energy;
 
+   virtual void advance() = 0;
    virtual void normalize() = 0;
    virtual void solveSingle() = 0;
    virtual void updateFockMatrix() = 0;

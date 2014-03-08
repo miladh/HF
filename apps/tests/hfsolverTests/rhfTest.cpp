@@ -8,9 +8,20 @@
 using namespace std;
 using namespace arma;
 using namespace hf;
-
+SUITE(DEVELOPMENT) {
 TEST(H2_QZ)
 {
+    /*
+     * test case:   H2
+     * basis:       quadruple
+     * bondlength:  1
+     * energy:      -1.078547609
+     *
+     * source:
+     *      Computational Physics
+     *      Jos Thijssen
+     * */
+
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
 
@@ -79,10 +90,19 @@ TEST(H2_321G)
     CHECK_CLOSE(-1.122933364, solver->getEnergy(), 1e-9);
 
 }
-
-
 TEST(H2_431G)
 {
+    /*
+     * test case:   H2
+     * basis:       4-31G
+     * bondlength:  1.380
+     * energy:      -1.127
+     *
+     * source:
+     *      Molecular Quantum Mechanics
+     *      Peter Atkins
+     * */
+
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
 
@@ -117,8 +137,68 @@ TEST(H2_431G)
     CHECK_CLOSE(-1.12682776, solver->getEnergy(), 1e-9);
 
 }
+TEST(H2_631G_ds)
+{
+    /*
+     * test case:   H2
+     * basis:       6-31G**
+     * bondlength:  1.385
+     * energy:      -1.131
+     *
+     * source:
+     *      Molecular Quantum Mechanics
+     *      Peter Atkins
+     * */
+
+    int nElectrons;
+    rowvec coreCharges,coreMass, A, B;
+
+    BasisSet *basisCoreA;
+    BasisSet *basisCoreB;
+
+    nElectrons = 2;
+    A = {-0.6925, 0.0, 0.0};
+    B = {0.6925, 0.0, 0.0};
+    coreCharges = {1 , 1};
+    coreMass = {1 , 1};
+
+    basisCoreA = new BasisSet("infiles/turbomole/H_6-31G_ds");
+    basisCoreB = new BasisSet("infiles/turbomole/H_6-31G_ds");
+
+    int maxAngularMomentum = basisCoreA->getAngularMomentum();
+    basisCoreA->setCoreCharge(coreCharges(0));
+    basisCoreA->setCoreMass(coreMass(0));
+    basisCoreA->setCorePosition(A);
+
+    basisCoreB->setCorePosition(B);
+    basisCoreB->setCoreCharge(coreCharges(1));
+    basisCoreB->setCoreMass(coreMass(1));
+
+    System *system = new System(nElectrons, maxAngularMomentum);
+    system->addBasisSet(basisCoreA);
+    system->addBasisSet(basisCoreB);
+
+    RHF *solver = new RHF(system,0,1);
+    solver->runSolver();
+
+    CHECK_CLOSE(-1.1313335068087, solver->getEnergy(), 1e-9);
+
+}
+
 TEST(H2O_431G)
 {
+    /*
+     * test case:   H2O
+     * basis:       4-31G
+     * bondlength:  1.797
+     * bond angle:  104.45
+     * energy:      -75.907
+     *
+     * source:
+     *      Molecular Quantum Mechanics
+     *      Peter Atkins
+     * */
+
     int nElectrons;
     rowvec coreCharges,coreMass, A, B, C;
 
@@ -164,25 +244,47 @@ TEST(H2O_431G)
     CHECK_CLOSE(-75.907340813845, solver->getEnergy(), 1e-9);
 
 }
+}
 
-//TEST(UHF_HF_6_31G_ds_1)
-//{
+SUITE(SLOWTESTS) {
+TEST(H2O_631Gds)
+{
+    /*
+     * test case:   H2O
+     * basis:       6-31G**
+     * bondlength:  1.782
+     * bond angle:  104.45
+     * energy:      -76.023
+     *
+     * source:
+     *      Molecular Quantum Mechanics
+     *      Peter Atkins
+     * */
+
 //    int nElectrons;
-//    rowvec coreCharges,coreMass, A, B;
+//    rowvec coreCharges,coreMass, A, B, C;
 
 //    BasisSet *basisCoreA;
 //    BasisSet *basisCoreB;
+//    BasisSet *basisCoreC;
 
+
+//    double R = 1.782;
+//    double x = R * cos((180-104.45) *M_PI/180.0);
+//    double y = R * sin((180-104.45) *M_PI/180.0);
+//    //Water molecule
 //    nElectrons = 10;
-//    A = { -0.7558903955, 0.0, 0.0};
-//    B = { 0.7558903955, 0.0, 0.0};
-//    coreCharges = {9 , 1};
-//    coreMass = {19 , 1};
+//    A = {R , 0.0, 0.0};
+//    B = { -x, y, 0.0};
+//    C = { 0.0, 0.0, 0.0};
+//    coreCharges = {1 , 1, 8};
+//    coreMass = {1 , 1, 16};
 
-//    basisCoreA = new BasisSet("infiles/turbomole/F_6-31G_ds");
+//    basisCoreA = new BasisSet("infiles/turbomole/H_6-31G_ds");
 //    basisCoreB = new BasisSet("infiles/turbomole/H_6-31G_ds");
+//    basisCoreC = new BasisSet("infiles/turbomole/O_6-31G_ds");
 
-//    int maxAngularMomentum = basisCoreA->getAngularMomentum();
+//    int maxAngularMomentum = basisCoreC->getAngularMomentum();
 //    basisCoreA->setCoreCharge(coreCharges(0));
 //    basisCoreA->setCoreMass(coreMass(0));
 //    basisCoreA->setCorePosition(A);
@@ -191,54 +293,19 @@ TEST(H2O_431G)
 //    basisCoreB->setCoreCharge(coreCharges(1));
 //    basisCoreB->setCoreMass(coreMass(1));
 
-//    System *system = new System(nElectrons, maxAngularMomentum);
-//    system->addBasisSet(basisCoreA);
-//    system->addBasisSet(basisCoreB);
-
-//    UHF *solver = new UHF(system,0,1);
-//    solver->runSolver();
-
-//    CHECK_CLOSE(-99.994571, solver->getEnergy(), 1e-6);
-
-////}
-
-//TEST(UHF_HF_6_31G_ds_2)
-//{
-//    int nElectrons;
-//    rowvec coreCharges,coreMass, A, B;
-
-//    BasisSet *basisCoreA;
-//    BasisSet *basisCoreB;
-
-//    nElectrons = 10;
-//    A = { -1.889725989, 0.0, 0.0};
-//    B = { 1.889725989, 0.0, 0.0};
-//    coreCharges = {9 , 1};
-//    coreMass = {19 , 1};
-
-//    basisCoreA = new BasisSet("infiles/turbomole/F_6-31G_ds");
-//    basisCoreB = new BasisSet("infiles/turbomole/H_6-31G_ds");
-
-//    int maxAngularMomentum = basisCoreA->getAngularMomentum();
-//    basisCoreA->setCoreCharge(coreCharges(0));
-//    basisCoreA->setCoreMass(coreMass(0));
-//    basisCoreA->setCorePosition(A);
-
-//    basisCoreB->setCorePosition(B);
-//    basisCoreB->setCoreCharge(coreCharges(1));
-//    basisCoreB->setCoreMass(coreMass(1));
+//    basisCoreC->setCorePosition(C);
+//    basisCoreC->setCoreCharge(coreCharges(2));
+//    basisCoreC->setCoreMass(coreMass(2));
 
 //    System *system = new System(nElectrons, maxAngularMomentum);
 //    system->addBasisSet(basisCoreA);
 //    system->addBasisSet(basisCoreB);
+//    system->addBasisSet(basisCoreC);
 
 //    RHF *solver = new RHF(system,0,1);
 //    solver->runSolver();
 
-//    CHECK_CLOSE(-99.74745399999999, solver->getEnergy(), 1e-6);
+//    CHECK_CLOSE(-76.023551569545, solver->getEnergy(), 1e-9);
 
-////    UHF *solver = new UHF(system,0,1);
-////    solver->runSolver();
-////    CHECK_CLOSE(-99.865798, solver->getEnergy(), 1e-6);
-
-//}
+}
+}

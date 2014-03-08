@@ -8,9 +8,17 @@
 using namespace std;
 using namespace arma;
 using namespace hf;
-
+SUITE(DEVELOPMENT){
 TEST(GTOkineticIntegral)
 {
+    /*
+     * test case:   kinetic integral K
+     * max angular momentum:    2
+     *
+     * source:
+     *      numerical integration
+     *      python scripts
+     * */
 
     Integrator integrator;
 
@@ -974,4 +982,5 @@ TEST(GTOkineticIntegral_derivative)
     integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);
     CHECK_ARRAY_CLOSE(integrator.kineticIntegral_derivative(),Tab,3, 1e-5);
 
+}
 }
