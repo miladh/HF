@@ -13,7 +13,7 @@ UHF::UHF(System *system, const int &rank, const int &nProcs):
 {
     m_nSpinUpElectrons   = 5;
     m_nSpinDownElectrons = 5;
-    m_Pu(0,0) = 1.0;
+    m_Pu(0,0) = 0.1;
 }
 
 
