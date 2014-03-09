@@ -11,11 +11,19 @@ using namespace hf;
 SUITE(GRADIENT){
     TEST(energyGradient_H2)
     {
+        /*
+         * test case:   geometrical derivative of energy
+         * system:      H2
+         * basis:       3-21G
+         * method:      RHF
+         * source:
+         *      numerical differentiation of energy
+         * */
 
         //Initializing the system
         int nElectrons = 2;
-        BasisSet *basisCoreA = new BasisSet("infiles/turbomole/H_Qzeta");
-        BasisSet *basisCoreB = new BasisSet("infiles/turbomole/H_Qzeta");
+        BasisSet *basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
+        BasisSet *basisCoreB = new BasisSet("infiles/turbomole/H_3-21G");
 
         rowvec coreCharges = {1 , 1};
         rowvec coreMass = {1 , 1};
