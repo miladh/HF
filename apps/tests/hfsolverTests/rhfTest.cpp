@@ -1,6 +1,6 @@
 #include <unittest++/UnitTest++.h>
 #include <hf.h>
-
+#include <mpi.h>
 #include <armadillo>
 #include <iostream>
 #include <fstream>
@@ -21,6 +21,13 @@ TEST(H2_QZ)
      *      Computational Physics
      *      Jos Thijssen
      * */
+
+
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2" << endl;
+        cout << "method:    " << "RHF" << endl;
+        cout << "basis:     " << "QZ" << endl;
+    }
 
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
@@ -56,6 +63,12 @@ TEST(H2_QZ)
 }
 TEST(H2_321G)
 {
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2" << endl;
+        cout << "method:    " << "RHF" << endl;
+        cout << "basis:     " << "3-21G" << endl;
+    }
+
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
 
@@ -103,6 +116,12 @@ TEST(H2_431G)
      *      Peter Atkins
      * */
 
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2" << endl;
+        cout << "method:    " << "RHF" << endl;
+        cout << "basis:     " << "4-31G" << endl;
+    }
+
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
 
@@ -149,6 +168,12 @@ TEST(H2_631G_ds)
      *      Molecular Quantum Mechanics
      *      Peter Atkins
      * */
+
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2" << endl;
+        cout << "method:    " << "RHF" << endl;
+        cout << "basis:     " << "6-31G**" << endl;
+    }
 
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
@@ -198,6 +223,12 @@ TEST(H2O_431G)
      *      Molecular Quantum Mechanics
      *      Peter Atkins
      * */
+
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2O" << endl;
+        cout << "method:    " << "RHF" << endl;
+        cout << "basis:     " << "4-31G" << endl;
+    }
 
     int nElectrons;
     rowvec coreCharges,coreMass, A, B, C;
@@ -261,51 +292,57 @@ TEST(H2O_631Gds)
      *      Peter Atkins
      * */
 
-//    int nElectrons;
-//    rowvec coreCharges,coreMass, A, B, C;
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2O" << endl;
+        cout << "method:    " << "RHF" << endl;
+        cout << "basis:     " << "6-31G**" << endl;
+    }
 
-//    BasisSet *basisCoreA;
-//    BasisSet *basisCoreB;
-//    BasisSet *basisCoreC;
+    int nElectrons;
+    rowvec coreCharges,coreMass, A, B, C;
+
+    BasisSet *basisCoreA;
+    BasisSet *basisCoreB;
+    BasisSet *basisCoreC;
 
 
-//    double R = 1.782;
-//    double x = R * cos((180-104.45) *M_PI/180.0);
-//    double y = R * sin((180-104.45) *M_PI/180.0);
-//    //Water molecule
-//    nElectrons = 10;
-//    A = {R , 0.0, 0.0};
-//    B = { -x, y, 0.0};
-//    C = { 0.0, 0.0, 0.0};
-//    coreCharges = {1 , 1, 8};
-//    coreMass = {1 , 1, 16};
+    double R = 1.782;
+    double x = R * cos((180-104.45) *M_PI/180.0);
+    double y = R * sin((180-104.45) *M_PI/180.0);
+    //Water molecule
+    nElectrons = 10;
+    A = {R , 0.0, 0.0};
+    B = { -x, y, 0.0};
+    C = { 0.0, 0.0, 0.0};
+    coreCharges = {1 , 1, 8};
+    coreMass = {1 , 1, 16};
 
-//    basisCoreA = new BasisSet("infiles/turbomole/H_6-31G_ds");
-//    basisCoreB = new BasisSet("infiles/turbomole/H_6-31G_ds");
-//    basisCoreC = new BasisSet("infiles/turbomole/O_6-31G_ds");
+    basisCoreA = new BasisSet("infiles/turbomole/H_6-31G_ds");
+    basisCoreB = new BasisSet("infiles/turbomole/H_6-31G_ds");
+    basisCoreC = new BasisSet("infiles/turbomole/O_6-31G_ds");
 
-//    int maxAngularMomentum = basisCoreC->getAngularMomentum();
-//    basisCoreA->setCoreCharge(coreCharges(0));
-//    basisCoreA->setCoreMass(coreMass(0));
-//    basisCoreA->setCorePosition(A);
+    int maxAngularMomentum = basisCoreC->getAngularMomentum();
+    basisCoreA->setCoreCharge(coreCharges(0));
+    basisCoreA->setCoreMass(coreMass(0));
+    basisCoreA->setCorePosition(A);
 
-//    basisCoreB->setCorePosition(B);
-//    basisCoreB->setCoreCharge(coreCharges(1));
-//    basisCoreB->setCoreMass(coreMass(1));
+    basisCoreB->setCorePosition(B);
+    basisCoreB->setCoreCharge(coreCharges(1));
+    basisCoreB->setCoreMass(coreMass(1));
 
-//    basisCoreC->setCorePosition(C);
-//    basisCoreC->setCoreCharge(coreCharges(2));
-//    basisCoreC->setCoreMass(coreMass(2));
+    basisCoreC->setCorePosition(C);
+    basisCoreC->setCoreCharge(coreCharges(2));
+    basisCoreC->setCoreMass(coreMass(2));
 
-//    System *system = new System(nElectrons, maxAngularMomentum);
-//    system->addBasisSet(basisCoreA);
-//    system->addBasisSet(basisCoreB);
-//    system->addBasisSet(basisCoreC);
+    System *system = new System(nElectrons, maxAngularMomentum);
+    system->addBasisSet(basisCoreA);
+    system->addBasisSet(basisCoreB);
+    system->addBasisSet(basisCoreC);
 
-//    RHF *solver = new RHF(system,0,1);
-//    solver->runSolver();
+    RHF *solver = new RHF(system,0,1);
+    solver->runSolver();
 
-//    CHECK_CLOSE(-76.023551569545, solver->getEnergy(), 1e-9);
+    CHECK_CLOSE(-76.023551569545, solver->getEnergy(), 1e-9);
 
 }
 }

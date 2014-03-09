@@ -17,6 +17,7 @@ int main(int argc, char **argv)
     int rank = MPI::COMM_WORLD.Get_rank();
     int nProcs = MPI::COMM_WORLD.Get_size();
 
+
     clock_t begin = clock();
 
     /********************************************************************************/
@@ -24,10 +25,17 @@ int main(int argc, char **argv)
     //options:
     int dynamic = 0;
     string method = "rhf";
+    string chemicalSystem = "O2";
+
+    if(rank==0){
+        cout << "---------------------------Hartree-Fock------------------------------"  << endl;
+        cout << "system:    " << chemicalSystem << endl;
+        cout << "method:    " << method << endl;
+    }
 
 
     //Setup system:
-    System *system = setupSystem("SiO4",dynamic);
+    System *system = setupSystem(chemicalSystem, dynamic);
 
 
     //Choose method:
@@ -55,8 +63,7 @@ int main(int argc, char **argv)
     /********************************************************************************/
     clock_t end = clock();
     if(rank==0){
-        cout << "-------------------------------"  << endl;
-        cout << "Elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
+        cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
     }
 
     MPI::Finalize();

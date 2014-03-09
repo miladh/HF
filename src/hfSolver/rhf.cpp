@@ -17,7 +17,7 @@ void RHF::advance()
     vec fockEnergyOld;
     double stdDeviation= 1.0;
     int step = 0;
-    int maxStep = 100;
+    int maxStep = 1000;
 
     while (stdDeviation  > HFSOLVERTOLERANCE){
         fockEnergyOld = m_fockEnergy;
@@ -47,7 +47,7 @@ void RHF::solveSingle()
 
     normalize(m_C, m_nElectrons/2);
 
-    m_P = 0.5 * m_P + m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
+    m_P = 0.10 * m_P + 0.9 * 2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
     m_fockEnergy = eigVal;
 }
 

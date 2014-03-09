@@ -1,9 +1,10 @@
 #include <unittest++/UnitTest++.h>
 #include <hf.h>
-
+#include<mpi.h>
 #include <armadillo>
 #include <iostream>
 #include <fstream>
+
 
 using namespace std;
 using namespace arma;
@@ -23,6 +24,12 @@ TEST(H20_431G)
      *      Molecular Quantum Mechanics
      *      Peter Atkins
      * */
+
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "H2O" << endl;
+        cout << "method:    " << "UHF" << endl;
+        cout << "basis:     " << "4-31G" << endl;
+    }
 
     int nElectrons;
     rowvec coreCharges,coreMass, A, B, C;
@@ -86,6 +93,12 @@ TEST(HF_6_31G_ds)
      *      http://dx.doi.org/10.1063/1.1531658
      * */
 
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "HF" << endl;
+        cout << "method:    " << "UHF" << endl;
+        cout << "basis:     " << "6-31G**" << endl;
+    }
+
     int nElectrons;
     rowvec coreCharges,coreMass, A, B;
 
@@ -139,6 +152,11 @@ TEST(CH4_6_31G_d)
      *      http://dx.doi.org/10.1063/1.1531658
      * */
 
+    if(MPI::COMM_WORLD.Get_rank()==0){
+        cout << "system:    " << "CH4" << endl;
+        cout << "method:    " << "UHF" << endl;
+        cout << "basis:     " << "6-31G*" << endl;
+    }
 
     int nElectrons;
     rowvec coreCharges,coreMass, A, B,C,D,E;

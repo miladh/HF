@@ -28,15 +28,32 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
 void HFsolver::runSolver()
 {
 
+    clock_t begin = clock();
     setupOneParticleMatrix();
+
+    clock_t laps = clock();
     setupTwoParticleMatrix();
+
+    clock_t end = clock();
+    if(m_rank==0){
+        cout << setprecision(3) << "Elapsed time on matrix setup: "<< (double(end - begin))/CLOCKS_PER_SEC
+             << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100 << "% spent on two-body term " << endl;
+    }
+
+
     updateFockMatrix();
+
+    laps = clock();
     advance();
+    end = clock();
+
     calculateEnergy();
 
-    cout << setprecision(14)
-         << "configuration " << m_step
-         << " - Energy: "  << m_energy << endl;
+    if(m_rank==0){
+        cout << "Elapsed time on SCF: "<< (double(end - laps))/CLOCKS_PER_SEC << "s " << endl;
+        cout << setprecision(14) << "configuration " << m_step << " - Energy: "  << m_energy << endl;
+        cout << "-------------------------------------------------------------------------------------"  << endl;
+    }
 
     //    calculateDensity();
     m_step+=1;
