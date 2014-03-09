@@ -19,21 +19,40 @@ int main(int argc, char **argv)
 
     clock_t begin = clock();
 
+    /********************************************************************************/
 
+    //options:
     int dynamic = 0;
-    System *system = setupSystem("CO2",dynamic);
+    string method = "rhf";
 
-    if(dynamic)
-    {
-        BOMD boSolver(system, rank, nProcs);
-        boSolver.runDynamics();
 
+    //Setup system:
+    System *system = setupSystem("SiO4",dynamic);
+
+
+    //Choose method:
+    HFsolver* solver;
+    if(method == "rhf"){
+        solver = new RHF(system, rank, nProcs);
+    }else if(method == "uhf"){
+        solver = new UHF(system, rank, nProcs);
     }else{
-        RHF *solver = new RHF(system, rank, nProcs);
-        solver->runSolver();
+        cerr << "unknown method!" << endl;
+        exit(0);
     }
 
 
+    //Choose run:
+    if(dynamic)
+    {
+        BOMD boSolver(system, solver, rank, nProcs);
+        boSolver.runDynamics();
+
+    }else{
+        solver->runSolver();
+    }
+
+    /********************************************************************************/
     clock_t end = clock();
     if(rank==0){
         cout << "-------------------------------"  << endl;
@@ -72,7 +91,7 @@ System* setupSystem(string name, int dynamic=0)
         core.push_back(new BasisSet("infiles/turbomole/Li_3-21G"));
 
     }else if(name =="O2"){
-        nElectrons = 8;
+        nElectrons = 16;
         coreMass = {16 , 16};
         coreCharges = {8 , 8};
         corePos.push_back({-1.14, 0.0, 0.0});
@@ -85,10 +104,10 @@ System* setupSystem(string name, int dynamic=0)
         coreCharges = {8 , 1, 1};
         coreMass = {16 , 1, 1};
         nElectrons = 10;
+        corePos.push_back({ 0.0, 0.0, 0.0});
         corePos.push_back({1.797, 0.0, 0.0});
         corePos.push_back({ -1.797*cos((180-104.45) *M_PI/180.0),
                             1.797*sin((180-104.45) *M_PI/180.0), 0.0});
-        corePos.push_back({ 0.0, 0.0, 0.0});
 
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));

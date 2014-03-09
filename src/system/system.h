@@ -17,13 +17,17 @@ namespace hf
 class System
 {
 public:
-    System(int nElectrons, int maxAngularMomentum);
+    System(const int& nSpinUpElectrons, const int& nSpinDownElectrons, const int& maxAngularMomentum);
+    System(const int& nElectrons, const int& maxAngularMomentum);
 
     vector<BasisSet *> m_basisSet;
 
     void addBasisSet(BasisSet *basisSet);
     int getTotalNumOfBasisFunc();
-    int getNumOfElectrons();
+    const int &getNumOfElectrons();
+    const int &getNumOfSpinUpElectrons();
+    const int &getNumOfSpinDownElectrons();
+
     int getNumOfCores();
 
     double getNucleiPotential();
@@ -46,7 +50,7 @@ private:
     vector<int > m_coreID;
     vector<int > m_cumSumContracted;
 
-    int m_nElectrons;
+    int m_nElectrons, m_nSpinUpElectrons,m_nSpinDownElectrons;
 };
 
 }

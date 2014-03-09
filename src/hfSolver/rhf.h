@@ -15,14 +15,13 @@ class RHF : public HFsolver
 public:
     RHF(System *system, const int &rank, const int &nProcs);
 
-    const mat& getFockMatrix();
-    const mat& getDensityMatrix() const;
     const mat& getExpansionCoeff() const;
+    field<mat> getFockMatrix();
+    field<mat> getDensityMatrix() const;
 
 private:
     mat m_F, m_C, m_P;
-    int m_nElectrons;
-    double m_fockEnergy;
+    vec m_fockEnergy;
 
 protected:
     void advance();
@@ -30,7 +29,7 @@ protected:
     void calculateEnergy();
     void updateFockMatrix();
     void calculateDensity();
-    void normalize();
+
 };
 
 }

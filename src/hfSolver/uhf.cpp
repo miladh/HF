@@ -9,27 +9,30 @@ UHF::UHF(System *system, const int &rank, const int &nProcs):
     m_Pu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Fd(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Cd(ones(m_nBasisFunctions,m_nBasisFunctions)),
-    m_Pd(zeros(m_nBasisFunctions,m_nBasisFunctions))
+    m_Pd(zeros(m_nBasisFunctions,m_nBasisFunctions)),
+    m_fockEnergyU(zeros(m_nBasisFunctions)),
+    m_fockEnergyD(zeros(m_nBasisFunctions))
 {
-    m_nSpinUpElectrons   = 5;
-    m_nSpinDownElectrons = 5;
     m_Pu(0,0) = 0.1;
 }
 
 
 void UHF::advance()
 {
-    double fockEnergyUOld, fockEnergyDOld;
-    double energyDiff = 1.0;
+    vec fockEnergyOld_U, fockEnergyOld_D;
+    double stdDeviation_U = 1.0;
+    double stdDeviation_D = 1.0;
     int step = 0;
     int maxStep = 100;
 
-    while (energyDiff > HFSOLVERTOLERANCE){
-        fockEnergyUOld = m_fockEnergyU;
-        fockEnergyDOld = m_fockEnergyD;
+    while (stdDeviation_U > HFSOLVERTOLERANCE && stdDeviation_D > HFSOLVERTOLERANCE){
+        fockEnergyOld_U = m_fockEnergyU;
+        fockEnergyOld_D = m_fockEnergyD;
         solveSingle();
-        energyDiff = max(fabs(fockEnergyUOld - m_fockEnergyU),fabs(fockEnergyDOld - m_fockEnergyD));
         updateFockMatrix();
+
+        stdDeviation_U = computeStdDeviation(m_fockEnergyU, fockEnergyOld_U);
+        stdDeviation_D = computeStdDeviation(m_fockEnergyD, fockEnergyOld_D);
 
         step+=1;
         if(step > maxStep){
@@ -39,7 +42,6 @@ void UHF::advance()
     }
 
 }
-
 
 void UHF::solveSingle()
 {
@@ -51,17 +53,24 @@ void UHF::solveSingle()
 
     eig_sym(eigVal, eigVec, V.t()*m_Fu*V);
     m_Cu = V*eigVec;
-    m_fockEnergyU = eigVal(0);
+    m_fockEnergyU = eigVal;
 
     eig_sym(eigVal, eigVec, V.t()*m_Fd*V);
     m_Cd = V*eigVec;
-    m_fockEnergyD = eigVal(0);
+    m_fockEnergyD = eigVal;
 
 
-    normalize();
+    normalize(m_Cu, m_nSpinUpElectrons);
+    normalize(m_Cd, m_nSpinDownElectrons);
 
     m_Pu = 0.5 * m_Pu + 0.5*m_Cu.cols(0, m_nSpinUpElectrons-1) * m_Cu.cols(0, m_nSpinUpElectrons-1).t();
     m_Pd = 0.5 * m_Pd + 0.5*m_Cd.cols(0, m_nSpinDownElectrons-1) * m_Cd.cols(0, m_nSpinDownElectrons-1).t();
+}
+
+void UHF::calculateEnergy()
+{
+    m_energy = 0.5 * accu( (m_Pu + m_Pd) % m_h + m_Fu % m_Pu + m_Fd % m_Pd)
+               + m_system->getNucleiPotential();
 }
 
 void UHF::updateFockMatrix()
@@ -83,26 +92,24 @@ void UHF::updateFockMatrix()
     }
 }
 
-void UHF::calculateEnergy()
+field<mat> UHF::getFockMatrix()
 {
-    m_energy = 0.5 * accu( (m_Pu + m_Pd) % m_h + m_Fu % m_Pu + m_Fd % m_Pd)
-               + m_system->getNucleiPotential();
+    updateFockMatrix();
+    field<mat> fockMatrices(2,1);
+    fockMatrices(0) = m_Fu;
+    fockMatrices(1) = m_Fd;
+    return fockMatrices;
+}
+
+field<mat> UHF::getDensityMatrix() const
+{
+    field<mat> densityMatrices(2,1);
+    densityMatrices(0) = m_Pu;
+    densityMatrices(1) = m_Pd;
+    return densityMatrices;
 }
 
 
-void UHF::normalize()
-{
-    double norm;
-    for (int i = 0; i < m_nSpinUpElectrons; i++){
-        norm = dot(m_Cu.col(i), m_S * m_Cu.col(i));
-        m_Cu.col(i) = m_Cu.col(i)/sqrt(norm);
-    }
-
-    for (int i = 0; i < m_nSpinDownElectrons; i++){
-        norm = dot(m_Cd.col(i), m_S * m_Cd.col(i));
-        m_Cd.col(i) = m_Cd.col(i)/sqrt(norm);
-    }
-}
 
 
 void UHF::calculateDensity()

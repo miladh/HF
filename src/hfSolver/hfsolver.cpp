@@ -7,7 +7,9 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_nProcs(nProcs),
     m_step(0),
     m_system(system),
-
+    m_nElectrons(system->getNumOfElectrons()),
+    m_nSpinUpElectrons(system->getNumOfSpinUpElectrons()),
+    m_nSpinDownElectrons(system->getNumOfSpinDownElectrons()),
     m_nBasisFunctions(system->getTotalNumOfBasisFunc()),
     m_S(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_h(zeros(m_nBasisFunctions,m_nBasisFunctions))
@@ -81,7 +83,21 @@ void HFsolver::setupTwoParticleMatrix()
 
 }
 
+const mat& HFsolver::normalize(mat &C, const int& HOcoeff)
+{
+    double norm;
+    for (int i = 0; i < HOcoeff; i++){
+        norm = dot(C.col(i), m_S * C.col(i));
+        C.col(i) = C.col(i)/sqrt(norm);
+    }
 
+    return C;
+}
+
+double HFsolver::computeStdDeviation(const vec& fockEnergies, const vec& fockEnergiesOld)
+{
+    return sum(abs(fockEnergies - fockEnergiesOld)) / fockEnergies.n_elem;
+}
 
 const double& HFsolver::getEnergy() const
 {

@@ -2,12 +2,12 @@
 
 using namespace hf;
 
-BOMD::BOMD(System *system, const int &rank, const int &nProcs):
+BOMD::BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),
     m_system(system),
+    m_solver(solver),
     m_nCores(system->getNumOfCores()),
-    m_nElectrons(system->getNumOfElectrons()),
     m_nOrbitals(system->getTotalNumOfBasisFunc())
 
 
@@ -16,27 +16,6 @@ BOMD::BOMD(System *system, const int &rank, const int &nProcs):
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 
-    //initialize:
-    m_dh.set_size(m_nOrbitals,m_nOrbitals);
-    m_dS.set_size(m_nOrbitals,m_nOrbitals);
-    m_dQ.set_size(m_nOrbitals, m_nOrbitals);
-    for(int i = 0; i < m_nOrbitals; i++ ){
-        for(int j = 0; j < m_nOrbitals; j++ ){
-            m_dh(i,j)  = zeros<rowvec>(3);
-            m_dS(i,j)  = zeros<rowvec>(3);
-            m_dQ(i,j).set_size(m_nOrbitals,m_nOrbitals);
-        }
-    }
-
-    for(int i = 0; i < m_nOrbitals; i++ ){
-        for(int j = 0; j < m_nOrbitals; j++ ){
-            for(int k = 0; k < m_nOrbitals; k++ ){
-                for(int l = 0; l < m_nOrbitals; l++ ){
-                    m_dQ(i,j)(k,l) = zeros<rowvec>(3);
-                }
-            }
-        }
-    }
 
     pos    = zeros(m_nCores, 3);
     posNew = zeros(m_nCores, 3);
@@ -47,7 +26,6 @@ BOMD::BOMD(System *system, const int &rank, const int &nProcs):
     }
 
     posOld = pos;
-    m_solver = new RHF(m_system, m_rank, m_nProcs);
     m_GD = new GeometricalDerivative(m_system,m_solver);
 }
 
@@ -68,9 +46,7 @@ void BOMD::runDynamics()
 void BOMD::solveSingleStep()
 {
     m_solver->runSolver();
-    m_P = m_solver->getDensityMatrix();
     m_energy  = m_solver->getEnergy();
-
     for(int core = 0; core < m_nCores; core++){
         m_energyGradient = m_GD->energyGradient(core);
         IntegrateCoreForwardInTime(core);
@@ -99,15 +75,16 @@ void BOMD::updateCorePositions()
 
 }
 
-rowvec BOMD::getEnergyGradient() const
-{
-    return m_energyGradient;
-}
-
 double BOMD::getEnergy() const
 {
     return m_energy;
 }
+const rowvec& BOMD::getEnergyGradient() const
+{
+    return m_energyGradient;
+}
+
+
 
 
 void BOMD::writeToFile(mat R, int currentTimeStep) {

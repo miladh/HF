@@ -24,7 +24,7 @@ public:
 private:
     int m_rank, m_nProcs;
     System* m_system;
-    RHF *m_solver;
+    HFsolver *m_solver;
 
     int m_nCores, m_nElectrons, m_nOrbitals;
     int m_nSteps, m_eSteps;

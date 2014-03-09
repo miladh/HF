@@ -2,8 +2,21 @@
 
 using namespace hf;
 
-System::System(int nElectrons, int maxAngularMomentum):
-    m_nElectrons(nElectrons)
+System::System(const int& nElectrons, const int& maxAngularMomentum):
+    m_nElectrons(nElectrons),
+    m_nSpinUpElectrons(nElectrons/2),
+    m_nSpinDownElectrons(nElectrons/2)
+
+{
+    integrator.setMaxAngularMomentum(maxAngularMomentum);
+    m_cumSumContracted.push_back(0);
+}
+
+System::System(const int& nSpinUpElectrons, const int& nSpinDownElectrons, const int& maxAngularMomentum):
+    m_nElectrons(nSpinUpElectrons + nSpinDownElectrons),
+    m_nSpinUpElectrons(nSpinUpElectrons),
+    m_nSpinDownElectrons(nSpinDownElectrons)
+
 {
     integrator.setMaxAngularMomentum(maxAngularMomentum);
     m_cumSumContracted.push_back(0);
@@ -14,10 +27,19 @@ int System::getTotalNumOfBasisFunc()
     return m_coreID.size();
 }
 
-
-int System::getNumOfElectrons()
+const int& System::getNumOfElectrons()
 {
     return m_nElectrons;
+}
+
+const int& System::getNumOfSpinUpElectrons()
+{
+    return m_nSpinDownElectrons;
+}
+
+const int& System::getNumOfSpinDownElectrons()
+{
+    return m_nSpinDownElectrons;
 }
 
 int System::getNumOfCores()

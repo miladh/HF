@@ -16,20 +16,21 @@ namespace hf {
 class GeometricalDerivative
 {
 public:
-    GeometricalDerivative(System *system, RHF *solver);
-    rowvec energyGradient(const int core);
+    GeometricalDerivative(System *system, HFsolver *solver);
+    const rowvec &energyGradient(const int core);
 
 private:
     System *m_system;
-    RHF *m_solver;
-    field<field<rowvec>>m_dQ;
-    field<rowvec> m_dS, m_dh;
+    HFsolver *m_solver;
+    rowvec3 m_gradE;
+    field<field<rowvec3>>m_dQ;
+    field<rowvec3> m_dS, m_dh;
 
     int m_nBasisFunctions;
     int m_differentiationCore;
 
     void setupDerivativeMatrices();
-    rowvec calculateEnergyGradient();
+    void calculateEnergyGradient();
 };
 
 }

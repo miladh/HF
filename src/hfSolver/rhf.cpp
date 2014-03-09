@@ -7,25 +7,22 @@ RHF::RHF(System *system, const int &rank, const int &nProcs):
     m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_C(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_P(zeros(m_nBasisFunctions,m_nBasisFunctions)),
-    m_nElectrons(system->getNumOfElectrons())
+    m_fockEnergy(zeros(m_nBasisFunctions))
 
 {
-//    m_nSpinUpElectrons = 1;
-//    m_nSpinDownElectrons =1;
-//    m_nElectrons = m_nSpinUpElectrons + m_nSpinDownElectrons;
 }
 
 void RHF::advance()
 {
-    double fockEnergyOld;
-    double energyDiff = 1.0;
+    vec fockEnergyOld;
+    double stdDeviation= 1.0;
     int step = 0;
     int maxStep = 100;
 
-    while (energyDiff > HFSOLVERTOLERANCE){
+    while (stdDeviation  > HFSOLVERTOLERANCE){
         fockEnergyOld = m_fockEnergy;
         solveSingle();
-        energyDiff = fabs(fockEnergyOld - m_fockEnergy);
+        stdDeviation = computeStdDeviation(m_fockEnergy, fockEnergyOld);
         updateFockMatrix();
 
         step+=1;
@@ -48,10 +45,10 @@ void RHF::solveSingle()
 
     m_C = V*eigVec;
 
-    normalize();
+    normalize(m_C, m_nElectrons/2);
 
     m_P = 0.5 * m_P + m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
-    m_fockEnergy = eigVal(0);
+    m_fockEnergy = eigVal;
 }
 
 void RHF::updateFockMatrix()
@@ -75,33 +72,26 @@ void RHF::calculateEnergy()
     m_energy = 0.5 * accu(m_P % (m_h + m_F)) + m_system->getNucleiPotential();
 }
 
-
-void RHF::normalize()
-{
-    double norm;
-    for (int i = 0; i < m_nElectrons/2; i++){
-        norm = dot(m_C.col(i), m_S * m_C.col(i));
-        m_C.col(i) = m_C.col(i)/sqrt(norm);
-    }
-}
-
 const mat& RHF::getExpansionCoeff() const
 {
     return m_C;
 }
 
 
-const mat& RHF::getFockMatrix()
+field<mat> RHF::getFockMatrix()
 {
     updateFockMatrix();
-    return m_F;
+    field<mat> fockMatrices(1,1);
+    fockMatrices(0,0) = m_F;
+    return fockMatrices;
 }
 
-const mat& RHF::getDensityMatrix() const
+field<mat> RHF::getDensityMatrix() const
 {
-    return m_P;
+    field<mat> densityMatrices(1,1);
+    densityMatrices(0,0) = m_P;
+    return densityMatrices;
 }
-
 void RHF::calculateDensity()
 {
 

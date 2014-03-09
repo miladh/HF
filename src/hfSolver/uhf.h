@@ -10,11 +10,19 @@ using namespace std;
 
 namespace hf {
 
-
 class UHF : public HFsolver
 {
 public:
     UHF(System *system, const int &rank, const int &nProcs);
+
+
+    field<mat> getFockMatrix();
+    field<mat> getDensityMatrix() const;
+
+private:
+    vec m_fockEnergyU, m_fockEnergyD;
+    mat m_Fu, m_Cu, m_Pu;
+    mat m_Fd, m_Cd, m_Pd;
 
 protected:
     void advance();
@@ -22,12 +30,7 @@ protected:
     void calculateEnergy();
     void updateFockMatrix();
     void calculateDensity();
-    void normalize();
 
-private:
-    double m_fockEnergyU, m_fockEnergyD;
-    mat m_Fu, m_Cu, m_Pu;
-    mat m_Fd, m_Cd, m_Pd;
 
 };
 

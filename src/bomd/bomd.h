@@ -17,19 +17,20 @@ namespace hf{
 class BOMD
 {
 public:
-    BOMD(System *system, const int &rank, const int &nProcs);
+    BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs);
 
     void runDynamics();
     void solveSingleStep();
     double getEnergy() const;
-    rowvec getEnergyGradient() const;
+
+    const rowvec& getEnergyGradient() const;
 
 private:
     int m_rank, m_nProcs;
     System* m_system;
-    RHF *m_solver;
+    HFsolver *m_solver;
     GeometricalDerivative* m_GD;
-    int m_nCores, m_nElectrons, m_nOrbitals;
+    int m_nCores,  m_nOrbitals;
     int m_nSteps;
 
     double m_dtn;
@@ -37,16 +38,8 @@ private:
     double m_energy, m_fockEnergy;
 
 
-    rowvec m_energyGradient, m_pulayForce;
-    mat m_S, m_h, m_P;
+    rowvec m_energyGradient;
     mat pos, posNew, posOld;
-
-    field<mat> m_Q;
-    field<field<rowvec>>m_dQ;
-    field<rowvec> m_dS, m_dh;
-    field<rowvec> m_pulayS, m_pulayh;
-    field<field<rowvec>>m_pulayQ;
-
 
     void IntegrateCoreForwardInTime(int core);
     void writeToFile(mat R, int currentTimeStep);
