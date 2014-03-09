@@ -56,7 +56,6 @@ void HFsolver::setupOneParticleMatrix()
     m_S = symmatu(m_S);
     m_h = symmatu(m_h);
 
-
 }
 
 
@@ -84,21 +83,21 @@ void HFsolver::setupTwoParticleMatrix()
 
 
 
-double HFsolver::getEnergy() const
+const double& HFsolver::getEnergy() const
 {
     return m_energy;
 }
 
-field<mat> HFsolver::getQmatrix(){
+const field<mat>& HFsolver::getQmatrix(){
 
     return m_Q;
 }
-mat HFsolver::gethmatrix(){
+const mat& HFsolver::gethmatrix(){
 
     return m_h;
 }
 
-mat HFsolver::getSmatrix(){
+const mat& HFsolver::getSmatrix(){
 
     return m_S;
 }

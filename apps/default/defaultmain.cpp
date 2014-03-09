@@ -8,253 +8,31 @@ using namespace arma;
 using namespace std;
 using namespace hf;
 
+System* setupSystem(string name, int dynamic);
 
 int main(int argc, char **argv)
 {
 
     MPI::Init(argc, argv);
-
-    // get the number of processes, and the id of this process
     int rank = MPI::COMM_WORLD.Get_rank();
     int nProcs = MPI::COMM_WORLD.Get_size();
 
     clock_t begin = clock();
-    int nElectrons;
-    rowvec coreCharges,coreMass, A, B, C, D, E;
 
 
-    BasisSet *basisCoreA;
-    BasisSet *basisCoreB;
-    BasisSet *basisCoreC;
-    BasisSet *basisCoreD;
-    BasisSet *basisCoreE;
-
-
-    int m_case = 1;
     int dynamic = 0;
-    int cpmd = 0;
+    System *system = setupSystem("H2",dynamic);
 
-    if(m_case == 1){
-        //Hydrogen molecule
-        nElectrons = 2;
-        A = {-0.5, 0.0, 0.0};
-        B = {0.5, 0.0, 0.0};
-        coreCharges = {1 , 1};
-        coreMass = {1 , 1};
-        basisCoreA = new BasisSet("infiles/turbomole/H_Qzeta");
-        basisCoreB = new BasisSet("infiles/turbomole/H_Qzeta");
+    if(dynamic)
+    {
+        BOMD boSolver(system, rank, nProcs);
+        boSolver.runDynamics();
 
-    }else if(m_case==2){
-        //Hydrogen molecule
-        nElectrons = 2;
-        A = {-2.5, 0.0, 0.0};
-        B = {2.5, 0.0, 0.0};
-        coreCharges = {1 , 1};
-        coreMass = {1 , 1};
-        basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/H_3-21G");
-
-    }else if(m_case==3){
-        //Hydrogen molecule
-        nElectrons = 2;
-        A = {-0.69, 0.0, 0.0};
-        B = {0.69, 0.0, 0.0};
-        coreCharges = {1 , 1};
-        coreMass = {1 , 1};
-        basisCoreA = new BasisSet("infiles/turbomole/H_4-31G");
-        basisCoreB = new BasisSet("infiles/turbomole/H_4-31G");
-
-    }else if(m_case==4){
-        //Lithium molecule
-        nElectrons = 6;
-        A = {-2.5255, 0.0, 0.0};
-        B = { 2.5255, 0.0, 0.0};
-        coreCharges = {3 , 3};
-        coreMass = {7 , 7};
-        basisCoreA = new BasisSet("infiles/turbomole/Li_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/Li_3-21G");
-
-    }else if(m_case==5){
-        //Oxygen molecule
-        nElectrons = 8;
-        A = {-1.14, 0.0, 0.0};
-        B = { 1.14, 0.0, 0.0};
-        coreMass = {16 , 16};
-        coreCharges = {8 , 8};
-        basisCoreA = new BasisSet("infiles/turbomole/O_4-31G");
-        basisCoreB = new BasisSet("infiles/turbomole/O_4-31G");
-
-    }else if(m_case==6){
-        double l = 1.797;
-        double x = l*cos((180-104.45) *M_PI/180.0);
-        double y = l*sin((180-104.45) *M_PI/180.0);
-
-        //Water molecule
-        nElectrons = 10;
-        A = {l, 0.0, 0.0};
-        B = { -x, y, 0.0};
-        C = { 0.0, 0.0, 0.0};
-
-        coreCharges = {1 , 1, 8};
-        coreMass = {1 , 1, 16};
-
-        basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/H_3-21G");
-        basisCoreC = new BasisSet("infiles/turbomole/O_3-21G");
-
-
-    }else if(m_case==7){
-        //Carbon dioxide
-        nElectrons = 22;
-        A = {-2.2, 0.0, 0.0};
-        B = { 2.2, 0.0, 0.0};
-        C = { 0.0, 0.0, 0.0};
-        coreCharges = {8 , 8, 6};
-        coreMass = {16 , 16, 12};
-        basisCoreA = new BasisSet("infiles/turbomole/O_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/O_3-21G");
-        basisCoreC = new BasisSet("infiles/turbomole/C_3-21G");
-
-    }else if(m_case==8){
-        //SiO4
-        nElectrons = 46;
-        A = {0.0, 0.0, 0.0};
-        B = {1.0, 1.0, 1.0};
-        C = {-1.0, -1.0, 1.0};
-        D = {1.0, -1.0, -1.0};
-        E = {-1.0, 1.0, -1.0};
-
-        B *=4.9/sqrt(3);C *=4.9/sqrt(3);D *=4.9/sqrt(3);E *=4.9/sqrt(3);
-
-        coreCharges = {14, 8 , 8, 8, 8};
-        coreMass = {28 , 16, 16, 16, 16};
-
-        basisCoreA = new BasisSet("infiles/turbomole/Si_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/O_3-21G");
-        basisCoreC = new BasisSet("infiles/turbomole/O_3-21G");
-        basisCoreD = new BasisSet("infiles/turbomole/O_3-21G");
-        basisCoreE = new BasisSet("infiles/turbomole/O_3-21G");
-
-    }else if(m_case==9){
-        //CH4
-        nElectrons = 10;
-        A = {0.0, 0.0, 0.0};
-        B = {1.0, 1.0, 1.0};
-        C = {-1.0, -1.0, 1.0};
-        D = {1.0, -1.0, -1.0};
-        E = {-1.0, 1.0, -1.0};
-
-        B *=2.043/sqrt(3);C *=2.043/sqrt(3);D *=2.043/sqrt(3);E *=2.043/sqrt(3);
-
-        coreCharges = {6, 1 , 1, 1, 1};
-        coreMass = {6 , 1, 1, 1, 1};
-
-        basisCoreA = new BasisSet("infiles/turbomole/C_4-31G");
-        basisCoreB = new BasisSet("infiles/turbomole/H_4-31G");
-        basisCoreC = new BasisSet("infiles/turbomole/H_4-31G");
-        basisCoreD = new BasisSet("infiles/turbomole/H_4-31G");
-        basisCoreE = new BasisSet("infiles/turbomole/H_4-31G");
-
-    }else if(m_case==10){
-        //2Fe-2S
-        nElectrons = 84;
-        A = {0.0, 1.0 , 0.0};
-        B = {1.0 , 0.0, 0.0};
-        C = {0.0, 0.0, 0.0};
-        D = {1.0, 1.0, 0.0};
-
-//        B *=4.556/sqrt(2); C *=2.043/sqrt(3); D *=2.043/sqrt(3);
-
-        coreCharges = {26, 26 , 16, 16};
-        coreMass = {56 , 56, 32, 32};
-
-        basisCoreA = new BasisSet("infiles/turbomole/Fe_3-21G");
-        basisCoreB = new BasisSet("infiles/turbomole/Fe_3-21G");
-        basisCoreC = new BasisSet("infiles/turbomole/S_3-21G");
-        basisCoreD = new BasisSet("infiles/turbomole/S_3-21G");
-    }
-    /********************************************************/
-
-    int maxAngularMomentum = basisCoreA->getAngularMomentum();
-    basisCoreA->setCoreCharge(coreCharges(0));
-    basisCoreA->setCoreMass(coreMass(0));
-    basisCoreA->setCorePosition(A);
-
-    basisCoreB->setCorePosition(B);
-    basisCoreB->setCoreCharge(coreCharges(1));
-    basisCoreB->setCoreMass(coreMass(1));
-
-
-    if(m_case == 6 ||m_case == 7 ){
-        maxAngularMomentum = basisCoreC->getAngularMomentum();
-        basisCoreC->setCorePosition(C);
-        basisCoreC->setCoreCharge(coreCharges(2));
-        basisCoreC->setCoreMass(coreMass(2));
-
-    }
-
-
-    if(m_case==10){
-        basisCoreC->setCorePosition(C);
-        basisCoreC->setCoreCharge(coreCharges(2));
-        basisCoreC->setCoreMass(coreMass(2));
-
-        basisCoreD->setCorePosition(D);
-        basisCoreD->setCoreCharge(coreCharges(3));
-        basisCoreD->setCoreMass(coreMass(3));
-    }
-
-    if(m_case==8 ||m_case == 9){
-        basisCoreC->setCorePosition(C);
-        basisCoreC->setCoreCharge(coreCharges(2));
-        basisCoreC->setCoreMass(coreMass(2));
-
-        basisCoreD->setCorePosition(D);
-        basisCoreD->setCoreCharge(coreCharges(3));
-        basisCoreD->setCoreMass(coreMass(3));
-
-        basisCoreE->setCorePosition(E);
-        basisCoreE->setCoreCharge(coreCharges(4));
-        basisCoreE->setCoreMass(coreMass(4));
-    }
-
-
-    if(dynamic){
-        maxAngularMomentum +=1;
-    }
-
-    System *system = new System(nElectrons, maxAngularMomentum);
-    system->addBasisSet(basisCoreA);
-    system->addBasisSet(basisCoreB);
-
-    if(m_case == 6 || m_case == 7 ){
-        system->addBasisSet(basisCoreC);
-    }
-
-    if(m_case == 10){
-        system->addBasisSet(basisCoreC);
-        system->addBasisSet(basisCoreD);
-    }
-
-    if(m_case == 8 ||m_case == 9 ){
-        system->addBasisSet(basisCoreC);
-        system->addBasisSet(basisCoreD);
-        system->addBasisSet(basisCoreE);
-    }
-
-    if(dynamic){
-        if(cpmd){
-            CPMD cpSolver(system, rank, nProcs);
-            cpSolver.runDynamics();
-
-        }else{
-            BOMD boSolver(system, rank, nProcs);
-            boSolver.runDynamics();
-        }
     }else{
         RHF *solver = new RHF(system, rank, nProcs);
         solver->runSolver();
     }
+
 
     clock_t end = clock();
     if(rank==0){
@@ -264,6 +42,137 @@ int main(int argc, char **argv)
 
     MPI::Finalize();
     return 0;
+
 }
 
+
+System* setupSystem(string name, int dynamic=0)
+{
+    int nElectrons;
+    rowvec coreCharges,coreMass;
+    vector<BasisSet*> core;
+    vector<rowvec3> corePos;
+
+    if(name =="H2"){
+        nElectrons = 2;
+        coreCharges = {1 , 1};
+        coreMass = {1 , 1};
+        corePos.push_back({ -0.5, 0, 0 });
+        corePos.push_back({  0.5, 0, 0 });
+        core.push_back(new BasisSet("infiles/turbomole/H_Qzeta"));
+        core.push_back(new BasisSet("infiles/turbomole/H_Qzeta"));
+
+    }else if(name =="Li2"){
+        nElectrons = 6;
+        coreCharges = {3 , 3};
+        coreMass = {7 , 7};
+        corePos.push_back({-2.5255, 0.0, 0.0});
+        corePos.push_back({ 2.5255, 0.0, 0.0});
+        core.push_back(new BasisSet("infiles/turbomole/Li_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/Li_3-21G"));
+
+    }else if(name =="O2"){
+        nElectrons = 8;
+        coreMass = {16 , 16};
+        coreCharges = {8 , 8};
+        corePos.push_back({-1.14, 0.0, 0.0});
+        corePos.push_back({ 1.14, 0.0, 0.0});
+        core.push_back(new BasisSet("infiles/turbomole/O_4-31G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_4-31G"));
+
+    }else if(name =="H2O"){
+        nElectrons = 10;
+        coreCharges = {8 , 1, 1};
+        coreMass = {16 , 1, 1};
+        nElectrons = 10;
+        corePos.push_back({1.797, 0.0, 0.0});
+        corePos.push_back({ -1.797*cos((180-104.45) *M_PI/180.0),
+                            1.797*sin((180-104.45) *M_PI/180.0), 0.0});
+        corePos.push_back({ 0.0, 0.0, 0.0});
+
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+
+    }else if(name =="CO2"){
+        nElectrons = 22;
+        coreCharges = {8 , 8, 6};
+        coreMass = {16 , 16, 12};
+        corePos.push_back({-2.2, 0.0, 0.0});
+        corePos.push_back({ 2.2, 0.0, 0.0});
+        corePos.push_back({ 0.0, 0.0, 0.0});
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+
+
+    }else if(name =="CH4"){
+        nElectrons = 10;
+        coreCharges = {6, 1 , 1, 1, 1};
+        coreMass = {6 , 1, 1, 1, 1};
+        corePos.push_back({0.0, 0.0, 0.0});
+        corePos.push_back({2.043/sqrt(3), 2.043/sqrt(3), 2.043/sqrt(3)});
+        corePos.push_back({-2.043/sqrt(3), -2.043/sqrt(3), 2.043/sqrt(3)});
+        corePos.push_back({2.043/sqrt(3), -2.043/sqrt(3), -2.043/sqrt(3)});
+        corePos.push_back({-2.043/sqrt(3), 2.043/sqrt(3), -2.043/sqrt(3)});
+        core.push_back(new BasisSet("infiles/turbomole/C_4-31G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_4-31G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_4-31G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_4-31G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_4-31G"));
+
+
+    }else if(name =="SiO4"){
+        nElectrons = 46;
+        coreCharges = {14, 8 , 8, 8, 8};
+        coreMass = {28 , 16, 16, 16, 16};
+        corePos.push_back({0.0, 0.0, 0.0});
+        corePos.push_back({4.9/sqrt(3), 4.9/sqrt(3), 4.9/sqrt(3)});
+        corePos.push_back({-4.9/sqrt(3), -4.9/sqrt(3), 4.9/sqrt(3)});
+        corePos.push_back({4.9/sqrt(3), -4.9/sqrt(3), -4.9/sqrt(3)});
+        corePos.push_back({-4.9/sqrt(3), 4.9/sqrt(3), -4.9/sqrt(3)});
+        core.push_back(new BasisSet("infiles/turbomole/Si_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+
+    }else if(name =="Fe2S2"){
+        nElectrons = 84;
+        coreCharges = {26, 26 , 16, 16};
+        coreMass = {56 , 56, 32, 32};
+        corePos.push_back({0.0, 1.0 , 0.0});
+        corePos.push_back({1.0 , 0.0, 0.0});
+        corePos.push_back({0.0, 0.0, 0.0});
+        corePos.push_back({1.0, 1.0, 0.0});
+        core.push_back(new BasisSet("infiles/turbomole/Fe_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/Fe_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/S_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/S_3-21G"));
+
+    }else{
+        cerr << "unknown system!" << endl;
+        exit(0);
+    }
+
+
+    int maxAngularMomentum = core[0]->getAngularMomentum();
+    if(dynamic){
+        maxAngularMomentum += 1;
+    }
+
+    System *system = new System(nElectrons, maxAngularMomentum);
+
+    for (uint i = 0; i < core.size(); i++){
+        core[i]->setCorePosition(corePos[i]);
+        core[i]->setCoreCharge(coreCharges(i));
+        core[i]->setCoreMass(coreMass(i));
+        system->addBasisSet(core[i]);
+    }
+
+
+    return system;
+
+
+}
 

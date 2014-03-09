@@ -18,11 +18,11 @@ public:
    HFsolver(System *system, const int &rank, const int &nProcs);
    void runSolver();
 
-   field<mat> getQmatrix();
-   mat gethmatrix();
-   mat getSmatrix();
+   const field<mat> &getQmatrix();
+   const mat& gethmatrix();
+   const mat& getSmatrix();
 
-   double getEnergy() const;
+   const double &getEnergy() const;
    void setupTwoParticleMatrix();
    void setupOneParticleMatrix();
 

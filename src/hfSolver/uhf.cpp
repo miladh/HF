@@ -17,7 +17,6 @@ UHF::UHF(System *system, const int &rank, const int &nProcs):
 }
 
 
-
 void UHF::advance()
 {
     double fockEnergyUOld, fockEnergyDOld;
@@ -138,14 +137,13 @@ void UHF::calculateDensity()
 
                 for(int p = 0; p < m_nBasisFunctions; p++){
                     double innerProduct = m_system->gaussianProduct(p, p, x(i), y(j), z(k));
-                    sumDensity += (m_Pu(p,p) + m_Pu(p,p)) * innerProduct * dr;
-                    m_density(j,i,k) += (m_Pu(p,p) + m_Pu(p,p)) * innerProduct ;
-                    m_density(j,i,k) += (m_Pu(p,p) + m_Pu(p,p)) * innerProduct ;
+                    sumDensity += (m_Pu(p,p) + m_Pd(p,p)) * innerProduct * dr;
+                    m_density(j,i,k) += (m_Pu(p,p) + m_Pd(p,p)) * innerProduct ;
 
                     for(int q = p+1; q < m_nBasisFunctions; q++){
                         innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
-                        sumDensity += 2.0 * (m_Pu(p,p) + m_Pu(p,p)) * innerProduct * dr;
-                        m_density(j,i,k) += 2.0 * (m_Pu(p,p) + m_Pu(p,p)) * innerProduct ;
+                        sumDensity += 2.0 * (m_Pu(p,p) + m_Pd(p,p)) * innerProduct * dr;
+                        m_density(j,i,k) += 2.0 * (m_Pu(p,p) + m_Pd(p,p)) * innerProduct ;
 
                     }
                 }

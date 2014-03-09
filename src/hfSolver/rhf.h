@@ -15,9 +15,9 @@ class RHF : public HFsolver
 public:
     RHF(System *system, const int &rank, const int &nProcs);
 
-    mat getFockMatrix();
-    mat getDensityMatrix() const;
-    mat getExpansionCoeff() const;
+    const mat& getFockMatrix();
+    const mat& getDensityMatrix() const;
+    const mat& getExpansionCoeff() const;
 
 private:
     mat m_F, m_C, m_P;

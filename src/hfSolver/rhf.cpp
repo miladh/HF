@@ -51,8 +51,6 @@ void RHF::solveSingle()
     normalize();
 
     m_P = 0.5 * m_P + m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
-//    m_P = 2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
-
     m_fockEnergy = eigVal(0);
 }
 
@@ -87,21 +85,19 @@ void RHF::normalize()
     }
 }
 
-mat RHF::getExpansionCoeff() const
+const mat& RHF::getExpansionCoeff() const
 {
     return m_C;
 }
 
 
-
-
-mat RHF::getFockMatrix()
+const mat& RHF::getFockMatrix()
 {
     updateFockMatrix();
     return m_F;
 }
 
-mat RHF::getDensityMatrix() const
+const mat& RHF::getDensityMatrix() const
 {
     return m_P;
 }
