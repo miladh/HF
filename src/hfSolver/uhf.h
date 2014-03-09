@@ -20,9 +20,9 @@ public:
     field<mat> getDensityMatrix() const;
 
 private:
-    vec m_fockEnergyU, m_fockEnergyD;
     mat m_Fu, m_Cu, m_Pu;
     mat m_Fd, m_Cd, m_Pd;
+    vec m_fockEnergyU, m_fockEnergyD;
 
 protected:
     void advance();

@@ -8,7 +8,7 @@
 int main()
 {
     int result = 0;
-    bool runAllTests = 0;
+    bool runAllTests = 1;
 
     UnitTest::TestReporterStdout reporter;
     UnitTest::TestRunner runner(reporter);

@@ -4,7 +4,7 @@
 #include <boost/regex.hpp>
 #include <boost/config.hpp>
 
-#define HFSOLVERTOLERANCE 1.0E-9
+#define HFSOLVERTOLERANCE 1.0E-8
 #define PROTONMASS 1836
 #define h 1.0E-5
 
