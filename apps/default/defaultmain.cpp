@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
 
     int dynamic = 0;
-    System *system = setupSystem("H2",dynamic);
+    System *system = setupSystem("CO2",dynamic);
 
     if(dynamic)
     {
