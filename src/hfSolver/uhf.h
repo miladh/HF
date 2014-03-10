@@ -23,7 +23,10 @@ private:
     mat m_Fu, m_Cu, m_Pu;
     mat m_Fd, m_Cd, m_Pd;
     vec m_fockEnergyU, m_fockEnergyD;
+    vector<mat> m_errorsU, m_fockMatricesU;
+    vector<mat> m_errorsD, m_fockMatricesD;
 
+    void DIISprocedure();
 protected:
     void advance();
     void solveSingle();

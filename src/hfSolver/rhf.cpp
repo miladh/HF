@@ -6,7 +6,7 @@ RHF::RHF(System *system, const int &rank, const int &nProcs):
     HFsolver(system, rank, nProcs),
     m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_C(ones(m_nBasisFunctions,m_nBasisFunctions)),
-    m_P(zeros(m_nBasisFunctions,m_nBasisFunctions)),
+    m_P(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_fockEnergy(zeros(m_nBasisFunctions))
 
 {
@@ -17,7 +17,7 @@ void RHF::advance()
     vec fockEnergyOld;
     double stdDeviation= 1.0;
     int step = 0;
-    int maxStep = 1000;
+    int maxStep = 200;
 
     while (stdDeviation  > HFSOLVERTOLERANCE){
         fockEnergyOld = m_fockEnergy;
@@ -31,15 +31,16 @@ void RHF::advance()
             exit(1);
         }
     }
+    cout << step << endl;
 
 }
 void RHF::solveSingle()
 {
-    vec eigVal;
-    mat eigVec;
+    vec eigVal; mat eigVec, V;
     eig_sym(eigVal, eigVec, m_S);
+    V = eigVec*diagmat(1.0/sqrt(eigVal));
 
-    mat V = eigVec*diagmat(1.0/sqrt(eigVal));
+//    DIISprocedure();
 
     eig_sym(eigVal, eigVec, V.t() * m_F * V);
 
@@ -50,6 +51,37 @@ void RHF::solveSingle()
     m_P =  2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
     m_fockEnergy = eigVal;
 }
+
+void RHF::DIISprocedure()
+{
+    m_errors.push_back(m_F*m_P*m_S - m_S*m_P*m_F);
+    m_fockMatrices.push_back(m_F);
+
+
+    if(m_errors.size() > 20){
+        m_errors.erase(m_errors.begin());
+        m_fockMatrices.erase(m_fockMatrices.begin());
+        mat A = zeros(m_errors.size()+1, m_errors.size()+1);
+
+        for(uint i = 0; i < m_errors.size(); i++){
+            A(i, m_errors.size()) = -1;
+            A(m_errors.size(), i) = -1;
+
+            for(uint j = 0; j < m_errors.size(); j++){
+                A(i,j) = trace(m_errors.at(i) * m_errors.at(j));
+            }
+        }
+
+        vec b = zeros(A.n_rows);
+        b(b.n_elem -1) = -1.0;
+        b = inv(A) * b;
+
+        for(uint i = 0; i < b.n_elem - 1; i++){
+            m_F += b(i) * m_fockMatrices.at(i);
+        }
+    }
+}
+
 
 void RHF::updateFockMatrix()
 {

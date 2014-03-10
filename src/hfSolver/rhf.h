@@ -22,7 +22,9 @@ public:
 private:
     mat m_F, m_C, m_P;
     vec m_fockEnergy;
+    vector<mat> m_errors, m_fockMatrices;
 
+    void DIISprocedure();
 protected:
     void advance();
     void solveSingle();

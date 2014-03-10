@@ -1,4 +1,5 @@
 #include "hfsolver.h"
+#include <omp.h>
 
 using namespace hf;
 
@@ -97,8 +98,8 @@ void HFsolver::setupTwoParticleMatrix()
             }
         }
     }
-
 }
+
 
 const mat& HFsolver::normalize(mat &C, const int& HOcoeff)
 {

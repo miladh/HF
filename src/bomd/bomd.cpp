@@ -12,7 +12,7 @@ BOMD::BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs)
 
 
 {
-    m_nSteps = 300;
+    m_nSteps = 1;
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 
