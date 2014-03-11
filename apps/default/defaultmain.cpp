@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     /********************************************************************************/
 
     //options:
-    int dynamic = 0;
+    int dynamic = 1;
     string method = "rhf";
     string chemicalSystem = "SiO4";
 
