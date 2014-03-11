@@ -1,5 +1,5 @@
 #include "hfsolver.h"
-#include <omp.h>
+
 
 using namespace hf;
 
@@ -37,8 +37,10 @@ void HFsolver::runSolver()
 
     clock_t end = clock();
     if(m_rank==0){
-        cout << setprecision(3) << "Elapsed time on matrix setup: "<< (double(end - begin))/CLOCKS_PER_SEC
-             << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100 << "% spent on two-body term " << endl;
+        cout << setprecision(3)
+             << "Elapsed time on matrix setup: "<< (double(end - begin))/CLOCKS_PER_SEC
+             << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100
+             << "% spent on two-body term " << endl;
     }
 
 
@@ -52,7 +54,10 @@ void HFsolver::runSolver()
 
     if(m_rank==0){
         cout << "Elapsed time on SCF: "<< (double(end - laps))/CLOCKS_PER_SEC << "s " << endl;
-        cout << setprecision(14) << "configuration " << m_step << " - Energy: "  << m_energy << endl;
+        cout << setprecision(14)
+             << "Configuration "      << m_step
+             << " - SCF iterations: " << m_iteration
+             << " - Energy: "         << m_energy << endl;
         cout << "-------------------------------------------------------------------------------------"  << endl;
     }
 

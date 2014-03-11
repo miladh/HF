@@ -6,7 +6,7 @@ RHF::RHF(System *system, const int &rank, const int &nProcs):
     HFsolver(system, rank, nProcs),
     m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_C(ones(m_nBasisFunctions,m_nBasisFunctions)),
-    m_P(ones(m_nBasisFunctions,m_nBasisFunctions)),
+    m_P(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_fockEnergy(zeros(m_nBasisFunctions))
 
 {
@@ -16,8 +16,8 @@ void RHF::advance()
 {
     vec fockEnergyOld;
     double stdDeviation= 1.0;
-    int step = 0;
-    int maxStep = 200;
+    int maxNumOfIteration = 200;
+    m_iteration = 0;
 
     while (stdDeviation  > HFSOLVERTOLERANCE){
         fockEnergyOld = m_fockEnergy;
@@ -25,13 +25,12 @@ void RHF::advance()
         stdDeviation = computeStdDeviation(m_fockEnergy, fockEnergyOld);
         updateFockMatrix();
 
-        step+=1;
-        if(step > maxStep){
+        m_iteration+=1;
+        if(m_iteration> maxNumOfIteration){
             cerr << "Energy has not converged! " << endl;
             exit(1);
         }
     }
-    cout << step << endl;
 
 }
 void RHF::solveSingle()

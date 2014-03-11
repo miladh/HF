@@ -47,9 +47,25 @@ void BOMD::solveSingleStep()
 {
     m_solver->runSolver();
     m_energy  = m_solver->getEnergy();
+
+
     for(int core = 0; core < m_nCores; core++){
+        clock_t begin = clock();
         m_energyGradient = m_GD->energyGradient(core);
+        clock_t end = clock();
+
+        if(m_rank==0){
+            cout << setprecision(3)
+                 << "Elapsed time on gradient calculation: "
+                 << (double(end - begin))/CLOCKS_PER_SEC << endl;
+        }
+
         IntegrateCoreForwardInTime(core);
+    }
+
+
+    if(m_rank==0){
+        cout << "-------------------------------------------------------------------------------------"  << endl;
     }
 }
 
@@ -90,9 +106,12 @@ const rowvec& BOMD::getEnergyGradient() const
 void BOMD::writeToFile(mat R, int currentTimeStep) {
     ivec atomTypes;
 
-    if(m_nCores > 2){
+    if(m_nCores == 3){
         atomTypes << 1 << 1 << 8 << 1;
-    }else{
+    }else if(m_nCores == 5){
+         atomTypes << 14 << 8 << 8 << 8 << 8;
+    }
+    else{
         atomTypes << 1 << 1;
     }
 

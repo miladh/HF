@@ -287,13 +287,14 @@ double Integrator::nuclearAttractionIntegral()
     double p = a + b;
     rowvec PC = (a*A + b*B)/p - C;
 
-    m_hermiteIntegrals->setupR(PC,p, m_Ren, m_primitiveA.powers()+m_primitiveB.powers());
-
-    double result = 0.0;
-
     int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
     int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
     int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
+
+    m_hermiteIntegrals->setupR(PC,p, m_Ren, tMax - 1 , uMax - 1, vMax - 1 );
+
+    double result = 0.0;
+
 
     for(int t = 0; t < tMax; t++){
         for(int u = 0; u < uMax; u++){
@@ -392,7 +393,6 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(bool differentiateWrtA, 
     double p = a + b;
     rowvec PC = (a*A + b*B)/p - C;
 
-    m_hermiteIntegrals->setupR(PC,p, m_Ren, m_primitiveA.powers()+m_primitiveB.powers());
 
     int iA = m_primitiveA.xPower();
     int jA = m_primitiveA.yPower();
@@ -401,6 +401,8 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(bool differentiateWrtA, 
     int jB = m_primitiveB.yPower();
     int kB = m_primitiveB.zPower();
 
+//    m_hermiteIntegrals->setupR(PC,p, m_Ren, iA+iB, jA+jB, kA+kB);
+    m_hermiteIntegrals->setupR(PC,p, m_Ren);
 
     if(differentiateWrtA){
         dVab += a/p * nuclearAttractionIntegral_P_derivative(iA, jA, kA, iB, jB, kB)
@@ -441,9 +443,6 @@ double Integrator::electronRepulsionIntegral()
     double alpha = p*q/(p+q);
     rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
 
-    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, m_primitiveA.powers()+m_primitiveB.powers()
-                               + m_primitiveC.powers()+m_primitiveD.powers());
-
 
     double result = 0.0;
     int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
@@ -452,6 +451,9 @@ double Integrator::electronRepulsionIntegral()
     int kMax = m_primitiveC.xPower() + m_primitiveD.xPower() + 1;
     int lMax = m_primitiveC.yPower() + m_primitiveD.yPower() + 1;
     int mMax = m_primitiveC.zPower() + m_primitiveD.zPower() + 1;
+
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, tMax + kMax - 2,
+                               uMax + lMax - 2, vMax + mMax - 2);
 
 
     for(int t = 0; t < tMax; t++){
@@ -505,11 +507,6 @@ rowvec Integrator::electronRepulsionIntegral_derivative(bool differentiateWrtA, 
     rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
 
 
-
-    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, m_primitiveA.powers()+m_primitiveB.powers()+
-                               m_primitiveC.powers()+m_primitiveD.powers());
-
-
     int iA = m_primitiveA.xPower();
     int jA = m_primitiveA.yPower();
     int kA = m_primitiveA.zPower();
@@ -522,6 +519,12 @@ rowvec Integrator::electronRepulsionIntegral_derivative(bool differentiateWrtA, 
     int iD = m_primitiveD.xPower();
     int jD = m_primitiveD.yPower();
     int kD = m_primitiveD.zPower();
+
+
+//    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, iA+iB+iC+iD,
+//                               jA+jB+jC+jD, kA+kB+kC+kD);
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree);
+
 
     if(differentiateWrtA || differentiateWrtB){
         dQdPab = electronRepulsionIntegral_Pab_derivative(iA, jA, kA, iB, jB, kB,

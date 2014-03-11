@@ -31,7 +31,7 @@ public:
 
 
 protected:
-   int m_rank, m_nProcs, m_step;
+   int m_rank, m_nProcs, m_step, m_iteration;
    System *m_system;
    cube m_density;
 

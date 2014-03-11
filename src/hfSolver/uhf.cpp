@@ -22,8 +22,8 @@ void UHF::advance()
     vec fockEnergyOld_U, fockEnergyOld_D;
     double stdDeviation_U = 1.0;
     double stdDeviation_D = 1.0;
-    int step = 0;
-    int maxStep = 1000;
+    int maxNumOfIteration = 200;
+    m_iteration = 0;
 
     while (stdDeviation_U > HFSOLVERTOLERANCE && stdDeviation_D > HFSOLVERTOLERANCE){
         fockEnergyOld_U = m_fockEnergyU;
@@ -34,8 +34,8 @@ void UHF::advance()
         stdDeviation_U = computeStdDeviation(m_fockEnergyU, fockEnergyOld_U);
         stdDeviation_D = computeStdDeviation(m_fockEnergyD, fockEnergyOld_D);
 
-        step+=1;
-        if(step > maxStep){
+        m_iteration+=1;
+        if(m_iteration > maxNumOfIteration){
             cerr << "Energy has not converged! " << endl;
             exit(1);
         }
@@ -51,7 +51,7 @@ void UHF::solveSingle()
     eig_sym(eigVal, eigVec, m_S);
     V = eigVec*diagmat(1.0/sqrt(eigVal));
 
-    DIISprocedure();
+//    DIISprocedure();
 
     eig_sym(eigVal, eigVec, V.t()*m_Fu*V);
     m_Cu = V*eigVec;

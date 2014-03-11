@@ -25,10 +25,15 @@ int main(int argc, char **argv)
     //options:
     int dynamic = 0;
     string method = "rhf";
-    string chemicalSystem = "H2O";
+    string chemicalSystem = "SiO4";
 
     if(rank==0){
-        cout << "---------------------------Hartree-Fock------------------------------"  << endl;
+        if(dynamic){
+            cout << "---------------------------BOMD------------------------------"  << endl;
+        }else{
+            cout << "---------------------------Hartree-Fock------------------------------"  << endl;
+
+        }
         cout << "system:    " << chemicalSystem << endl;
         cout << "method:    " << method << endl;
     }
@@ -157,11 +162,13 @@ System* setupSystem(string name, int dynamic=0)
         corePos.push_back({-4.9/sqrt(3), -4.9/sqrt(3), 4.9/sqrt(3)});
         corePos.push_back({4.9/sqrt(3), -4.9/sqrt(3), -4.9/sqrt(3)});
         corePos.push_back({-4.9/sqrt(3), 4.9/sqrt(3), -4.9/sqrt(3)});
+
         core.push_back(new BasisSet("infiles/turbomole/Si_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+
 
     }else if(name =="Fe2S2"){
         nElectrons = 84;
