@@ -9,13 +9,6 @@ GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
 {
     m_dh.set_size(m_nBasisFunctions,m_nBasisFunctions);
     m_dS.set_size(m_nBasisFunctions,m_nBasisFunctions);
-    m_dQ.set_size(m_nBasisFunctions, m_nBasisFunctions);
-
-    for(int i = 0; i < m_nBasisFunctions; i++ ){
-        for(int j = 0; j < m_nBasisFunctions; j++ ){
-            m_dQ(i,j).set_size(m_nBasisFunctions,m_nBasisFunctions);
-        }
-    }
 }
 
 
@@ -42,19 +35,6 @@ void GeometricalDerivative::setupDerivativeMatrices()
         }
     }
 
-
-    //Set up the dQ array:
-    for(int p = 0; p < m_nBasisFunctions; p++){
-        for(int r = 0; r < m_nBasisFunctions; r++){
-            for(int q = 0; q < m_nBasisFunctions; q++){
-                for(int s = 0; s < m_nBasisFunctions; s++){
-                    m_dQ(p,r)(q,s) = m_system->getTwoParticleIntegralDerivative(p,q,r,s,m_differentiationCore);
-
-                }
-            }
-        }
-    }
-
 }
 
 
@@ -72,7 +52,9 @@ void GeometricalDerivative::calculateEnergyGradient()
 
                 for (int r = 0; r < m_nBasisFunctions; r++){
                     for (int s = 0; s < m_nBasisFunctions; s++){
-                        m_gradE += 0.5*P(i)(p,q)*P(i)(s,r)*(m_dQ(p,r)(q,s) - 0.5*m_dQ(p,r)(s,q));
+                        m_gradE += 0.5*P(i)(p,q)*P(i)(s,r)*(
+                                    m_system->getTwoParticleIntegralDerivative(p,q,r,s,m_differentiationCore)
+                                    - 0.5*m_system->getTwoParticleIntegralDerivative(p,s,r,q,m_differentiationCore));
 
                     }
                 }

@@ -1,5 +1,5 @@
 #include "hfsolver.h"
-
+#include<omp.h>
 
 using namespace hf;
 
@@ -86,11 +86,12 @@ void HFsolver::setupOneParticleMatrix()
 
 void HFsolver::setupTwoParticleMatrix()
 {
+//    #pragma omp for ordered schedule(dynamic) collapse(2)
     for(int p = 0; p < m_nBasisFunctions; p++){
         for(int r = 0; r < m_nBasisFunctions; r++){
             for(int q = p; q < m_nBasisFunctions; q++){
                 for(int s = r; s < m_nBasisFunctions; s++){
-
+//                    #pragma omp ordered
                     m_Q(p,r)(q,s) = m_system->getTwoParticleIntegral(p,q,r,s);
                     m_Q(q,r)(p,s) = m_Q(p,r)(q,s);
                     m_Q(p,s)(q,r) = m_Q(p,r)(q,s);
@@ -103,6 +104,7 @@ void HFsolver::setupTwoParticleMatrix()
             }
         }
     }
+
 }
 
 

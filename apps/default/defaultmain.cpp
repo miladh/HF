@@ -8,7 +8,7 @@ using namespace arma;
 using namespace std;
 using namespace hf;
 
-System* setupSystem(string name, int dynamic);
+System* setupSystem(string name);
 
 int main(int argc, char **argv)
 {
@@ -23,24 +23,19 @@ int main(int argc, char **argv)
     /********************************************************************************/
 
     //options:
-    int dynamic = 1;
     string method = "rhf";
     string chemicalSystem = "SiO4";
 
     if(rank==0){
-        if(dynamic){
-            cout << "---------------------------BOMD------------------------------"  << endl;
-        }else{
-            cout << "---------------------------Hartree-Fock------------------------------"  << endl;
 
-        }
+        cout << "---------------------------Hartree-Fock------------------------------"  << endl;
         cout << "system:    " << chemicalSystem << endl;
         cout << "method:    " << method << endl;
     }
 
 
     //Setup system:
-    System *system = setupSystem(chemicalSystem, dynamic);
+    System *system = setupSystem(chemicalSystem);
 
 
     //Choose method:
@@ -55,15 +50,8 @@ int main(int argc, char **argv)
     }
 
 
-    //Choose run:
-    if(dynamic)
-    {
-        BOMD boSolver(system, solver, rank, nProcs);
-        boSolver.runDynamics();
+    solver->runSolver();
 
-    }else{
-        solver->runSolver();
-    }
 
     /********************************************************************************/
     clock_t end = clock();
@@ -77,7 +65,7 @@ int main(int argc, char **argv)
 }
 
 
-System* setupSystem(string name, int dynamic=0)
+System* setupSystem(string name)
 {
     int nElectrons;
     rowvec coreCharges,coreMass;
@@ -190,9 +178,6 @@ System* setupSystem(string name, int dynamic=0)
 
 
     int maxAngularMomentum = core[0]->getAngularMomentum();
-    if(dynamic){
-        maxAngularMomentum += 1;
-    }
 
     System *system = new System(nElectrons, maxAngularMomentum);
 
