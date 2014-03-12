@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <armadillo>
+#include <mpi.h>
 #include "../defines.h"
 #include "../system/system.h"
 
@@ -40,6 +41,11 @@ protected:
    field<mat> m_Q;
 
    double m_energy;
+
+   // MPI-----------------------
+   ivec m_basisIndexToProcsMap;
+   vector<int> m_myBasisIndices;
+   //---------------------------
 
    virtual void advance() = 0;
    virtual void solveSingle() = 0;

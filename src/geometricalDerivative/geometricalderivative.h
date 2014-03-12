@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <armadillo>
+#include <mpi.h>
 #include "../system/system.h"
 #include "../hfSolver/hfsolver.h"
 #include "../hfSolver/rhf.h"
@@ -22,7 +23,7 @@ public:
 private:
     System *m_system;
     HFsolver *m_solver;
-    rowvec3 m_gradE;
+    rowvec3 m_gradE, m_totGradE;
     field<field<rowvec3>>m_dQ;
     field<rowvec3> m_dS, m_dh;
 
@@ -31,6 +32,12 @@ private:
 
     void setupDerivativeMatrices();
     void calculateEnergyGradient();
+
+    int m_rank, m_nProcs;
+    // MPI-----------------------
+    ivec m_basisIndexToProcsMap;
+    vector<int> m_myBasisIndices;
+    //---------------------------
 };
 
 }

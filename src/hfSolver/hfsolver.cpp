@@ -1,7 +1,8 @@
 #include "hfsolver.h"
-#include<omp.h>
+
 
 using namespace hf;
+
 
 HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_rank(rank),
@@ -23,22 +24,111 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
         }
     }
 
+    m_rank = 0;
+    m_nProcs = 1;
+
+
+    // MPI----------------------------------------------------------------------
+#ifdef USE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &m_nProcs);
+#endif
+
+    int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
+    int nFunctionCallsPerProc = ceil(double(totFunctionCalls)/m_nProcs);
+
+    m_basisIndexToProcsMap = ivec(m_nBasisFunctions);
+    vector<mpiTask> taskVector;
+
+
+    for (int p = 0; p < m_nBasisFunctions; p++){
+        mpiTask task;
+        task.nFunctionCalls = m_nBasisFunctions - p;
+        task.isAvailable = true;
+        task.p = p;
+        taskVector.push_back(task);
+    }
+
+
+    for(int proc = 0; proc < m_nProcs; proc++){
+        int nMyFunctionCalls = 0;
+
+        for(mpiTask &task: taskVector){
+            if(task.isAvailable
+                    && nMyFunctionCalls + task.nFunctionCalls <= nFunctionCallsPerProc){
+                nMyFunctionCalls += task.nFunctionCalls;
+                task.isAvailable = false;
+
+                if (m_rank == proc){
+                    m_myBasisIndices.push_back(task.p);
+                }
+                m_basisIndexToProcsMap(task.p) = proc;
+            }
+        }
+    }
+    //---------------------------------------------------------------------------
+
+
 }
 
+void HFsolver::setupTwoParticleMatrix()
+{
+    double begin = MPI_Wtime();
+    for(int p: m_myBasisIndices){
+        for(int r = 0; r < m_nBasisFunctions; r++){
+            for(int q = p; q < m_nBasisFunctions; q++){
+                for(int s = r; s < m_nBasisFunctions; s++){
+                    m_Q(p,r)(q,s) = m_system->getTwoParticleIntegral(p,q,r,s);
+                }
+            }
+        }
+    }
+    double end = MPI_Wtime();
+    cout << setprecision(3)
+         << "Elapsed time on two-electron integral (rank = " << m_rank << "): "
+         << (double(end - begin)) << "s" << endl;
+
+
+    begin = MPI_Wtime();
+    for (int p = 0; p < m_nBasisFunctions; p++) {
+        for (int r = 0; r < m_nBasisFunctions; r++) {
+#ifdef USE_MPI
+            MPI_Bcast(m_Q(p,r).memptr(), m_nBasisFunctions*m_nBasisFunctions , MPI_DOUBLE, m_basisIndexToProcsMap(p), MPI_COMM_WORLD ) ;
+#endif
+            for(int q = p; q < m_nBasisFunctions; q++){
+                for(int s = r; s < m_nBasisFunctions; s++){
+                    m_Q(q,r)(p,s) = m_Q(p,r)(q,s);
+                    m_Q(p,s)(q,r) = m_Q(p,r)(q,s);
+                    m_Q(q,s)(p,r) = m_Q(p,r)(q,s);
+                    m_Q(r,p)(s,q) = m_Q(p,r)(q,s);
+                    m_Q(s,p)(r,q) = m_Q(p,r)(q,s);
+                    m_Q(r,q)(s,p) = m_Q(p,r)(q,s);
+                    m_Q(s,q)(r,p) = m_Q(p,r)(q,s);
+                }
+            }
+        }
+    }
+
+    end = MPI_Wtime();
+    if(m_rank==0){
+        cout <<"Communication time: "<< (double(end - begin)) <<"s" << endl;
+    }
+
+}
 
 void HFsolver::runSolver()
 {
 
-    clock_t begin = clock();
+    double begin = MPI_Wtime();
     setupOneParticleMatrix();
 
-    clock_t laps = clock();
+    double laps = MPI_Wtime();
     setupTwoParticleMatrix();
 
-    clock_t end = clock();
+    double end = MPI_Wtime();
     if(m_rank==0){
         cout << setprecision(3)
-             << "Elapsed time on matrix setup: "<< (double(end - begin))/CLOCKS_PER_SEC
+             << "Elapsed time on matrix setup: "<< (double(end - begin))
              << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100
              << "% spent on two-body term " << endl;
     }
@@ -46,9 +136,9 @@ void HFsolver::runSolver()
 
     updateFockMatrix();
 
-    laps = clock();
+    laps = MPI_Wtime();
     advance();
-    end = clock();
+    end = MPI_Wtime();
 
     calculateEnergy();
 
@@ -69,7 +159,6 @@ void HFsolver::runSolver()
 void HFsolver::setupOneParticleMatrix()
 {
     rowvec oneElectronIntegrals;
-
     for(int p = 0; p < m_nBasisFunctions; p++){
         for(int q = p; q < m_nBasisFunctions; q++){
             oneElectronIntegrals = m_system->getOneParticleIntegral(p,q);
@@ -84,28 +173,6 @@ void HFsolver::setupOneParticleMatrix()
 }
 
 
-void HFsolver::setupTwoParticleMatrix()
-{
-//    #pragma omp for ordered schedule(dynamic) collapse(2)
-    for(int p = 0; p < m_nBasisFunctions; p++){
-        for(int r = 0; r < m_nBasisFunctions; r++){
-            for(int q = p; q < m_nBasisFunctions; q++){
-                for(int s = r; s < m_nBasisFunctions; s++){
-//                    #pragma omp ordered
-                    m_Q(p,r)(q,s) = m_system->getTwoParticleIntegral(p,q,r,s);
-                    m_Q(q,r)(p,s) = m_Q(p,r)(q,s);
-                    m_Q(p,s)(q,r) = m_Q(p,r)(q,s);
-                    m_Q(q,s)(p,r) = m_Q(p,r)(q,s);
-                    m_Q(r,p)(s,q) = m_Q(p,r)(q,s);
-                    m_Q(s,p)(r,q) = m_Q(p,r)(q,s);
-                    m_Q(r,q)(s,p) = m_Q(p,r)(q,s);
-                    m_Q(s,q)(r,p) = m_Q(p,r)(q,s);
-                }
-            }
-        }
-    }
-
-}
 
 
 const mat& HFsolver::normalize(mat &C, const int& HOcoeff)

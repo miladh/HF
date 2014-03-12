@@ -15,7 +15,6 @@ int main(int argc, char **argv)
     UnitTest::TestReporterStdout reporter;
     UnitTest::TestRunner runner(reporter);
 
- if(MPI::COMM_WORLD.Get_rank()==0){
     result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "DEVELOPMENT", UnitTest::True(), 0);
 
     if(slowTests){
@@ -26,6 +25,6 @@ int main(int argc, char **argv)
 
     }
 
-    return result;
- }
+ MPI::Finalize();
+ return result;
 }

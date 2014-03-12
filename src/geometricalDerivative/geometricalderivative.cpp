@@ -9,6 +9,50 @@ GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
 {
     m_dh.set_size(m_nBasisFunctions,m_nBasisFunctions);
     m_dS.set_size(m_nBasisFunctions,m_nBasisFunctions);
+
+    m_rank = 0;
+    m_nProcs = 1;
+    // MPI----------------------------------------------------------------------
+#ifdef USE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &m_nProcs);
+#endif
+
+    int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
+    int nFunctionCallsPerProc = ceil(double(totFunctionCalls)/m_nProcs);
+
+    m_basisIndexToProcsMap = ivec(m_nBasisFunctions);
+    vector<mpiTask> taskVector;
+
+
+    for (int p = 0; p < m_nBasisFunctions; p++){
+        mpiTask task;
+        task.nFunctionCalls = m_nBasisFunctions - p;
+        task.isAvailable = true;
+        task.p = p;
+        taskVector.push_back(task);
+    }
+
+
+    for(int proc = 0; proc < m_nProcs; proc++){
+        int nMyFunctionCalls = 0;
+
+        for(mpiTask &task: taskVector){
+            if(task.isAvailable
+                    && nMyFunctionCalls + task.nFunctionCalls <= nFunctionCallsPerProc){
+                nMyFunctionCalls += task.nFunctionCalls;
+                task.isAvailable = false;
+
+                if (m_rank == proc){
+                    m_myBasisIndices.push_back(task.p);
+                }
+                m_basisIndexToProcsMap(task.p) = proc;
+            }
+        }
+    }
+    //---------------------------------------------------------------------------
+
+
 }
 
 
@@ -17,7 +61,7 @@ const rowvec& GeometricalDerivative::energyGradient(const int core)
     m_differentiationCore = core;
     setupDerivativeMatrices();
     calculateEnergyGradient();
-    return m_gradE;
+    return m_totGradE;
 }
 
 
@@ -46,7 +90,7 @@ void GeometricalDerivative::calculateEnergyGradient()
 
     for(uint i = 0; i < F.n_elem; i ++){
 
-        for (int p = 0; p < m_nBasisFunctions; p++){
+        for(int p: m_myBasisIndices){
             for (int q = 0; q < m_nBasisFunctions; q++){
                 m_gradE += P(i)(p, q) * m_dh(p, q);
 
@@ -61,6 +105,9 @@ void GeometricalDerivative::calculateEnergyGradient()
             }
         }
     }
+
+    //MPI
+    MPI_Allreduce(m_gradE.memptr(), m_totGradE.memptr(), m_gradE.n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
     mat dSx, dSy,dSz;
     dSx = zeros(m_nBasisFunctions,m_nBasisFunctions);
@@ -77,13 +124,15 @@ void GeometricalDerivative::calculateEnergyGradient()
 
 
     for(uint i = 0; i < F.n_elem; i ++){
-        m_gradE(0) -= 0.5 * trace(P(i)*dSx*P(i)*F(i));
-        m_gradE(1) -= 0.5 * trace(P(i)*dSy*P(i)*F(i));
-        m_gradE(2) -= 0.5 * trace(P(i)*dSz*P(i)*F(i));
+        m_totGradE(0) -= 0.5 * trace(P(i)*dSx*P(i)*F(i));
+        m_totGradE(1) -= 0.5 * trace(P(i)*dSy*P(i)*F(i));
+        m_totGradE(2) -= 0.5 * trace(P(i)*dSz*P(i)*F(i));
     }
 
     //    Nuclear repulsion term
-    m_gradE  +=m_system->getNucleiPotential_derivative(m_differentiationCore);
+    m_totGradE  +=m_system->getNucleiPotential_derivative(m_differentiationCore);
+
+
 
 }
 

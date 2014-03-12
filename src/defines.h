@@ -8,6 +8,11 @@
 #define PROTONMASS 1836
 #define h 1.0E-5
 
-
+#define USE_MPI 1
+struct mpiTask{
+    int nFunctionCalls;
+    bool isAvailable;
+    int p;
+};
 
 #endif // DEFINES_H
