@@ -71,6 +71,47 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
 
 }
 
+void HFsolver::runSolver()
+{
+
+    double begin = MPI_Wtime();
+    setupOneParticleMatrix();
+
+    double laps = MPI_Wtime();
+    setupTwoParticleMatrix();
+
+    double end = MPI_Wtime();
+    if(m_rank==0){
+        cout << setprecision(3)
+             << "Elapsed time on matrix setup: "<< (double(end - begin))
+             << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100
+             << "% spent on two-body term " << endl;
+    }
+
+
+    updateFockMatrix();
+
+    laps = MPI_Wtime();
+    advance();
+    end = MPI_Wtime();
+
+    calculateEnergy();
+
+    if(m_rank==0){
+        cout << "Elapsed time on SCF: "<< (double(end - laps)) << "s " << endl;
+        cout << setprecision(14)
+             << "Configuration "      << m_step
+             << " - SCF iterations: " << m_iteration
+             << " - Energy: "         << m_energy << endl;
+        cout << "-------------------------------------------------------------------------------------"  << endl;
+    }
+
+        calculateDensity();
+    m_step+=1;
+}
+
+
+
 void HFsolver::setupTwoParticleMatrix()
 {
     double begin = MPI_Wtime();
@@ -114,45 +155,6 @@ void HFsolver::setupTwoParticleMatrix()
         cout <<"Communication time: "<< (double(end - begin)) <<"s" << endl;
     }
 
-}
-
-void HFsolver::runSolver()
-{
-
-    double begin = MPI_Wtime();
-    setupOneParticleMatrix();
-
-    double laps = MPI_Wtime();
-    setupTwoParticleMatrix();
-
-    double end = MPI_Wtime();
-    if(m_rank==0){
-        cout << setprecision(3)
-             << "Elapsed time on matrix setup: "<< (double(end - begin))
-             << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100
-             << "% spent on two-body term " << endl;
-    }
-
-
-    updateFockMatrix();
-
-    laps = MPI_Wtime();
-    advance();
-    end = MPI_Wtime();
-
-    calculateEnergy();
-
-    if(m_rank==0){
-        cout << "Elapsed time on SCF: "<< (double(end - laps))/CLOCKS_PER_SEC << "s " << endl;
-        cout << setprecision(14)
-             << "Configuration "      << m_step
-             << " - SCF iterations: " << m_iteration
-             << " - Energy: "         << m_energy << endl;
-        cout << "-------------------------------------------------------------------------------------"  << endl;
-    }
-
-    //    calculateDensity();
-    m_step+=1;
 }
 
 

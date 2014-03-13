@@ -150,11 +150,11 @@ System* setupSystem(string name)
         corePos.push_back({4.9/sqrt(3), -4.9/sqrt(3), -4.9/sqrt(3)});
         corePos.push_back({-4.9/sqrt(3), 4.9/sqrt(3), -4.9/sqrt(3)});
 
-        core.push_back(new BasisSet("infiles/turbomole/Si_3-21G"));
-        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
-        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
-        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
-        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/Si_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
 
 
     }else if(name =="Fe2S2"){
