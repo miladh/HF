@@ -9,6 +9,8 @@ using namespace std;
 using namespace hf;
 
 System* setupSystem(string name);
+void angstromToau(vector<rowvec3> &corePos);
+
 
 int main(int argc, char **argv)
 {
@@ -24,7 +26,7 @@ int main(int argc, char **argv)
 
     //options:
     string method = "rhf";
-    string chemicalSystem = "SiO4";
+    string chemicalSystem = "CO2";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
@@ -60,6 +62,14 @@ int main(int argc, char **argv)
 
     MPI::Finalize();
     return 0;
+
+}
+
+void angstromToau(vector<rowvec3>& corePos)
+{
+    for(rowvec3& pos: corePos){
+        pos *= 1.889725989;
+    }
 
 }
 
@@ -141,20 +151,31 @@ System* setupSystem(string name)
 
 
     }else if(name =="SiO4"){
-        nElectrons = 46;
-        coreCharges = {14, 8 , 8, 8, 8};
-        coreMass = {28 , 16, 16, 16, 16};
+        nElectrons = 84;
+        coreCharges = {14, 8 , 8, 8, 8, 14, 8, 8, 8};
+        coreMass = {28 , 16, 16, 16, 16, 28, 16, 16, 16};
+        double D = 4.9;
         corePos.push_back({0.0, 0.0, 0.0});
-        corePos.push_back({4.9/sqrt(3), 4.9/sqrt(3), 4.9/sqrt(3)});
-        corePos.push_back({-4.9/sqrt(3), -4.9/sqrt(3), 4.9/sqrt(3)});
-        corePos.push_back({4.9/sqrt(3), -4.9/sqrt(3), -4.9/sqrt(3)});
-        corePos.push_back({-4.9/sqrt(3), 4.9/sqrt(3), -4.9/sqrt(3)});
+        corePos.push_back({D/sqrt(3), D/sqrt(3), D/sqrt(3)});
+        corePos.push_back({-D/sqrt(3), -D/sqrt(3), D/sqrt(3)});
+        corePos.push_back({D/sqrt(3), -D/sqrt(3), -D/sqrt(3)});
+        corePos.push_back({-D/sqrt(3), D/sqrt(3), -D/sqrt(3)});
 
-        core.push_back(new BasisSet("infiles/turbomole/Si_6-31G_ds"));
-        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
-        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
-        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
-        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
+        double T = 2.0*D /sqrt(3);
+        corePos.push_back({T, -T, -T});
+        corePos.push_back({T - D/sqrt(3), -T -D/sqrt(3), -T - D/sqrt(3)});
+        corePos.push_back({T + D/sqrt(3), -T -D/sqrt(3), -T + D/sqrt(3)});
+        corePos.push_back({T + D/sqrt(3), -T +D/sqrt(3), -T -D/sqrt(3)});
+
+        core.push_back(new BasisSet("infiles/turbomole/Si_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/Si_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
 
 
     }else if(name =="Fe2S2"){
@@ -170,10 +191,43 @@ System* setupSystem(string name)
         core.push_back(new BasisSet("infiles/turbomole/S_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/S_3-21G"));
 
+    }else if(name =="benzene"){
+        nElectrons = 6 * 6 + 6;
+        coreCharges = {6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1};
+        coreMass = {12 , 12, 12, 12, 12, 12, 1, 1, 1, 1, 1,1};
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+
+        corePos.push_back({0.99261000, 0.99261000, 0.00000000});
+        corePos.push_back({-1.35593048, 0.36332048, 0.00000000});
+        corePos.push_back({0.36332048, -1.35593048, 0.00000000});
+        corePos.push_back({-0.99261000, -0.99261000, 0.00000000});
+        corePos.push_back({1.35593048, -0.36332048, 0.00000000});
+        corePos.push_back({-0.36332048, 1.35593048, 0.00000000});
+        corePos.push_back({1.75792000, 1.75792000, 0.00000000});
+        corePos.push_back({-2.40136338, 0.64344338, 0.00000000});
+        corePos.push_back({0.64344338, -2.40136338, 0.00000000});
+        corePos.push_back({-1.75792000, -1.75792000, 0.00000000});
+        corePos.push_back({2.40136338, -0.64344338, 0.00000000});
+        corePos.push_back({-0.64344338, 2.40136338, 0.00000000});
+        angstromToau(corePos);
+
     }else{
         cerr << "unknown system!" << endl;
         exit(0);
     }
+
+
 
 
     int maxAngularMomentum = core[0]->getAngularMomentum();

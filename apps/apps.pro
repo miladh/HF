@@ -1,3 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += default tests md
+SUBDIRS += default \
+           tests\
+           md \
+           cs \

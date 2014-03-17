@@ -107,10 +107,12 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     ivec atomTypes;
 
     if(m_nCores == 3){
-        atomTypes << 1 << 1 << 8 << 1;
+        atomTypes << 8 << 1 << 1;
     }else if(m_nCores == 5){
          atomTypes << 14 << 8 << 8 << 8 << 8;
-    }
+    }else if(m_nCores == 9){
+        atomTypes << 14 << 8 << 8 << 8 << 8 << 14 << 8 << 8 <<8;
+   }
     else{
         atomTypes << 1 << 1;
     }

@@ -27,7 +27,6 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
     m_rank = 0;
     m_nProcs = 1;
 
-
     // MPI----------------------------------------------------------------------
 #ifdef USE_MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
@@ -106,7 +105,7 @@ void HFsolver::runSolver()
         cout << "-------------------------------------------------------------------------------------"  << endl;
     }
 
-        calculateDensity();
+//        calculateDensity();
     m_step+=1;
 }
 
