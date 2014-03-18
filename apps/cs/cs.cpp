@@ -64,21 +64,37 @@ int main(int argc, char **argv)
 
 }
 
-
-void angstromToau(vector<rowvec3>& corePos)
+void sampleConfigurations(System* system, HFsolver* solver)
 {
-    for(rowvec3& pos: corePos){
-        pos *= 1.889725989;
+    int nCores = system->getNumOfCores();
+    mat pos = zeros(nCores, 3);
+    vec bondLength = linspace(1.8,2.2,1e2);
+    vec bondAngle = linspace(acos(-1)/4.0, acos(-1),1e2);
+    mat data = zeros(bondLength.n_elem * bondAngle.n_elem, 3);
+
+    int i = 0;
+    for(double r: bondLength){
+        for(double t: bondAngle){
+            if(MPI::COMM_WORLD.Get_rank()==0){
+                cout << "Bond length:    " << r << endl;
+                cout << "Bond angle:    "  << t << endl;
+            }
+            convertToCartesian(pos, r, t);
+            for(int core = 0; core < nCores; core++){
+                system->m_basisSet.at(core)->setCorePosition(pos.row(core));
+            }
+            solver->runSolver();
+            data(i,0) = solver->getEnergy();
+            data(i,1) =  r;
+            data(i,2) = t;
+            i++;
+        }
+
     }
-}
 
-void convertToCartesian(mat &pos, const double& r, const double& t)
-{
-    rowvec r1 = {-r * sin(t*0.5), r * cos(t*0.5), 0};
-    rowvec r2 = { r * sin(t*0.5), r * cos(t*0.5), 0};
-
-    pos.row(1) = r1;
-    pos.row(2) = r2;
+    if(MPI::COMM_WORLD.Get_rank()==0){
+           data.save("/home/milad/kurs/qmd/param/param.bin",raw_binary);
+    }
 }
 
 System* setupSystem(string name)
@@ -132,42 +148,23 @@ System* setupSystem(string name)
     return system;
 }
 
-void sampleConfigurations(System* system, HFsolver* solver)
+
+
+void angstromToau(vector<rowvec3>& corePos)
 {
-    int nCores = system->getNumOfCores();
-    mat pos = zeros(nCores, 3);
-    vec bondLength = linspace(1.8,2.2,1e2);
-    vec bondAngle = linspace(acos(-1)/4.0, acos(-1),1e2);
-    mat data = zeros(bondLength.n_elem * bondAngle.n_elem, 3);
-
-    int i = 0;
-    for(double r: bondLength){
-        for(double t: bondAngle){
-            if(MPI::COMM_WORLD.Get_rank()==0){
-                cout << "Bond length:    " << r << endl;
-                cout << "Bond angle:    "  << t << endl;
-            }
-            convertToCartesian(pos, r, t);
-            for(int core = 0; core < nCores; core++){
-                system->m_basisSet.at(core)->setCorePosition(pos.row(core));
-            }
-            solver->runSolver();
-            data(i,0) = solver->getEnergy();
-            data(i,1) =  r;
-            data(i,2) = t;
-            i++;
-        }
-
-    }
-
-    if(MPI::COMM_WORLD.Get_rank()==0){
-           data.save("/home/milad/kurs/qmd/param/param.bin",raw_binary);
+    for(rowvec3& pos: corePos){
+        pos *= 1.889725989;
     }
 }
 
+void convertToCartesian(mat &pos, const double& r, const double& t)
+{
+    rowvec r1 = {-r * sin(t*0.5), r * cos(t*0.5), 0};
+    rowvec r2 = { r * sin(t*0.5), r * cos(t*0.5), 0};
 
-
-
+    pos.row(1) = r1;
+    pos.row(2) = r2;
+}
 
 
 
