@@ -99,6 +99,20 @@ System* setupSystem(string name)
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/C_3-21G"));
 
+    }else if(name =="H2O"){
+        nElectrons = 10;
+        coreCharges = {8 , 1, 1};
+        coreMass = {16 , 1, 1};
+        nElectrons = 10;
+        corePos.push_back({ 0.0, 0.0, 0.0});
+        corePos.push_back({1.797, 0.0, 0.0});
+        corePos.push_back({ -1.797*cos((180-104.45) *M_PI/180.0),
+                            1.797*sin((180-104.45) *M_PI/180.0), 0.0});
+
+        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_d"));
+        core.push_back(new BasisSet("infiles/turbomole/H_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/H_6-31G_ds"));
+
     }else{
         cerr << "unknown system!" << endl;
         exit(0);
@@ -122,8 +136,8 @@ void sampleConfigurations(System* system, HFsolver* solver)
 {
     int nCores = system->getNumOfCores();
     mat pos = zeros(nCores, 3);
-    vec bondLength = linspace(1.5,2.5,2e1);
-    vec bondAngle = linspace(acos(-1)/4.0, acos(-1),2e1);
+    vec bondLength = linspace(1.8,2.2,1e2);
+    vec bondAngle = linspace(acos(-1)/4.0, acos(-1),1e2);
     mat data = zeros(bondLength.n_elem * bondAngle.n_elem, 3);
 
     int i = 0;

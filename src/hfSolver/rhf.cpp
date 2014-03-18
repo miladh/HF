@@ -39,7 +39,7 @@ void RHF::solveSingle()
     eig_sym(eigVal, eigVec, m_S);
     V = eigVec*diagmat(1.0/sqrt(eigVal));
 
-//    DIISprocedure();
+    DIISprocedure();
 
     eig_sym(eigVal, eigVec, V.t() * m_F * V);
 
