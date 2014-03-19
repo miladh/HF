@@ -116,9 +116,7 @@ void sampleConfigurations(System* system, HFsolver* solver)
 
     i = 0;
     for(int r: myGridIndices){
-        if(r!=0){
-            i = (r - 2) + Nt;
-        }
+        i = Nt * r;
         for(double t: bondAngle){
             cout << "Bond length:    " <<  bondLength[r] << endl;
             cout << "Bond angle:    "  << t << endl;
@@ -128,7 +126,7 @@ void sampleConfigurations(System* system, HFsolver* solver)
                 system->m_basisSet.at(core)->setCorePosition(pos.row(core));
             }
             solver->runSolver();
-            data(r+i, 0) = solver->getEnergy();
+            data(i, 0) = solver->getEnergy();
             i++;
         }
 
