@@ -28,16 +28,15 @@ int main(int argc, char **argv)
     string method = "rhf";
     string chemicalSystem = "CO2";
 
+
+    //Setup system:
+    System *system = setupSystem(chemicalSystem);
+
     if(rank==0){
         cout << "---------------------Configuration Sampler-----------------------"  << endl;
         cout << "system:    " << chemicalSystem << endl;
         cout << "method:    " << method << endl;
     }
-
-
-    //Setup system:
-    System *system = setupSystem(chemicalSystem);
-
 
     //Choose method:
     HFsolver* solver;
@@ -67,35 +66,87 @@ int main(int argc, char **argv)
 void sampleConfigurations(System* system, HFsolver* solver)
 {
     int nCores = system->getNumOfCores();
+    int Nr = 5e1;
+    double rMin = 2.0;
+    double rMax = 2.4;
+
+    int Nt = 5e1;
+    double tMin = 3.0*acos(-1)/4.0;
+    double tMax = acos(-1);
+
+    vec bondLength = linspace(rMin, rMax, Nr);
+    vec bondAngle = linspace(tMin, tMax, Nt);
     mat pos = zeros(nCores, 3);
-    vec bondLength = linspace(1.8,2.2,1e2);
-    vec bondAngle = linspace(acos(-1)/4.0, acos(-1),1e2);
     mat data = zeros(bondLength.n_elem * bondAngle.n_elem, 3);
 
     int i = 0;
     for(double r: bondLength){
         for(double t: bondAngle){
-            if(MPI::COMM_WORLD.Get_rank()==0){
-                cout << "Bond length:    " << r << endl;
-                cout << "Bond angle:    "  << t << endl;
-            }
-            convertToCartesian(pos, r, t);
-            for(int core = 0; core < nCores; core++){
-                system->m_basisSet.at(core)->setCorePosition(pos.row(core));
-            }
-            solver->runSolver();
-            data(i,0) = solver->getEnergy();
             data(i,1) =  r;
-            data(i,2) = t;
+            data(i,2) =  t;
             i++;
         }
 
     }
 
-    if(MPI::COMM_WORLD.Get_rank()==0){
-           data.save("/home/milad/kurs/qmd/param/param.bin",raw_binary);
+
+    int myRank = 0;
+    int nProcs = 1;
+    // MPI----------------------------------------------------------------------
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
+    vector<int> myGridIndices;
+
+    int node = 0;
+    int s = 0;
+    for (int p = 0; p < Nr; p++) {
+            if (myRank == node){
+                myGridIndices.push_back(p);
+            }
+            s++;
+            if(s >= BLOCK_SIZE(node, nProcs, Nr)){
+                s = 0;
+                node++;
+            }
+        }
+
+        cout << "Rank: " << myRank << " - Number of grid points: " << myGridIndices.size() << endl;
+        MPI_Barrier(MPI_COMM_WORLD);
+    //---------------------------------------------------------------------------
+
+    i = 0;
+    for(int r: myGridIndices){
+        if(r!=0){
+            i = (r - 2) + Nt;
+        }
+        for(double t: bondAngle){
+            cout << "Bond length:    " <<  bondLength[r] << endl;
+            cout << "Bond angle:    "  << t << endl;
+
+            convertToCartesian(pos, bondLength[r], t);
+            for(int core = 0; core < nCores; core++){
+                system->m_basisSet.at(core)->setCorePosition(pos.row(core));
+            }
+            solver->runSolver();
+            data(r+i, 0) = solver->getEnergy();
+            i++;
+        }
+
     }
+
+    stringstream fileName;
+    fileName << "/home/milad/kurs/qmd/param/id" << myRank << "_param.bin";
+    data.save(fileName.str(),raw_binary);
 }
+
+
+
+
+
+
+
+
+
 
 System* setupSystem(string name)
 {
@@ -125,8 +176,8 @@ System* setupSystem(string name)
         corePos.push_back({ -1.797*cos((180-104.45) *M_PI/180.0),
                             1.797*sin((180-104.45) *M_PI/180.0), 0.0});
 
-        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_d"));
-        core.push_back(new BasisSet("infiles/turbomole/H_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/H_6-31G_ds"));
 
     }else{
@@ -162,8 +213,8 @@ void convertToCartesian(mat &pos, const double& r, const double& t)
     rowvec r1 = {-r * sin(t*0.5), r * cos(t*0.5), 0};
     rowvec r2 = { r * sin(t*0.5), r * cos(t*0.5), 0};
 
-    pos.row(1) = r1;
-    pos.row(2) = r2;
+    pos.row(0) = r1;
+    pos.row(1) = r2;
 }
 
 

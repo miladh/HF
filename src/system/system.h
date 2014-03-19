@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <armadillo>
+#include <mpi.h>
 
 #include "../integrator/integrator.h"
 #include "../basisSet/basisset.h"
@@ -45,6 +46,7 @@ public:
     rowvec getTwoParticleIntegralDerivativeOfOrbitals(const int a, const int b, const int c, const int d, const int N);
     double gaussianProduct(const int a, const int b, const double &x, const double &y, const double &z);
 
+    void computePartialCharge(const mat &PS);
 private:
     Integrator integrator;
     vector<int > m_coreID;

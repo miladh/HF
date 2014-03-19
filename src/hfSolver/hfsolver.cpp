@@ -48,7 +48,6 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
         taskVector.push_back(task);
     }
 
-
     for(int proc = 0; proc < m_nProcs; proc++){
         int nMyFunctionCalls = 0;
 
@@ -72,12 +71,12 @@ HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
 
 void HFsolver::runSolver()
 {
-
     double begin = MPI_Wtime();
     setupOneParticleMatrix();
 
     double laps = MPI_Wtime();
     setupTwoParticleMatrix();
+
 
     double end = MPI_Wtime();
     if(m_rank==0){

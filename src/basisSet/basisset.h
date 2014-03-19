@@ -34,11 +34,20 @@ public:
     const int &getAngularMomentum() const;
 
 
+    const double &partialCharge() const;
+    void setPartialCharge(double partialCharge);
+
+    const string &coreType() const;
+    const string &basisType() const;
+
 private:
     vector<ContractedGTO> m_contractedGTOs;
     rowvec m_corePosition;
     int m_coreCharge, m_coreMass;
+    double m_partialCharge;
     int m_angularMomentum;
+    string m_coreType;
+    string m_basisType;
 
 };
 }

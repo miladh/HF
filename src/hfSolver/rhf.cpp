@@ -26,11 +26,14 @@ void RHF::advance()
         updateFockMatrix();
 
         m_iteration+=1;
-        if(m_iteration> maxNumOfIteration){
+        if(m_rank == 0 && m_iteration > maxNumOfIteration){
             cerr << "Energy has not converged! " << endl;
-            exit(1);
+            m_energy = 0.0;
+            break;
         }
     }
+
+    m_system->computePartialCharge(m_P*m_S);
 
 }
 void RHF::solveSingle()

@@ -118,16 +118,16 @@ System* setupSystem(string name)
         corePos.push_back({ -1.797*cos((180-104.45) *M_PI/180.0),
                             1.797*sin((180-104.45) *M_PI/180.0), 0.0});
 
-        core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
-        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
-        core.push_back(new BasisSet("infiles/turbomole/H_3-21G"));
+        core.push_back(new BasisSet("infiles/turbomole/O_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/H_6-31G_ds"));
+        core.push_back(new BasisSet("infiles/turbomole/H_6-31G_ds"));
 
     }else if(name =="CO2"){
         nElectrons = 22;
         coreCharges = {8 , 8, 6};
         coreMass = {16 , 16, 12};
-        corePos.push_back({-2.2, 0.0, 0.0});
-        corePos.push_back({ 2.2, 0.0, 0.0});
+        corePos.push_back({-2.185, 0.0, 0.0});
+        corePos.push_back({ 2.185, 0.0, 0.0});
         corePos.push_back({ 0.0, 0.0, 0.0});
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));
         core.push_back(new BasisSet("infiles/turbomole/O_3-21G"));

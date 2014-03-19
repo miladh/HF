@@ -36,6 +36,29 @@ BasisSet::BasisSet(string inFileName)
         exit(EXIT_FAILURE);
     }
 
+    regex typeRegex("\\s*([a-zA-Z]+)\\s*(([0-9])-([0-9]+)([G]))\\s*");
+    sregex_iterator type(stringToSearch.begin(), stringToSearch.end(), typeRegex);
+    sregex_iterator endType;
+
+    for(; type!=endType; type++){
+        //Search atom type and basis
+        bool skip = false;
+        skip |= regex_match(stringToSearch, regex("#.*"));
+        skip |= regex_match(stringToSearch, regex("$basis.*"));
+        skip |= regex_match(stringToSearch, regex("$end.*"));
+        skip |= regex_match(stringToSearch, regex("\\*.*"));
+        if(skip) {
+            continue;
+        }
+        smatch what;
+        while(regex_search(stringToSearch, what, typeRegex)) {
+            m_coreType =  string(what[1]);
+            m_basisType = string(what[2]);
+            break;
+        }
+
+    }
+
     //Search for groups of contracted GTOs
     regex searchCGTO("([0-9]\\s+[spd])((\\s+-?[0-9]+\\.[0-9]+)+)");
     sregex_iterator CGTOs(stringToSearch.begin(), stringToSearch.end(), searchCGTO);
@@ -43,7 +66,7 @@ BasisSet::BasisSet(string inFileName)
 
     for(; CGTOs!=endCGTOs; CGTOs++){
         string subString = CGTOs->str(2).c_str();
-        //        cout << CGTOs->str(2).c_str() << endl;
+//                cout << CGTOs->str(2).c_str() << endl;
 
         //Search for groups of (exponent and coefficient) for each primitive
         regex searchPGTO("(-?[0-9]+\\.[0-9]+)\\s+(-?[0-9]+\\.[0-9]+)\\s*");
@@ -97,7 +120,7 @@ BasisSet::BasisSet(string inFileName)
         else if(regex_match(orbitalType, searchd)){
             m_angularMomentum = 2;
             ContractedGTO contractedGTOxx, contractedGTOyy, contractedGTOzz,
-                          contractedGTOxy, contractedGTOxz, contractedGTOyz ;
+                    contractedGTOxy, contractedGTOxz, contractedGTOyz ;
 
             for(; PGTOs!=endPGTOs; PGTOs++){
                 double exponent = atof(PGTOs->str(1).c_str());
@@ -158,6 +181,26 @@ const int& BasisSet::getAngularMomentum() const
 {
     return m_angularMomentum;
 }
+const double& BasisSet::partialCharge() const
+{
+    return m_partialCharge;
+}
+
+void BasisSet::setPartialCharge(double partialCharge)
+{
+    m_partialCharge = partialCharge;
+}
+const string& BasisSet::coreType() const
+{
+    return m_coreType;
+}
+
+const string &BasisSet::basisType() const
+{
+    return m_basisType;
+}
+
+
 
 const int& BasisSet::coreCharge() const
 {

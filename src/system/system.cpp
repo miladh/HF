@@ -153,18 +153,18 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
 
 
             if(differentiateWrtA){
-            dhab.row(0) += integrator.overlapIntegral_derivative()
+                dhab.row(0) += integrator.overlapIntegral_derivative()
                         * primitiveA.weight() * primitiveB.weight();
 
-            dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
+                dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
                         integrator.kineticIntegral_derivative();
             }
             else if(differentiateWrtB){
                 dhab.row(0) -= integrator.overlapIntegral_derivative()
-                            * primitiveA.weight() * primitiveB.weight();
+                        * primitiveA.weight() * primitiveB.weight();
 
                 dhab.row(1) -= primitiveA.weight() * primitiveB.weight() *
-                            integrator.kineticIntegral_derivative();
+                        integrator.kineticIntegral_derivative();
             }
 
             for(uint c = 0; c < m_basisSet.size(); c++){
@@ -179,9 +179,9 @@ mat System::getOneParticleDerivative(const int a, const int b, const int N)
                 }
 
                 dhab.row(1) -= coreCharge* primitiveA.weight() * primitiveB.weight()*
-                            integrator.nuclearAttractionIntegral_derivative(differentiateWrtA,
-                                                                            differentiateWrtB,
-                                                                            differentiateWrtC);
+                        integrator.nuclearAttractionIntegral_derivative(differentiateWrtA,
+                                                                        differentiateWrtB,
+                                                                        differentiateWrtC);
             }
 
         }
@@ -362,7 +362,7 @@ rowvec System::getNucleiPotential_derivative(int activeCore)
     }
 
 
-  return dVnm;
+    return dVnm;
 
 }
 
@@ -407,6 +407,36 @@ double System::gaussianProduct(const int a, const int b, const double &x, const 
 }
 
 
+void System::computePartialCharge(const mat& PS)
+{
+    double id=0.0;
+    for(uint i = 0; i < m_basisSet.size(); i++){
+        double charge = 0.0;
+        BasisSet *core = m_basisSet.at(i);
+        charge = core->coreCharge();
+
+        for(int j = id; j < id+core->getNumContracted(); j++){
+            charge -= PS(j,j);
+        }
+
+        core->setPartialCharge(charge);
+        id += core->getNumContracted();
+    }
+
+
+    int rank = 0;
+#ifdef USE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
+
+    if(rank == 0){
+        for(uint i = 0; i < m_basisSet.size(); i++){
+            const BasisSet *core = m_basisSet.at(i);
+            cout << core->coreType() << "   " << core->partialCharge() << endl;
+        }
+    }
+
+}
 
 
 
