@@ -131,9 +131,9 @@ void RHF::calculateDensity()
 
     cout << "---Calculating density---" << endl;
 
-    vec x = linspace(-10, 10, m_nProcs * 5);
-    vec y = linspace(-10, 10, m_nProcs * 5);
-    vec z = linspace(-10, 10, m_nProcs * 5);
+    vec x = linspace(-10, 10, m_nProcs * 10);
+    vec y = linspace(-10, 10, m_nProcs * 10);
+    vec z = linspace(-10, 10, m_nProcs * 10);
     double dr = (x(1) - x(0)) * (y(1) - y(0)) * (z(1) - z(0));
 
     m_density = zeros(x.n_elem, y.n_elem, z.n_elem);

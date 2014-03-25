@@ -1,6 +1,7 @@
 #include <iostream>
 #include <armadillo>
-#include <mpi.h>
+#include <boost/mpi.hpp>
+#include <H5Cpp.h>
 
 #include <hf.h>
 
@@ -8,57 +9,163 @@ using namespace arma;
 using namespace std;
 using namespace hf;
 
+
+int blockLow(int id, int np, int n) {
+    return (id * n) / np;
+}
+
+int blockHigh(int id, int np, int n) {
+    return blockLow(id + 1, np, n) - 1;
+}
+
+int blockSize(int id, int p, int n) {
+    return blockLow(id + 1,p,n) - blockLow(id,p,n);
+}
+
+
 System* setupSystem(string name);
 void angstromToau(vector<rowvec3> &corePos);
 void sampleConfigurations(System* system, HFsolver* solver);
 void convertToCartesian(mat &pos, const double& r, const double& t);
-int main(int argc, char **argv)
+
+
+int main(int argc, char* argv[])
 {
 
-    MPI::Init(argc, argv);
-    int rank = MPI::COMM_WORLD.Get_rank();
-    int nProcs = MPI::COMM_WORLD.Get_size();
+    boost::mpi::environment env;
+    boost::mpi::communicator world;
+    boost::mpi::timer timer;
+    timer.restart();
 
 
-    clock_t begin = clock();
+    // Read in output file, abort if there are too few command-line arguments
+    if( argc < 2 ){
+        cerr << "Bad Usage: input file is not specified!" << endl;
+        exit(1);
+    }
+    string inFileName = argv[1];
+
+    // MPI----------------------------------------------------------------------
+    vector<int> stateIDs;
+    if(world.rank() == 0) {
+        H5::H5File inFile(inFileName, H5F_ACC_RDONLY );
+        H5::Group statesGroup(inFile.openGroup("/states"));
+        int nStates = statesGroup.getNumObjs();
+        vector<int> allStates;
+        allStates.reserve(nStates);
+        for(int i = 0; i < nStates; i++) {
+            allStates.push_back(i);
+        }
+        random_shuffle(allStates.begin(), allStates.end());
+        for(int p = 0; p < world.size(); p++) {
+            vector<int> states;
+            for(int i = blockLow(p, world.size(), allStates.size());
+                i <= blockHigh(p, world.size(), allStates.size());
+                i++) {
+
+                states.push_back(allStates.at(i));
+
+            }
+            if(p == 0) {
+                stateIDs = states;
+            } else {
+                world.send(p, 0, states);
+            }
+        }
+        inFile.close();
+    }
+    else {
+        world.recv(0, 0, stateIDs);
+    }
+
+    cout << "Rank " << world.rank() << ": I have " << stateIDs.size() << " states to compute" << endl;
+    world.barrier();
+    //------------------------------------------------------------------------
+
+
+
+    //Create output file
+    stringstream outFileName;
+    outFileName << "output_" << world.rank() << ".h5";
+    H5::H5File outputFile(outFileName.str(), H5F_ACC_TRUNC);
+
+
+    //Read input file and copy metadata, states and attributes
+    for(int p = 0; p < world.size(); p++) {
+
+        world.barrier();
+        if(p != world.rank()) {
+            continue;
+        }
+
+        //Read input file:
+        H5::H5File inputFile(argv[1], H5F_ACC_RDONLY);
+
+
+        //Loop over input file objects:
+        for(int objectIndex = 0; objectIndex < int(inputFile.getNumObjs()); objectIndex++) {
+            string objectName = inputFile.getObjnameByIdx(objectIndex);
+
+            if(objectName == "states") {
+                H5::Group statesGroup(inputFile.openGroup(objectName));
+                H5::Group statesGroupOut(outputFile.createGroup(objectName));
+
+                for(int stateID : stateIDs){
+                    string stateName = statesGroup.getObjnameByIdx(stateID);
+                    H5Ocopy(statesGroup.getId(), stateName.c_str(), statesGroupOut.getId(), stateName.c_str(),
+                            H5Pcreate(H5P_OBJECT_COPY), H5P_DEFAULT);
+                }
+
+            }else{
+                H5Ocopy(inputFile.getId(), objectName.c_str(), outputFile.getId(), objectName.c_str(),
+                        H5Pcreate(H5P_OBJECT_COPY), H5P_DEFAULT);
+            }
+        }
+        inputFile.close();
+    }
+
+
+
+
 
     /********************************************************************************/
 
     //options:
-    string method = "rhf";
-    string chemicalSystem = "CO2";
+    //    string method = "rhf";
+    //    string chemicalSystem = "CO2";
 
 
-    //Setup system:
-    System *system = setupSystem(chemicalSystem);
+    //    //Setup system:
+    //    System *system = setupSystem(chemicalSystem);
 
-    if(rank==0){
-        cout << "---------------------Configuration Sampler-----------------------"  << endl;
-        cout << "system:    " << chemicalSystem << endl;
-        cout << "method:    " << method << endl;
+    //    if(rank==0){
+    //        cout << "---------------------Configuration Sampler-----------------------"  << endl;
+    //        cout << "system:    " << chemicalSystem << endl;
+    //        cout << "method:    " << method << endl;
+    //    }
+
+    //    //Choose method:
+    //    HFsolver* solver;
+    //    if(method == "rhf"){
+    //        solver = new RHF(system, rank, nProcs);
+    //    }else if(method == "uhf"){
+    //        solver = new UHF(system, rank, nProcs);
+    //    }else{
+    //        cerr << "unknown method!" << endl;
+    //        exit(0);
+    //    }
+
+
+    //    sampleConfigurations(system, solver);
+
+    //    /********************************************************************************/
+    if(world.rank()==0){
+        cout << "Total elapsed time: "<< timer.elapsed() << "s" << endl;
     }
 
-    //Choose method:
-    HFsolver* solver;
-    if(method == "rhf"){
-        solver = new RHF(system, rank, nProcs);
-    }else if(method == "uhf"){
-        solver = new UHF(system, rank, nProcs);
-    }else{
-        cerr << "unknown method!" << endl;
-        exit(0);
-    }
 
+    outputFile.close();
 
-    sampleConfigurations(system, solver);
-
-    /********************************************************************************/
-    clock_t end = clock();
-    if(rank==0){
-        cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
-    }
-
-    MPI::Finalize();
     return 0;
 
 }
@@ -100,18 +207,18 @@ void sampleConfigurations(System* system, HFsolver* solver)
     int node = 0;
     int s = 0;
     for (int p = 0; p < Nr; p++) {
-            if (myRank == node){
-                myGridIndices.push_back(p);
-            }
-            s++;
-            if(s >= BLOCK_SIZE(node, nProcs, Nr)){
-                s = 0;
-                node++;
-            }
+        if (myRank == node){
+            myGridIndices.push_back(p);
         }
+        s++;
+        if(s >= blockSize(node, nProcs, Nr)){
+            s = 0;
+            node++;
+        }
+    }
 
-        cout << "Rank: " << myRank << " - Number of grid points: " << myGridIndices.size() << endl;
-        MPI_Barrier(MPI_COMM_WORLD);
+    cout << "Rank: " << myRank << " - Number of grid points: " << myGridIndices.size() << endl;
+    MPI_Barrier(MPI_COMM_WORLD);
     //---------------------------------------------------------------------------
 
     i = 0;

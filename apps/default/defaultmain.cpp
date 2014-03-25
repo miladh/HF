@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
     //options:
     string method = "rhf";
-    string chemicalSystem = "CO2";
+    string chemicalSystem = "benzene";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
@@ -85,8 +85,8 @@ System* setupSystem(string name)
         nElectrons = 2;
         coreCharges = {1 , 1};
         coreMass = {1 , 1};
-        corePos.push_back({ -0.5, 0, 0 });
-        corePos.push_back({  0.5, 0, 0 });
+        corePos.push_back({ -3.0, 0, 0 });
+        corePos.push_back({  3.0, 0, 0 });
         core.push_back(new BasisSet("infiles/turbomole/H_Qzeta"));
         core.push_back(new BasisSet("infiles/turbomole/H_Qzeta"));
 
