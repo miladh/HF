@@ -2,7 +2,6 @@
 #include <armadillo>
 #include <boost/mpi.hpp>
 #include <H5Cpp.h>
-
 #include <hf.h>
 
 using namespace arma;
@@ -24,10 +23,6 @@ int blockSize(int id, int p, int n) {
 
 
 System* setupSystem(string name);
-void angstromToau(vector<rowvec3> &corePos);
-void sampleConfigurations(System* system, HFsolver* solver);
-void convertToCartesian(mat &pos, const double& r, const double& t);
-
 
 int main(int argc, char* argv[])
 {
@@ -44,6 +39,13 @@ int main(int argc, char* argv[])
         exit(1);
     }
     string inFileName = argv[1];
+
+    // MPI----------------------------------------------------------------------
+
+    rowvec A = {1,1,1};
+    Atom atom("infiles/turbomole/C_3-21G",A);
+
+    exit(0);
 
     // MPI----------------------------------------------------------------------
     vector<int> stateIDs;
@@ -81,8 +83,6 @@ int main(int argc, char* argv[])
     cout << "Rank " << world.rank() << ": I have " << stateIDs.size() << " states to compute" << endl;
     world.barrier();
     //------------------------------------------------------------------------
-
-
 
     //Create output file
     stringstream outFileName;
@@ -126,132 +126,131 @@ int main(int argc, char* argv[])
 
 
 
+    //-------------------------------------------------------------------------------------------------------
+
+//    //Create additional dataset elements
+//    struct AtomData {
+//        double partialCharge;
+//    };
+
+//    H5::CompType atomCompound( sizeof(AtomData) );
+//    atomCompound.insertMember("partialCharge", HOFFSET(AtomData, partialCharge), H5::PredType::NATIVE_DOUBLE);
+
+    struct AtomData {
+        double x;
+        double y;
+        double z;
+        double partialCharge;
+    };
+
+    H5::CompType atomCompound( sizeof(AtomData) );
+    atomCompound.insertMember("x", HOFFSET(AtomData, x), H5::PredType::NATIVE_DOUBLE);
+    atomCompound.insertMember("y", HOFFSET(AtomData, y), H5::PredType::NATIVE_DOUBLE);
+    atomCompound.insertMember("z", HOFFSET(AtomData, z), H5::PredType::NATIVE_DOUBLE);
 
 
-    /********************************************************************************/
+    struct AtomMetaData {
+        int    type;
+        char basisName[64];
+    };
+    H5::StrType string_type(H5::PredType::C_S1, 64);
+    H5::CompType atomMetaCompound( sizeof(AtomMetaData) );
+    atomMetaCompound.insertMember( "type", HOFFSET(AtomMetaData, type), H5::PredType::NATIVE_INT);
+    atomMetaCompound.insertMember( "basisName", HOFFSET(AtomMetaData, basisName), string_type);
+    H5::Group rootGroup(outputFile.openGroup("/"));
+    H5::DataSet atomMeta(rootGroup.openDataSet("atomMeta"));
 
-    //options:
-    //    string method = "rhf";
-    //    string chemicalSystem = "CO2";
+    hsize_t dims[1];
+    atomMeta.getSpace().getSimpleExtentDims(dims);
+    int nAtoms = dims[0];
+
+    AtomMetaData atomMetaData[nAtoms];
+    atomMeta.read(atomMetaData, atomMetaCompound);
+
+    H5::Group statesGroup(outputFile.openGroup("/states"));
+
+    int nTotal = statesGroup.getNumObjs();
+    int currentState = 0;
+    for(int stateID = 0; stateID < nTotal; stateID++) {
+
+        string stateName = statesGroup.getObjnameByIdx(stateID);
+        H5::DataSet stateDataSet(statesGroup.openDataSet(stateName));
+        hsize_t dims2[1];
+        stateDataSet.getSpace().getSimpleExtentDims(dims2);
+        int nAtoms2 = dims2[0];
 
 
-    //    //Setup system:
-    //    System *system = setupSystem(chemicalSystem);
-
-    //    if(rank==0){
-    //        cout << "---------------------Configuration Sampler-----------------------"  << endl;
-    //        cout << "system:    " << chemicalSystem << endl;
-    //        cout << "method:    " << method << endl;
-    //    }
-
-    //    //Choose method:
-    //    HFsolver* solver;
-    //    if(method == "rhf"){
-    //        solver = new RHF(system, rank, nProcs);
-    //    }else if(method == "uhf"){
-    //        solver = new UHF(system, rank, nProcs);
-    //    }else{
-    //        cerr << "unknown method!" << endl;
-    //        exit(0);
-    //    }
+        AtomData *atoms = new AtomData[nAtoms2];
+        stateDataSet.read(atoms, atomCompound);
 
 
-    //    sampleConfigurations(system, solver);
+        int nElectrons = 0;
+        int maxAngularMomentum  = 0;
+        vector<int> coreCharges;
+        vector<int> coreMass;
+        vector<BasisSet*> core;
+        vector<rowvec3> corePos;
 
-    //    /********************************************************************************/
+        for(int i = 0; i < nAtoms2; i++) {
+            stringstream basisFile;
+            nElectrons += atomMetaData[i].type;
+            basisFile << "infiles/turbomole/atom_" << atomMetaData[i].type
+                      << "_basis_" << atomMetaData[i].basisName << ".tm";
+            string fileName = basisFile.str();
+
+
+            core.push_back(new BasisSet(fileName));
+            corePos.push_back({ atoms[i].x, atoms[i].y, atoms[i].z});
+            coreCharges.push_back(nElectrons);
+            coreMass.push_back(nElectrons);
+            maxAngularMomentum = max(maxAngularMomentum, core[i]->getAngularMomentum());
+
+
+        }
+
+        System *system = new System(nElectrons, maxAngularMomentum);
+
+        for (uint i = 0; i < core.size(); i++){
+            core[i]->setCorePosition(corePos[i]);
+            core[i]->setCoreCharge(coreCharges[i]);
+            core[i]->setCoreMass(coreMass[i]);
+            system->addBasisSet(core[i]);
+        }
+
+
+        //Choose and run solver
+        HFsolver* solver;
+        string method = "rhf";
+        if(method == "rhf"){
+            solver = new RHF(system, world.rank(), world.size());
+        }else if(method == "uhf"){
+            solver = new UHF(system,  world.rank(), world.size());
+        }else{
+            cerr << "unknown method!" << endl;
+            exit(0);
+        }
+
+        solver->runSolver();
+        double energy = solver->getEnergy();
+
+        H5::Attribute energyAttribute(stateDataSet.createAttribute("energy", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
+        energyAttribute.write(H5::PredType::NATIVE_DOUBLE, &energy);
+        outputFile.flush(H5F_SCOPE_GLOBAL);
+
+        currentState++;
+
+        delete atoms;
+    }
+
+
     if(world.rank()==0){
         cout << "Total elapsed time: "<< timer.elapsed() << "s" << endl;
     }
 
-
     outputFile.close();
-
     return 0;
 
 }
-
-void sampleConfigurations(System* system, HFsolver* solver)
-{
-    int nCores = system->getNumOfCores();
-    int Nr = 5e1;
-    double rMin = 2.0;
-    double rMax = 2.4;
-
-    int Nt = 5e1;
-    double tMin = 3.0*acos(-1)/4.0;
-    double tMax = acos(-1);
-
-    vec bondLength = linspace(rMin, rMax, Nr);
-    vec bondAngle = linspace(tMin, tMax, Nt);
-    mat pos = zeros(nCores, 3);
-    mat data = zeros(bondLength.n_elem * bondAngle.n_elem, 3);
-
-    int i = 0;
-    for(double r: bondLength){
-        for(double t: bondAngle){
-            data(i,1) =  r;
-            data(i,2) =  t;
-            i++;
-        }
-
-    }
-
-
-    int myRank = 0;
-    int nProcs = 1;
-    // MPI----------------------------------------------------------------------
-    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
-    vector<int> myGridIndices;
-
-    int node = 0;
-    int s = 0;
-    for (int p = 0; p < Nr; p++) {
-        if (myRank == node){
-            myGridIndices.push_back(p);
-        }
-        s++;
-        if(s >= blockSize(node, nProcs, Nr)){
-            s = 0;
-            node++;
-        }
-    }
-
-    cout << "Rank: " << myRank << " - Number of grid points: " << myGridIndices.size() << endl;
-    MPI_Barrier(MPI_COMM_WORLD);
-    //---------------------------------------------------------------------------
-
-    i = 0;
-    for(int r: myGridIndices){
-        i = Nt * r;
-        for(double t: bondAngle){
-            cout << "Bond length:    " <<  bondLength[r] << endl;
-            cout << "Bond angle:    "  << t << endl;
-
-            convertToCartesian(pos, bondLength[r], t);
-            for(int core = 0; core < nCores; core++){
-                system->m_basisSet.at(core)->setCorePosition(pos.row(core));
-            }
-            solver->runSolver();
-            data(i, 0) = solver->getEnergy();
-            i++;
-        }
-
-    }
-
-    stringstream fileName;
-    fileName << "/home/milad/kurs/qmd/param/id" << myRank << "_param.bin";
-    data.save(fileName.str(),raw_binary);
-}
-
-
-
-
-
-
-
-
-
 
 System* setupSystem(string name)
 {
@@ -302,24 +301,6 @@ System* setupSystem(string name)
     }
 
     return system;
-}
-
-
-
-void angstromToau(vector<rowvec3>& corePos)
-{
-    for(rowvec3& pos: corePos){
-        pos *= 1.889725989;
-    }
-}
-
-void convertToCartesian(mat &pos, const double& r, const double& t)
-{
-    rowvec r1 = {-r * sin(t*0.5), r * cos(t*0.5), 0};
-    rowvec r2 = { r * sin(t*0.5), r * cos(t*0.5), 0};
-
-    pos.row(0) = r1;
-    pos.row(1) = r2;
 }
 
 

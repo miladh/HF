@@ -19,7 +19,9 @@ SOURCES += \
     bomd/bomd.cpp \
     geometricalDerivative/geometricalderivative.cpp \
     hfSolver/uhf.cpp \
-    hfSolver/rhf.cpp
+    hfSolver/rhf.cpp \
+    atom/atom.cpp \
+    parser/turbomoleparser.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -36,6 +38,8 @@ HEADERS += \
     defines.h \
     geometricalDerivative/geometricalderivative.h \
     hfSolver/uhf.h \
-    hfSolver/rhf.h
+    hfSolver/rhf.h \
+    atom/atom.h \
+    parser/turbomoleparser.h
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h

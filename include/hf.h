@@ -6,3 +6,4 @@
 #include "../src/hfSolver/uhf.h"
 #include "../src/cpmd/cpmd.h"
 #include "../src/bomd/bomd.h"
+#include "../src/atom/atom.h"

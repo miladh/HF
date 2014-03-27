@@ -63,6 +63,22 @@ void System::addBasisSet(BasisSet *basisSet)
 
 }
 
+
+void System::addAtom(Atom *atom)
+{
+
+//    int core = m_basisSet.size();
+//    int nGTOs = basisSet->getNumContracted();
+
+//    for(int i = 0; i <nGTOs; i++){
+//        m_coreID.push_back(core);
+//    }
+
+//    m_cumSumContracted.push_back(m_cumSumContracted.back()+ nGTOs);
+//    m_basisSet.push_back(basisSet);
+
+}
+
 rowvec System::getOneParticleIntegral(const int a, const int b)
 {
     double Sab = 0;

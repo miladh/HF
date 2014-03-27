@@ -7,6 +7,7 @@
 
 #include "../integrator/integrator.h"
 #include "../basisSet/basisset.h"
+#include "../atom/atom.h"
 
 
 using namespace arma;
@@ -47,6 +48,9 @@ public:
     double gaussianProduct(const int a, const int b, const double &x, const double &y, const double &z);
 
     void computePartialCharge(const mat &PS);
+    void addAtom(Atom *atom);
+
+
 private:
     Integrator integrator;
     vector<int > m_coreID;
