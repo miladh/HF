@@ -7,15 +7,6 @@ ElectronicSystem::ElectronicSystem(const int& maxAngularMomentum)
     integrator.setMaxAngularMomentum(maxAngularMomentum);
 }
 
-ElectronicSystem::ElectronicSystem(const int& nSpinUpElectrons, const int& nSpinDownElectrons, const int& maxAngularMomentum):
-    m_nElectrons(nSpinUpElectrons + nSpinDownElectrons),
-    m_nSpinUpElectrons(nSpinUpElectrons),
-    m_nSpinDownElectrons(nSpinDownElectrons)
-
-{
-    integrator.setMaxAngularMomentum(maxAngularMomentum);
-}
-
 const int& ElectronicSystem::nElectrons() const
 {
     return m_nElectrons;
@@ -23,7 +14,7 @@ const int& ElectronicSystem::nElectrons() const
 
 const int& ElectronicSystem::nSpinUpElectrons() const
 {
-    return m_nSpinDownElectrons;
+    return m_nSpinUpElectrons;
 }
 
 const int& ElectronicSystem::nSpinDownElectrons() const
@@ -47,6 +38,9 @@ void ElectronicSystem::addAtom(Atom* atom)
 
     m_atoms.push_back(atom);
     m_nElectrons += atom->nElectrons();
+
+    m_nSpinDownElectrons = m_nElectrons /2;
+    m_nSpinUpElectrons = m_nElectrons /2;
 
     for(const ContractedGTO &CGTO : atom->contractedGTOs()){
         m_basisFunctions.push_back(&CGTO);

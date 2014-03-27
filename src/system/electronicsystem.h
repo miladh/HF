@@ -19,7 +19,6 @@ namespace hf
 class ElectronicSystem
 {
 public:
-    ElectronicSystem(const int& nSpinUpElectrons, const int& nSpinDownElectrons, const int& maxAngularMomentum);
     ElectronicSystem(const int& maxAngularMomentum);
 
 

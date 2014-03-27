@@ -106,7 +106,7 @@ SUITE(DEVELOPMENT) {
 
         atomA = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {-0.6925, 0.0, 0.0});
         atomB = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { 0.6925, 0.0, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum() + 1;
+        int maxAngularMomentum = atomA->angularMomentum();
 
         ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
         system->addAtom(atomA);

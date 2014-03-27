@@ -16,7 +16,6 @@ void Atom::loadBasisFile(string fileName)
     m_coreMass   = parser.atomMass();
     m_angularMomentum = parser.angularMomentum();
     m_nElectrons = int(m_atomType);
-
     m_contractedGTOs = parser.contractedGTOs();
 
 //    cout << m_contractedGTOs.size() << endl;

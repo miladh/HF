@@ -9,7 +9,8 @@ int main(int argc, char **argv)
 {
     MPI::Init(argc, argv);
     int result = 0;
-    bool slowTests = 1;
+    bool slowTests = 0;
+    bool slowTests_UHF = 1;
     bool gradient = 1;
 
     UnitTest::TestReporterStdout reporter;
@@ -20,6 +21,11 @@ int main(int argc, char **argv)
     if(slowTests){
         result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "SLOWTESTS", UnitTest::True(), 0);
     }
+
+    if(slowTests_UHF){
+        result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "SLOWTESTS_UHF", UnitTest::True(), 0);
+    }
+
     if(gradient){
         result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "GRADIENT", UnitTest::True(), 0);
 

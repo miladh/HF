@@ -83,7 +83,6 @@ void HFsolver::runSolver()
              << "% spent on two-body term " << endl;
     }
 
-
     updateFockMatrix();
 
     laps = MPI_Wtime();

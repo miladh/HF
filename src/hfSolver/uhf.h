@@ -14,9 +14,6 @@ class UHF : public HFsolver
 {
 public:
     UHF(ElectronicSystem *system, const int &rank, const int &nProcs);
-
-
-
     field<mat> getFockMatrix();
     field<mat> getDensityMatrix() const;
 
