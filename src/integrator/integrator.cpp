@@ -27,7 +27,6 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
         m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
     }
 
-
     int nMax_en = 2 * m_maxAngularMomentum + 1;
     m_Ren.set_size(nMax_en);
     for(int n = 0; n < nMax_en; n++){
@@ -115,6 +114,7 @@ void Integrator::setPrimitiveD(const PrimitiveGTO &primitiveD)
 
 void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral, bool kin)
 {
+
     if(oneParticleIntegral){
         if(kin){
             m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,

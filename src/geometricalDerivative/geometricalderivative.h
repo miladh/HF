@@ -17,11 +17,11 @@ namespace hf {
 class GeometricalDerivative
 {
 public:
-    GeometricalDerivative(System *system, HFsolver *solver);
+    GeometricalDerivative(ElectronicSystem *system, HFsolver *solver);
     const rowvec &energyGradient(const int core);
 
 private:
-    System *m_system;
+    ElectronicSystem *m_system;
     HFsolver *m_solver;
     rowvec3 m_gradE, m_totGradE;
     field<field<rowvec3>>m_dQ;

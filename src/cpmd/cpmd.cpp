@@ -1,12 +1,14 @@
 #include "cpmd.h"
+
 using namespace hf;
-CPMD::CPMD(System *system, const int &rank, const int &nProcs):
+
+CPMD::CPMD(ElectronicSystem *system, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),
     m_system(system),
-    m_nCores(system->getNumOfCores()),
-    m_nElectrons(system->getNumOfElectrons()),
-    m_nOrbitals(system->getTotalNumOfBasisFunc()),
+    m_nCores(system->nAtoms()),
+    m_nElectrons(system->nElectrons()),
+    m_nOrbitals(system->nBasisFunctions()),
     m_C(ones(m_nOrbitals,m_nElectrons/2.0)),
     m_Cp(ones(m_nOrbitals,m_nElectrons/2.0)),
     m_Cm(ones(m_nOrbitals,m_nElectrons/2.0)),
@@ -54,7 +56,7 @@ CPMD::CPMD(System *system, const int &rank, const int &nProcs):
 
 
     for(int core = 0; core < m_nCores; core++){
-        pos.row(core) = m_system->m_basisSet.at(core)->corePosition();
+        pos.row(core) = m_system->m_atoms.at(core)->corePosition();
     }
 
     posOld = pos;
@@ -133,7 +135,7 @@ void CPMD::IntegrateWavefunctionForwardInTime(int orb)
 
 void CPMD::IntegrateCoreForwardInTime(int core)
 {
-    int coreMass = m_system->m_basisSet.at(core)->coreMass();
+    int coreMass = m_system->m_atoms.at(core)->coreMass();
     mat tmp = zeros(m_nOrbitals, m_nOrbitals);
 
 
@@ -185,7 +187,7 @@ double CPMD::calculateEnergy()
     }
 
     //Nuclear repulsion term
-    Eg +=m_system->getNucleiPotential();
+    Eg +=m_system->nuclearPotential();
 
     return Eg;
 
@@ -209,7 +211,7 @@ rowvec CPMD::calculateEnergy_derivative(int core)
 
 
     //Nuclear repulsion term
-    dE  +=m_system->getNucleiPotential_derivative(core);
+    dE  +=m_system->nuclearPotentialGD(core);
 
     return dE;
 }
@@ -269,7 +271,7 @@ void CPMD::updateCorePositions()
 {
 
     for(int core = 0; core < m_nCores; core++){
-        m_system->m_basisSet.at(core)->setCorePosition(pos.row(core));
+        m_system->m_atoms.at(core)->setCorePosition(pos.row(core));
     }
 
 }

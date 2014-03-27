@@ -2,7 +2,7 @@
 
 using namespace hf;
 
-RHF::RHF(System *system, const int &rank, const int &nProcs):
+RHF::RHF(ElectronicSystem *system, const int &rank, const int &nProcs):
     HFsolver(system, rank, nProcs),
     m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_C(ones(m_nBasisFunctions,m_nBasisFunctions)),
@@ -41,6 +41,7 @@ void RHF::solveSingle()
     vec eigVal; mat eigVec, V;
     eig_sym(eigVal, eigVec, m_S);
     V = eigVec*diagmat(1.0/sqrt(eigVal));
+
 
 //    DIISprocedure();
 
@@ -103,7 +104,7 @@ void RHF::updateFockMatrix()
 
 void RHF::calculateEnergy()
 {
-    m_energy = 0.5 * accu(m_P % (m_h + m_F)) + m_system->getNucleiPotential();
+    m_energy = 0.5 * accu(m_P % (m_h + m_F)) + m_system->nuclearPotential();
 }
 
 const mat& RHF::getExpansionCoeff() const

@@ -2,7 +2,7 @@
 
 using namespace hf;
 
-UHF::UHF(System *system, const int &rank, const int &nProcs):
+UHF::UHF(ElectronicSystem *system, const int &rank, const int &nProcs):
     HFsolver(system, rank, nProcs),
     m_Fu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Cu(ones(m_nBasisFunctions,m_nBasisFunctions)),
@@ -122,7 +122,7 @@ void UHF::DIISprocedure()
 void UHF::calculateEnergy()
 {
     m_energy = 0.5 * accu( (m_Pu + m_Pd) % m_h + m_Fu % m_Pu + m_Fd % m_Pd)
-               + m_system->getNucleiPotential();
+               + m_system->nuclearPotential();
 }
 
 void UHF::updateFockMatrix()

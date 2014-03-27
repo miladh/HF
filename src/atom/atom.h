@@ -16,7 +16,7 @@ public:
     const int &angularMomentum() const;
     const int &atomType() const;
     const int &nElectrons() const;
-    const int nContractedGTOs() const;
+    int nContractedGTOs() const;
     const double &coreMass() const;
     const vector<ContractedGTO> &contractedGTOs() const;
 

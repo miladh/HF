@@ -36,29 +36,29 @@ int main(int argc, char **argv)
 
 
     //Setup system:
-    System *system = setupSystem(chemicalSystem);
+//    ElectronicSystem *system = setupSystem(chemicalSystem);
 
 
-    //Choose method:
-    HFsolver* solver;
-    if(method == "rhf"){
-        solver = new RHF(system, rank, nProcs);
-    }else if(method == "uhf"){
-        solver = new UHF(system, rank, nProcs);
-    }else{
-        cerr << "unknown method!" << endl;
-        exit(0);
-    }
+//    //Choose method:
+//    HFsolver* solver;
+//    if(method == "rhf"){
+//        solver = new RHF(system, rank, nProcs);
+//    }else if(method == "uhf"){
+//        solver = new UHF(system, rank, nProcs);
+//    }else{
+//        cerr << "unknown method!" << endl;
+//        exit(0);
+//    }
 
 
-    solver->runSolver();
+//    solver->runSolver();
 
 
-    /********************************************************************************/
-    clock_t end = clock();
-    if(rank==0){
-        cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
-    }
+//    /********************************************************************************/
+//    clock_t end = clock();
+//    if(rank==0){
+//        cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
+//    }
 
     MPI::Finalize();
     return 0;
@@ -75,7 +75,7 @@ void angstromToau(vector<rowvec3>& corePos)
 
 
 System* setupSystem(string name)
-{
+{/*
     int nElectrons;
     rowvec coreCharges,coreMass;
     vector<BasisSet*> core;
@@ -239,10 +239,10 @@ System* setupSystem(string name)
         core[i]->setCoreCharge(coreCharges(i));
         core[i]->setCoreMass(coreMass(i));
         system->addBasisSet(core[i]);
-    }
+    }*/
 
 
-    return system;
+//    return system;
 
 
 }

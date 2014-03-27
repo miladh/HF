@@ -2,10 +2,10 @@
 
 using namespace hf;
 
-GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
+GeometricalDerivative::GeometricalDerivative(ElectronicSystem *system, HFsolver *solver):
     m_system(system),
     m_solver(solver),
-    m_nBasisFunctions(system->getTotalNumOfBasisFunc())
+    m_nBasisFunctions(system->nBasisFunctions())
 {
     m_dh.set_size(m_nBasisFunctions,m_nBasisFunctions);
     m_dS.set_size(m_nBasisFunctions,m_nBasisFunctions);
@@ -130,7 +130,7 @@ void GeometricalDerivative::calculateEnergyGradient()
     }
 
     //    Nuclear repulsion term
-    m_totGradE  +=m_system->getNucleiPotential_derivative(m_differentiationCore);
+    m_totGradE  +=m_system->nuclearPotentialGD(m_differentiationCore);
 
 
 

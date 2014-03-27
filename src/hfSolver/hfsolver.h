@@ -7,6 +7,8 @@
 #include <mpi.h>
 #include "../defines.h"
 #include "../system/system.h"
+#include "../system/electronicsystem.h"
+
 
 using namespace arma;
 using namespace std;
@@ -16,7 +18,7 @@ namespace hf
 class HFsolver
 {
 public:
-   HFsolver(System *system, const int &rank, const int &nProcs);
+   HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs);
    void runSolver();
 
    const field<mat> &getQmatrix();
@@ -33,7 +35,7 @@ public:
 
 protected:
    int m_rank, m_nProcs, m_step, m_iteration;
-   System *m_system;
+   ElectronicSystem * m_system;
    cube m_density;
 
    int m_nElectrons, m_nSpinUpElectrons, m_nSpinDownElectrons, m_nBasisFunctions;

@@ -2,11 +2,7 @@
 
 using namespace hf;
 
-ElectronicSystem::ElectronicSystem(const int& nElectrons, const int& maxAngularMomentum):
-    m_nElectrons(nElectrons),
-    m_nSpinUpElectrons(nElectrons/2),
-    m_nSpinDownElectrons(nElectrons/2)
-
+ElectronicSystem::ElectronicSystem(const int& maxAngularMomentum)
 {
     integrator.setMaxAngularMomentum(maxAngularMomentum);
 }
@@ -35,6 +31,17 @@ const int& ElectronicSystem::nSpinDownElectrons() const
     return m_nSpinDownElectrons;
 }
 
+int ElectronicSystem::nBasisFunctions()
+{
+    return m_basisFunctions.size();
+}
+
+int ElectronicSystem::nAtoms()
+{
+    return m_atoms.size();
+}
+
+
 void ElectronicSystem::addAtom(Atom* atom)
 {
 
@@ -54,18 +61,17 @@ double ElectronicSystem::overlapIntegral(const int& p, const int& q)
     integrator.setCorePositionA(CGp->center());
     integrator.setCorePositionB(CGq->center());
 
+
     for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
         integrator.setPrimitiveA(Gp);
 
         for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
             integrator.setPrimitiveB(Gq);
-            integrator.updateHermiteCoefficients(true, false);
+            integrator.updateHermiteCoefficients(true, false, false);
 
-            Spq += integrator.overlapIntegral()
-                    * Gp.weight() * Gq.weight();
+            Spq += integrator.overlapIntegral() * Gp.weight() * Gq.weight();
         }
     }
-
     return Spq;
 }
 
@@ -82,10 +88,9 @@ double ElectronicSystem::oneParticleIntegral(const int& p, const int& q)
 
         for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
             integrator.setPrimitiveB(Gq);
-            integrator.updateHermiteCoefficients(true, false);
+            integrator.updateHermiteCoefficients(true, false,true);
 
-            hpq += Gp.weight() * Gq.weight();
-            integrator.kineticIntegral();
+            hpq += Gp.weight() * Gq.weight()* integrator.kineticIntegral();
 
             for(const Atom *atom : m_atoms){
                 integrator.setCorePositionC(atom->corePosition());
@@ -146,7 +151,7 @@ double ElectronicSystem::nuclearPotential()
 
     for(int i = 0; i < int(m_atoms.size()); i++){
         for(int j = i+1; j < int(m_atoms.size()); j++){
-            rowvec3 AB = m_atoms.at(i)->corePosition() - m_atoms.at(j)->corePosition();
+            rowvec AB = m_atoms.at(i)->corePosition() - m_atoms.at(j)->corePosition();
 
             Vn += m_atoms.at(i)->coreCharge() * m_atoms.at(j)->coreCharge()
                     /sqrt(dot(AB,AB));
@@ -238,7 +243,7 @@ rowvec ElectronicSystem::nuclearPotentialGD(int activeCore)
 
     for(int i = 0; i < int(m_atoms.size()); i++){
         for(int j = i+1; j < int(m_atoms.size()); j++){
-            rowvec3 AB = m_atoms.at(i)->corePosition() - m_atoms.at(j)->corePosition();
+            rowvec AB = m_atoms.at(i)->corePosition() - m_atoms.at(j)->corePosition();
 
             if(activeCore == i){
                 dVn -= AB * m_atoms.at(i)->coreCharge() * m_atoms.at(j)->coreCharge()/pow(dot(AB,AB),1.5);

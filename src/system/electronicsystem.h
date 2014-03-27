@@ -20,18 +20,18 @@ class ElectronicSystem
 {
 public:
     ElectronicSystem(const int& nSpinUpElectrons, const int& nSpinDownElectrons, const int& maxAngularMomentum);
-    ElectronicSystem(const int& nElectrons, const int& maxAngularMomentum);
+    ElectronicSystem(const int& maxAngularMomentum);
+
+
+    vector<Atom *> m_atoms; //Should be private!!!
 
     void addBasisSet(BasisSet *basisSet);
-    int getTotalNumOfBasisFunc();
+    int nBasisFunctions();
+    int nAtoms();
     const int &nElectrons() const;
     const int &nSpinUpElectrons() const;
     const int &nSpinDownElectrons() const;
 
-    int getNumOfCores();
-
-
-    rowvec getNucleiPotential_derivative(int activeCore);
     mat getOneParticleDerivative(const int a, const int b, const int N);
     rowvec getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
                                             const int N);
@@ -54,13 +54,12 @@ public:
     rowvec nuclearPotentialGD(int activeCore);
 private:
     Integrator integrator;
-    vector<Atom *> m_atoms;
     vector<const ContractedGTO *> m_basisFunctions;
 
-    int m_nElectrons;
-    int m_nSpinUpElectrons;
-    int m_nSpinDownElectrons;
-    int m_nBasisFunctions;
+    int m_nElectrons = 0;
+    int m_nSpinUpElectrons = 0;
+    int m_nSpinDownElectrons = 0;
+
 };
 
 }

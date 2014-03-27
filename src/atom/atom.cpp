@@ -2,10 +2,10 @@
 
 using namespace hf;
 
-Atom::Atom(string basisFile, const rowvec& corePosition):
-    m_corePosition(corePosition)
+Atom::Atom(string basisFile, const rowvec& corePosition)
 {
     loadBasisFile(basisFile);
+    setCorePosition(corePosition);
 }
 
 void Atom::loadBasisFile(string fileName)
@@ -16,10 +16,11 @@ void Atom::loadBasisFile(string fileName)
     m_coreMass   = parser.atomMass();
     m_angularMomentum = parser.angularMomentum();
     m_nElectrons = int(m_atomType);
+
     m_contractedGTOs = parser.contractedGTOs();
 
-    cout << m_contractedGTOs.size() << endl;
-    cout << m_angularMomentum << m_atomType  << m_nElectrons << m_coreCharge <<"   " << m_coreMass << endl;
+//    cout << m_contractedGTOs.size() << endl;
+//    cout << m_angularMomentum << m_atomType  << m_nElectrons << m_coreCharge <<"   " << m_coreMass << endl;
 
 }
 
@@ -48,7 +49,7 @@ const int& Atom::angularMomentum() const
     return m_angularMomentum;
 }
 
-const int Atom::nContractedGTOs() const
+int Atom::nContractedGTOs() const
 {
     return m_contractedGTOs.size();
 }

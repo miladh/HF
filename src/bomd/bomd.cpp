@@ -2,13 +2,13 @@
 
 using namespace hf;
 
-BOMD::BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs):
+BOMD::BOMD(ElectronicSystem *system, HFsolver *solver, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),
     m_system(system),
     m_solver(solver),
-    m_nCores(system->getNumOfCores()),
-    m_nOrbitals(system->getTotalNumOfBasisFunc())
+    m_nCores(system->nAtoms()),
+    m_nOrbitals(system->nBasisFunctions())
 
 
 {
@@ -22,7 +22,7 @@ BOMD::BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs)
     posOld = zeros(m_nCores, 3);
 
     for(int core = 0; core < m_nCores; core++){
-        pos.row(core) = m_system->m_basisSet.at(core)->corePosition();
+        pos.row(core) = m_system->m_atoms.at(core)->corePosition();
     }
 
     posOld = pos;
@@ -73,7 +73,7 @@ void BOMD::solveSingleStep()
 
 void BOMD::IntegrateCoreForwardInTime(int core)
 {
-    int coreMass = m_system->m_basisSet.at(core)->coreMass();
+    int coreMass = m_system->m_atoms.at(core)->coreMass();
 
     posNew.row(core) = 2 * pos.row(core) - posOld.row(core)
             - m_dtn * m_dtn * m_energyGradient / coreMass;
@@ -86,7 +86,7 @@ void BOMD::IntegrateCoreForwardInTime(int core)
 void BOMD::updateCorePositions()
 {
     for(int core = 0; core < m_nCores; core++){
-        m_system->m_basisSet.at(core)->setCorePosition(pos.row(core));
+        m_system->m_atoms.at(core)->setCorePosition(pos.row(core));
     }
 
 }

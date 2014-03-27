@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../src/system/electronicsystem.h"
 #include "../src/system/system.h"
 #include "../src/hfSolver/hfsolver.h"
 #include "../src/hfSolver/rhf.h"

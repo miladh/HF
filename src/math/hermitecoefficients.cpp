@@ -15,7 +15,7 @@ bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
 
 
 void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                                 const rowvec3 &R, field<cube> &E, bool kin)
+                                 const rowvec &R, field<cube> &E, bool kin)
 {
 
 //    int iAmax = E(0).n_rows;

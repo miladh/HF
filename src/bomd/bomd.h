@@ -17,7 +17,7 @@ namespace hf{
 class BOMD
 {
 public:
-    BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs);
+    BOMD(ElectronicSystem *system, HFsolver *solver, const int &rank, const int &nProcs);
 
     void runDynamics();
     void solveSingleStep();
@@ -27,7 +27,7 @@ public:
 
 private:
     int m_rank, m_nProcs;
-    System* m_system;
+    ElectronicSystem* m_system;
     HFsolver *m_solver;
     GeometricalDerivative* m_GD;
     int m_nCores,  m_nOrbitals;

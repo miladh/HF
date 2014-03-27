@@ -1,18 +1,16 @@
 #include "hfsolver.h"
 
-
 using namespace hf;
 
-
-HFsolver::HFsolver(System *system, const int &rank, const int &nProcs):
+HFsolver::HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs):
     m_rank(rank),
     m_nProcs(nProcs),
     m_step(0),
     m_system(system),
-    m_nElectrons(system->getNumOfElectrons()),
-    m_nSpinUpElectrons(system->getNumOfSpinUpElectrons()),
-    m_nSpinDownElectrons(system->getNumOfSpinDownElectrons()),
-    m_nBasisFunctions(system->getTotalNumOfBasisFunc()),
+    m_nElectrons(system->nElectrons()),
+    m_nSpinUpElectrons(system->nSpinUpElectrons()),
+    m_nSpinDownElectrons(system->nSpinDownElectrons()),
+    m_nBasisFunctions(system->nBasisFunctions()),
     m_S(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_h(zeros(m_nBasisFunctions,m_nBasisFunctions))
 
@@ -77,7 +75,6 @@ void HFsolver::runSolver()
     double laps = MPI_Wtime();
     setupTwoParticleMatrix();
 
-
     double end = MPI_Wtime();
     if(m_rank==0){
         cout << setprecision(3)
@@ -117,7 +114,7 @@ void HFsolver::setupTwoParticleMatrix()
         for(int r = 0; r < m_nBasisFunctions; r++){
             for(int q = p; q < m_nBasisFunctions; q++){
                 for(int s = r; s < m_nBasisFunctions; s++){
-                    m_Q(p,r)(q,s) = m_system->getTwoParticleIntegral(p,q,r,s);
+                    m_Q(p,r)(q,s) = m_system->twoParticleIntegral(p,q,r,s);
                 }
             }
         }
@@ -158,12 +155,11 @@ void HFsolver::setupTwoParticleMatrix()
 
 void HFsolver::setupOneParticleMatrix()
 {
-    rowvec oneElectronIntegrals;
+
     for(int p = 0; p < m_nBasisFunctions; p++){
         for(int q = p; q < m_nBasisFunctions; q++){
-            oneElectronIntegrals = m_system->getOneParticleIntegral(p,q);
-            m_S(p,q) = oneElectronIntegrals(0);
-            m_h(p,q) = oneElectronIntegrals(1);
+            m_S(p,q) = m_system->overlapIntegral(p,q);
+            m_h(p,q) = m_system->oneParticleIntegral(p,q);
         }
     }
 
@@ -221,7 +217,7 @@ void HFsolver::densityOutput(const double &xMin, const double &xMax,
     ofstream cubeFile(cubeFileName.str(), ios::out | ios::binary);
 
     //Header
-    double nCores = m_system->getNumOfCores();
+    double nCores = m_system->nAtoms();
     vec origo = {0,0,0};
     vec xLimits = {xMin, xMax};
     vec yLimits = {yMin, yMax};
@@ -248,8 +244,8 @@ void HFsolver::densityOutput(const double &xMin, const double &xMax,
     cubeFile.write(reinterpret_cast<const char*>(&zLimits(1)), sizeof(double));
 
     for(int core = 0; core < nCores; core++){
-        rowvec3 R = m_system->m_basisSet.at(core)->corePosition();
-        double atomType = m_system->m_basisSet.at(core)->coreCharge();
+        rowvec3 R = m_system->m_atoms.at(core)->corePosition();
+        double atomType = m_system->m_atoms.at(core)->coreCharge();
 
         cubeFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
         cubeFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));

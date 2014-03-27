@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <armadillo>
 
-#include "../system/system.h"
+#include "../system/electronicsystem.h"
 #include "../hfSolver/hfsolver.h"
 #include "../hfSolver/rhf.h"
 
@@ -17,13 +17,13 @@ namespace hf
 class CPMD
 {
 public:
-    CPMD(System *system, const int &rank, const int &nProcs);
+    CPMD(ElectronicSystem *system, const int &rank, const int &nProcs);
 
     void runDynamics();
 
 private:
     int m_rank, m_nProcs;
-    System* m_system;
+    ElectronicSystem* m_system;
     HFsolver *m_solver;
 
     int m_nCores, m_nElectrons, m_nOrbitals;

@@ -13,7 +13,8 @@ namespace hf {
 class RHF : public HFsolver
 {
 public:
-    RHF(System *system, const int &rank, const int &nProcs);
+    RHF(ElectronicSystem *system, const int &rank, const int &nProcs);
+
 
     const mat& getExpansionCoeff() const;
     field<mat> getFockMatrix();
