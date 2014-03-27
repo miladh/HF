@@ -67,6 +67,8 @@ void System::addBasisSet(BasisSet *basisSet)
 void System::addAtom(Atom *atom)
 {
 
+    m_atoms.push_back(atom);
+
 //    int core = m_basisSet.size();
 //    int nGTOs = basisSet->getNumContracted();
 

@@ -23,6 +23,7 @@ public:
     System(const int& nElectrons, const int& maxAngularMomentum);
 
     vector<BasisSet *> m_basisSet;
+    vector<Atom *> m_atoms;
 
     void addBasisSet(BasisSet *basisSet);
     int getTotalNumOfBasisFunc();

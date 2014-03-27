@@ -19,8 +19,15 @@ public:
     int getNumPrimitives() const;
     const PrimitiveGTO &getPrimitive(const int p) const;
 
+    const rowvec &center() const;
+    void setCenter(const rowvec &center);
+
+    const vector<PrimitiveGTO>& primitivesGTOs() const;
+    void setPrimitivesGTOs(const vector<PrimitiveGTO> &primitivesGTOs);
+
 private:
     vector<PrimitiveGTO> m_primitivesGTOs;
+    rowvec m_center;
 };
 }
 

@@ -48,6 +48,10 @@ const int& Atom::angularMomentum() const
     return m_angularMomentum;
 }
 
+const int Atom::nContractedGTOs() const
+{
+    return m_contractedGTOs.size();
+}
 const double& Atom::corePartialCharge() const
 {
     return m_corePartialCharge;
@@ -66,7 +70,13 @@ const vector<ContractedGTO>& Atom::contractedGTOs() const
 void Atom::setCorePosition(const rowvec &corePosition)
 {
     m_corePosition = corePosition;
+
+    for(ContractedGTO &CGTO : m_contractedGTOs) {
+            CGTO.setCenter(m_corePosition);
+        }
+
 }
+
 
 void Atom::setCorePartialCharge(const double& corePartialCharge)
 {

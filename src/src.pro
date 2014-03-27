@@ -21,7 +21,8 @@ SOURCES += \
     hfSolver/uhf.cpp \
     hfSolver/rhf.cpp \
     atom/atom.cpp \
-    parser/turbomoleparser.cpp
+    parser/turbomoleparser.cpp \
+    system/electronicsystem.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -40,6 +41,7 @@ HEADERS += \
     hfSolver/uhf.h \
     hfSolver/rhf.h \
     atom/atom.h \
-    parser/turbomoleparser.h
+    parser/turbomoleparser.h \
+    system/electronicsystem.h
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h
