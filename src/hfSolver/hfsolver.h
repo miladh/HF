@@ -4,7 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <armadillo>
-#include <mpi.h>
+#include <boost/mpi.hpp>
 #include "../defines.h"
 #include "../system/electronicsystem.h"
 
@@ -17,7 +17,7 @@ namespace hf
 class HFsolver
 {
 public:
-   HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs);
+   HFsolver(ElectronicSystem *system);
    void runSolver();
 
    const mat& overlapMatrix() const;
@@ -48,6 +48,8 @@ protected:
    double m_energy;
 
    // MPI-----------------------
+   boost::mpi::communicator m_world;
+   boost::mpi::timer m_timer;
    ivec m_basisIndexToProcsMap;
    vector<int> m_myBasisIndices;
    //---------------------------

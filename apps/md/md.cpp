@@ -1,6 +1,6 @@
 #include <iostream>
 #include <armadillo>
-#include <mpi.h>
+#include <boost/mpi.hpp>
 
 #include <hf.h>
 
@@ -12,9 +12,12 @@ ElectronicSystem* setupSystem(string name);
 int main(int argc, char **argv)
 {
 
-    MPI::Init(argc, argv);
-    int rank = MPI::COMM_WORLD.Get_rank();
-    int nProcs = MPI::COMM_WORLD.Get_size();
+    int rank = 0;
+#if USE_MPI
+    boost::mpi::environment env(argc, argv);
+    boost::mpi::communicator world;
+    rank = world.rank();
+#endif
 
     clock_t begin = clock();
 
@@ -38,16 +41,16 @@ int main(int argc, char **argv)
     //Choose method:
     HFsolver* solver;
     if(method == "rhf"){
-        solver = new RHF(system, rank, nProcs);
+        solver = new RHF(system);
     }else if(method == "uhf"){
-        solver = new UHF(system, rank, nProcs);
+        solver = new UHF(system);
     }else{
         cerr << "unknown method!" << endl;
         exit(0);
     }
 
 
-    BOMD boSolver(system, solver, rank, nProcs);
+    BOMD boSolver(system, solver);
     boSolver.runDynamics();
 
     /********************************************************************************/
@@ -56,7 +59,6 @@ int main(int argc, char **argv)
         cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
     }
 
-    MPI::Finalize();
     return 0;
 }
 

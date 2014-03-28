@@ -16,7 +16,7 @@ namespace hf{
 class BOMD
 {
 public:
-    BOMD(ElectronicSystem *system, HFsolver *solver, const int &rank, const int &nProcs);
+    BOMD(ElectronicSystem *system, HFsolver *solver);
 
     void runDynamics();
     void solveSingleStep();
@@ -25,11 +25,13 @@ public:
     const rowvec& getEnergyGradient() const;
 
 private:
-    int m_rank, m_nProcs;
+    int m_rank;
     ElectronicSystem* m_system;
     HFsolver *m_solver;
     GeometricalDerivative* m_GD;
-    int m_nCores,  m_nOrbitals;
+    vector<Atom *> m_atoms;
+
+    int m_nAtoms;
     int m_nSteps;
 
     double m_dtn;

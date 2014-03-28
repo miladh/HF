@@ -13,9 +13,9 @@ GeometricalDerivative::GeometricalDerivative(ElectronicSystem *system, HFsolver 
     m_rank = 0;
     m_nProcs = 1;
     // MPI----------------------------------------------------------------------
-#ifdef USE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &m_nProcs);
+#if USE_MPI
+    m_rank   = m_world.rank();
+    m_nProcs = m_world.size();
 #endif
 
     int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
@@ -107,8 +107,9 @@ void GeometricalDerivative::calculateEnergyGradient()
         }
     }
 
-    //MPI
-    MPI_Allreduce(m_gradE.memptr(), m_totGradE.memptr(), m_gradE.n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#if USE_MPI
+        boost::mpi::all_reduce(m_world, m_gradE.memptr(), m_gradE.n_elem, m_totGradE.memptr(), std::plus<double>());
+#endif
 
     mat dSx, dSy,dSz;
     dSx = zeros(m_nBasisFunctions,m_nBasisFunctions);

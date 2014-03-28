@@ -1,9 +1,9 @@
 #include <unittest++/UnitTest++.h>
-#include <hf.h>
-#include<mpi.h>
 #include <armadillo>
 #include <iostream>
 #include <fstream>
+#include <boost/mpi.hpp>
+#include <hf.h>
 
 
 using namespace std;
@@ -25,7 +25,12 @@ SUITE(DEVELOPMENT) {
      *      Peter Atkins
      * */
 
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "H2O" << endl;
             cout << "method:    " << "UHF" << endl;
             cout << "basis:     " << "4-31G" << endl;
@@ -50,7 +55,7 @@ SUITE(DEVELOPMENT) {
         system->addAtom(atomB);
         system->addAtom(atomC);
 
-        UHF *solver = new UHF(system,0,1);
+        UHF *solver = new UHF(system);
         solver->runSolver();
 
         CHECK_CLOSE(-75.907340813846, solver->getEnergy(), 1e-9);
@@ -72,8 +77,12 @@ SUITE(SLOWTESTS_UHF) {
      *      J. Chem. Phys. 118, 1610 (2003);
      *      http://dx.doi.org/10.1063/1.1531658
      * */
-
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "HF" << endl;
             cout << "method:    " << "UHF" << endl;
             cout << "basis:     " << "6-31G**" << endl;
@@ -90,7 +99,7 @@ SUITE(SLOWTESTS_UHF) {
         system->addAtom(atomA);
         system->addAtom(atomB);
 
-        UHF *solver = new UHF(system,0,1);
+        UHF *solver = new UHF(system);
         solver->runSolver();
 
         double E = -100.020326;
@@ -114,7 +123,12 @@ SUITE(SLOWTESTS_UHF) {
      *      http://dx.doi.org/10.1063/1.1531658
      * */
 
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "CH4" << endl;
             cout << "method:    " << "UHF" << endl;
             cout << "basis:     " << "6-31G*" << endl;
@@ -153,7 +167,7 @@ SUITE(SLOWTESTS_UHF) {
         system->addAtom(atomE);
 
 
-        UHF *solver = new UHF(system,0,1);
+        UHF *solver = new UHF(system);
         solver->runSolver();
 
         double energy = -40.349369;

@@ -13,7 +13,7 @@ namespace hf {
 class UHF : public HFsolver
 {
 public:
-    UHF(ElectronicSystem *system, const int &rank, const int &nProcs);
+    UHF(ElectronicSystem *system);
     field<const mat *> fockMatrix();
     field<const mat *> densityMatrix() const;
 

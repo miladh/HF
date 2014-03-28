@@ -2,8 +2,8 @@
 
 using namespace hf;
 
-UHF::UHF(ElectronicSystem *system, const int &rank, const int &nProcs):
-    HFsolver(system, rank, nProcs),
+UHF::UHF(ElectronicSystem *system):
+    HFsolver(system),
     m_Fu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Cu(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_Pu(zeros(m_nBasisFunctions,m_nBasisFunctions)),

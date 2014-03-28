@@ -2,10 +2,10 @@
 
 using namespace hf;
 
-HFsolver::HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs):
+HFsolver::HFsolver(ElectronicSystem *system):
     m_system(system),
-    m_rank(rank),
-    m_nProcs(nProcs),
+    m_rank(0),
+    m_nProcs(1),
     m_step(0),
     m_nElectrons(system->nElectrons()),
     m_nSpinUpElectrons(system->nSpinUpElectrons()),
@@ -24,11 +24,10 @@ HFsolver::HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs)
 
     m_rank = 0;
     m_nProcs = 1;
-
     // MPI----------------------------------------------------------------------
-#ifdef USE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &m_nProcs);
+#if USE_MPI
+    m_rank   = m_world.rank();
+    m_nProcs = m_world.size();
 #endif
 
     int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
@@ -69,44 +68,44 @@ HFsolver::HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs)
 
 void HFsolver::runSolver()
 {
-    double begin = MPI_Wtime();
+    m_timer.restart();
     setupOneParticleMatrix();
 
-    double laps = MPI_Wtime();
+    double laps = m_timer.elapsed();
     setupTwoParticleMatrix();
 
-    double end = MPI_Wtime();
+    double end = m_timer.elapsed();
     if(m_rank==0){
         cout << setprecision(3)
-             << "Elapsed time on matrix setup: "<< (double(end - begin))
-             << "s - " <<(double(end - laps))/(double(end - begin) +1e-10) * 100
+             << "Elapsed time on matrix setup: "<< laps
+             << "s - " <<(end - laps)/(end +1e-10) * 100
              << "% spent on two-body term " << endl;
     }
 
     updateFockMatrix();
 
-    laps = MPI_Wtime();
+    laps =  m_timer.elapsed();
     advance();
-    end = MPI_Wtime();
+    end  = m_timer.elapsed();
 
     calculateEnergy();
 
     if(m_rank==0){
-        cout << "Elapsed time on SCF: "<< (double(end - laps)) << "s " << endl;
+        cout << "Elapsed time on SCF: "<< end - laps << "s " << endl;
         cout << setprecision(14)
              << "Configuration "      << m_step
              << " - SCF iterations: " << m_iteration
              << " - Energy: "         << m_energy << endl;
         cout << "-------------------------------------------------------------------------------------"  << endl;
     }
-    m_step+=1;
+    m_step += 1;
 }
 
 
 
 void HFsolver::setupTwoParticleMatrix()
 {
-    double begin = MPI_Wtime();
+    double begin = m_timer.elapsed();
     for(int p: m_myBasisIndices){
         for(int r = 0; r < m_nBasisFunctions; r++){
             for(int q = p; q < m_nBasisFunctions; q++){
@@ -116,17 +115,17 @@ void HFsolver::setupTwoParticleMatrix()
             }
         }
     }
-    double end = MPI_Wtime();
+    double end = m_timer.elapsed();
     cout << setprecision(3)
          << "Elapsed time on two-electron integral (rank = " << m_rank << "): "
-         << (double(end - begin)) << "s" << endl;
+         << end - begin << "s" << endl;
 
 
-    begin = MPI_Wtime();
+    begin = m_timer.elapsed();
     for (int p = 0; p < m_nBasisFunctions; p++) {
         for (int r = 0; r < m_nBasisFunctions; r++) {
-#ifdef USE_MPI
-            MPI_Bcast(m_Q(p,r).memptr(), m_nBasisFunctions*m_nBasisFunctions , MPI_DOUBLE, m_basisIndexToProcsMap(p), MPI_COMM_WORLD ) ;
+#if USE_MPI
+            boost::mpi::broadcast(m_world, m_Q(p,r).memptr(), m_Q(p,r).n_elem, m_basisIndexToProcsMap(p));
 #endif
             for(int q = p; q < m_nBasisFunctions; q++){
                 for(int s = r; s < m_nBasisFunctions; s++){
@@ -142,9 +141,9 @@ void HFsolver::setupTwoParticleMatrix()
         }
     }
 
-    end = MPI_Wtime();
+    end = m_timer.elapsed();
     if(m_rank==0){
-        cout <<"Communication time: "<< (double(end - begin)) <<"s" << endl;
+        cout <<"Communication time: "<< end - begin <<"s" << endl;
     }
 
 }

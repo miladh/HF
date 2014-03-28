@@ -2,12 +2,15 @@
 #include <unittest++/Test.h>
 #include <unittest++/TestReporterStdout.h>
 #include <unittest++/TestRunner.h>
-#include <mpi.h>
+#include <boost/mpi.hpp>
 #include <hf.h>
 
 int main(int argc, char **argv)
 {
-    MPI::Init(argc, argv);
+
+#if USE_MPI
+    boost::mpi::environment env(argc, argv);
+#endif
     int result = 0;
     bool slowTests = 0;
     bool slowTests_UHF = 1;
@@ -31,6 +34,5 @@ int main(int argc, char **argv)
 
     }
 
- MPI::Finalize();
  return result;
 }

@@ -2,8 +2,8 @@
 
 using namespace hf;
 
-RHF::RHF(ElectronicSystem *system, const int &rank, const int &nProcs):
-    HFsolver(system, rank, nProcs),
+RHF::RHF(ElectronicSystem *system):
+    HFsolver(system),
     m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_C(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_P(zeros(m_nBasisFunctions,m_nBasisFunctions)),

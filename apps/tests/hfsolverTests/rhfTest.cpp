@@ -1,9 +1,10 @@
 #include <unittest++/UnitTest++.h>
-#include <hf.h>
-#include <mpi.h>
 #include <armadillo>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <boost/mpi.hpp>
+#include <hf.h>
+
 
 using namespace std;
 using namespace arma;
@@ -21,9 +22,12 @@ SUITE(DEVELOPMENT) {
      *      unknown
      *
      * */
-
-
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank == 0){
             cout << "system:    " << "H2" << endl;
             cout << "method:    " << "RHF" << endl;
             cout << "basis:     " << "3-21G" << endl;
@@ -40,7 +44,7 @@ SUITE(DEVELOPMENT) {
         system->addAtom(atomA);
         system->addAtom(atomB);
 
-        RHF *solver = new RHF(system,0,1);
+        RHF *solver = new RHF(system);
         solver->runSolver();
 
         CHECK_CLOSE(-1.122933364, solver->getEnergy(), 1e-9);
@@ -59,7 +63,12 @@ SUITE(DEVELOPMENT) {
      *      Peter Atkins
      * */
 
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "H2" << endl;
             cout << "method:    " << "RHF" << endl;
             cout << "basis:     " << "4-31G" << endl;
@@ -77,7 +86,7 @@ SUITE(DEVELOPMENT) {
         system->addAtom(atomA);
         system->addAtom(atomB);
 
-        RHF *solver = new RHF(system,0,1);
+        RHF *solver = new RHF(system);
         solver->runSolver();
 
         CHECK_CLOSE(-1.12682776, solver->getEnergy(), 1e-9);
@@ -95,7 +104,12 @@ SUITE(DEVELOPMENT) {
      *      Peter Atkins
      * */
 
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "H2" << endl;
             cout << "method:    " << "RHF" << endl;
             cout << "basis:     " << "6-31G**" << endl;
@@ -112,7 +126,7 @@ SUITE(DEVELOPMENT) {
         system->addAtom(atomA);
         system->addAtom(atomB);
 
-        RHF *solver = new RHF(system,0,1);
+        RHF *solver = new RHF(system);
         solver->runSolver();
 
         CHECK_CLOSE(-1.1313335068087, solver->getEnergy(), 1e-9);
@@ -133,7 +147,12 @@ SUITE(DEVELOPMENT) {
      *      Peter Atkins
      * */
 
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "H2O" << endl;
             cout << "method:    " << "RHF" << endl;
             cout << "basis:     " << "4-31G" << endl;
@@ -157,7 +176,7 @@ SUITE(DEVELOPMENT) {
         system->addAtom(atomB);
         system->addAtom(atomC);
 
-        RHF *solver = new RHF(system,0,1);
+        RHF *solver = new RHF(system);
         solver->runSolver();
 
         CHECK_CLOSE(-75.907340813845, solver->getEnergy(), 1e-9);
@@ -180,7 +199,12 @@ SUITE(SLOWTESTS) {
      *      Peter Atkins
      * */
 
-        if(MPI::COMM_WORLD.Get_rank()==0){
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
+        if(myRank==0){
             cout << "system:    " << "H2O" << endl;
             cout << "method:    " << "RHF" << endl;
             cout << "basis:     " << "6-31G**" << endl;
@@ -205,7 +229,7 @@ SUITE(SLOWTESTS) {
         system->addAtom(atomB);
         system->addAtom(atomC);
 
-        RHF *solver = new RHF(system,0,1);
+        RHF *solver = new RHF(system);
         solver->runSolver();
 
         CHECK_CLOSE(-76.023551569545, solver->getEnergy(), 1e-9);

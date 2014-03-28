@@ -101,7 +101,6 @@ void Analyser::calculateChargeDensity()
         }
     }
 
-
     double nElectrons = sumDensity;
 #if USE_MPI
     if(m_rank == 0){
@@ -191,7 +190,7 @@ void Analyser::writeDensityToFile(const cube& density,
     cubeFile.write(reinterpret_cast<const char*>(&zLimits(0)), sizeof(double));
     cubeFile.write(reinterpret_cast<const char*>(&zLimits(1)), sizeof(double));
 
-    for(const Atom* atom : m_system->m_atoms){
+    for(const Atom* atom : m_system->atoms()){
         rowvec3 R = atom->corePosition();
         double atomType = atom->atomType();
 

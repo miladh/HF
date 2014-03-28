@@ -13,7 +13,7 @@ namespace hf {
 class RHF : public HFsolver
 {
 public:
-    RHF(ElectronicSystem *system, const int &rank, const int &nProcs);
+    RHF(ElectronicSystem *system);
 
     field<const mat *> fockMatrix();
     field<const mat *> densityMatrix() const;

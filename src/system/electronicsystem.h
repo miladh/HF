@@ -41,13 +41,12 @@ public:
                                             const int N);
 
 
-    vector<const ContractedGTO *> basisFunctions() const;
-    vector<Atom *> m_atoms; //Should be private!!!
-
     vector<Atom *> atoms() const;
+    vector<const ContractedGTO *> basisFunctions() const;
 
 private:
     Integrator integrator;
+    vector<Atom *> m_atoms;
     vector<const ContractedGTO *> m_basisFunctions;
 
     int m_nElectrons = 0;

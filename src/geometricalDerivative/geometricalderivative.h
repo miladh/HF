@@ -4,7 +4,8 @@
 
 #include <iostream>
 #include <armadillo>
-#include <mpi.h>
+#include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
 #include "../hfSolver/hfsolver.h"
 #include "../hfSolver/rhf.h"
 
@@ -34,6 +35,8 @@ private:
 
     int m_rank, m_nProcs;
     // MPI-----------------------
+    boost::mpi::communicator m_world;
+    boost::mpi::timer m_timer;
     ivec m_basisIndexToProcsMap;
     vector<int> m_myBasisIndices;
     //---------------------------
