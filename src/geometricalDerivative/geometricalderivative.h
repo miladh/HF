@@ -5,7 +5,6 @@
 #include <iostream>
 #include <armadillo>
 #include <mpi.h>
-#include "../system/system.h"
 #include "../hfSolver/hfsolver.h"
 #include "../hfSolver/rhf.h"
 

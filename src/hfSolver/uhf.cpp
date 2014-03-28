@@ -144,74 +144,20 @@ void UHF::updateFockMatrix()
     }
 }
 
-field<mat> UHF::getFockMatrix()
+field<const mat *> UHF::fockMatrix()
 {
     updateFockMatrix();
-    field<mat> fockMatrices(2,1);
-    fockMatrices(0) = m_Fu;
-    fockMatrices(1) = m_Fd;
+    field<const mat *> fockMatrices(2,1);
+    fockMatrices(0) = &m_Fu;
+    fockMatrices(1) = &m_Fd;
     return fockMatrices;
 }
 
-field<mat> UHF::getDensityMatrix() const
+field<const mat *> UHF::densityMatrix() const
 {
-    field<mat> densityMatrices(2,1);
-    densityMatrices(0) = m_Pu;
-    densityMatrices(1) = m_Pd;
+    field<const mat *> densityMatrices(2,1);
+    densityMatrices(0) = &m_Pu;
+    densityMatrices(1) = &m_Pd;
     return densityMatrices;
 }
 
-
-
-
-void UHF::calculateDensity()
-{
-
-    cout << "---Calculating density---" << endl;
-
-    vec x = linspace(-10, 10, m_nProcs * 10);
-    vec y = linspace(-10, 10, m_nProcs * 10);
-    vec z = linspace(-10, 10, m_nProcs * 10);
-    double dr = (x(1) - x(0)) * (y(1) - y(0)) * (z(1) - z(0));
-
-    m_density = zeros(x.n_elem, y.n_elem, z.n_elem);
-    double sumDensity =0;
-
-
-    int xElements = x.n_elem/m_nProcs;
-    int yElements = y.n_elem/m_nProcs;
-    int zElements = z.n_elem/m_nProcs;
-
-    int xMin = m_rank % m_nProcs * xElements;
-    int yMin = m_rank / m_nProcs * yElements;
-    int zMin = m_rank / m_nProcs * zElements;
-
-    int xMax = xMin + xElements;
-    int yMax = m_nProcs * yElements;
-    int zMax = m_nProcs *  zElements;
-
-    for(int i = xMin; i < xMax; i++) {
-        for(int j = yMin; j < yMax; j++) {
-            for(int k = zMin; k < zMax; k++) {
-
-                for(int p = 0; p < m_nBasisFunctions; p++){
-                    double innerProduct = m_system->gaussianProduct(p, p, x(i), y(j), z(k));
-                    sumDensity += (m_Pu(p,p) + m_Pd(p,p)) * innerProduct * dr;
-                    m_density(j,i,k) += (m_Pu(p,p) + m_Pd(p,p)) * innerProduct ;
-
-                    for(int q = p+1; q < m_nBasisFunctions; q++){
-                        innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
-                        sumDensity += 2.0 * (m_Pu(p,p) + m_Pd(p,p)) * innerProduct * dr;
-                        m_density(j,i,k) += 2.0 * (m_Pu(p,p) + m_Pd(p,p)) * innerProduct ;
-
-                    }
-                }
-
-            }
-        }
-    }
-
-    cout << "density sum: " << sumDensity << endl;
-    densityOutput(x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
-
-}

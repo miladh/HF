@@ -55,7 +55,6 @@ GeometricalDerivative::GeometricalDerivative(ElectronicSystem *system, HFsolver 
 
 }
 
-
 const rowvec& GeometricalDerivative::energyGradient(const int core)
 {
     m_differentiationCore = core;
@@ -84,19 +83,21 @@ void GeometricalDerivative::setupDerivativeMatrices()
 
 void GeometricalDerivative::calculateEnergyGradient()
 {
-    const field<mat>& F = m_solver->getFockMatrix();
-    const field<mat>& P = m_solver->getDensityMatrix();
+    field<const mat *> fockMatrices = m_solver->fockMatrix();
+    field<const mat *> densityMatrices = m_solver->densityMatrix();
     m_gradE  = {0,0,0};
 
-    for(uint i = 0; i < F.n_elem; i ++){
+
+    for(uint i = 0; i < densityMatrices.n_elem; i ++){
+        const mat& P = (*densityMatrices(i));
 
         for(int p: m_myBasisIndices){
             for (int q = 0; q < m_nBasisFunctions; q++){
-                m_gradE += P(i)(p, q) * m_dh(p, q);
+                m_gradE += P(p, q) * m_dh(p, q);
 
                 for (int r = 0; r < m_nBasisFunctions; r++){
                     for (int s = 0; s < m_nBasisFunctions; s++){
-                        m_gradE += 0.5*P(i)(p,q)*P(i)(s,r)*(
+                        m_gradE += 0.5*P(p,q)*P(s,r)*(
                                     m_system->getTwoParticleIntegralDerivative(p,q,r,s,m_differentiationCore)
                                     - 0.5*m_system->getTwoParticleIntegralDerivative(p,s,r,q,m_differentiationCore));
 
@@ -123,10 +124,13 @@ void GeometricalDerivative::calculateEnergyGradient()
     }
 
 
-    for(uint i = 0; i < F.n_elem; i ++){
-        m_totGradE(0) -= 0.5 * trace(P(i)*dSx*P(i)*F(i));
-        m_totGradE(1) -= 0.5 * trace(P(i)*dSy*P(i)*F(i));
-        m_totGradE(2) -= 0.5 * trace(P(i)*dSz*P(i)*F(i));
+    for(uint i = 0; i < fockMatrices.n_elem; i++){
+        const mat& F = (*fockMatrices(i));
+        const mat& P = (*densityMatrices(i));
+
+        m_totGradE(0) -= 0.5 * trace(P*dSx*P*F(i));
+        m_totGradE(1) -= 0.5 * trace(P*dSy*P*F(i));
+        m_totGradE(2) -= 0.5 * trace(P*dSz*P*F(i));
     }
 
     //    Nuclear repulsion term

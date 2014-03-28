@@ -22,7 +22,7 @@ int blockSize(int id, int p, int n) {
 }
 
 
-System* setupSystem(string name);
+ElectronicSystem* setupSystem(string name);
 
 int main(int argc, char* argv[])
 {
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
 
 }
 
-System* setupSystem(string name)
+ElectronicSystem *setupSystem(string name)
 {
 //    int nElectrons;
 //    rowvec coreCharges,coreMass;

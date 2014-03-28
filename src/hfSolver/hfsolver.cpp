@@ -3,10 +3,10 @@
 using namespace hf;
 
 HFsolver::HFsolver(ElectronicSystem *system, const int &rank, const int &nProcs):
+    m_system(system),
     m_rank(rank),
     m_nProcs(nProcs),
     m_step(0),
-    m_system(system),
     m_nElectrons(system->nElectrons()),
     m_nSpinUpElectrons(system->nSpinUpElectrons()),
     m_nSpinDownElectrons(system->nSpinDownElectrons()),
@@ -99,8 +99,6 @@ void HFsolver::runSolver()
              << " - Energy: "         << m_energy << endl;
         cout << "-------------------------------------------------------------------------------------"  << endl;
     }
-
-//        calculateDensity();
     m_step+=1;
 }
 
@@ -151,24 +149,17 @@ void HFsolver::setupTwoParticleMatrix()
 
 }
 
-
 void HFsolver::setupOneParticleMatrix()
 {
-
     for(int p = 0; p < m_nBasisFunctions; p++){
         for(int q = p; q < m_nBasisFunctions; q++){
             m_S(p,q) = m_system->overlapIntegral(p,q);
             m_h(p,q) = m_system->oneParticleIntegral(p,q);
         }
     }
-
     m_S = symmatu(m_S);
     m_h = symmatu(m_h);
-
 }
-
-
-
 
 const mat& HFsolver::normalize(mat &C, const int& HOcoeff)
 {
@@ -177,7 +168,6 @@ const mat& HFsolver::normalize(mat &C, const int& HOcoeff)
         norm = dot(C.col(i), m_S * C.col(i));
         C.col(i) = C.col(i)/sqrt(norm);
     }
-
     return C;
 }
 
@@ -191,81 +181,11 @@ const double& HFsolver::getEnergy() const
     return m_energy;
 }
 
-const field<mat>& HFsolver::getQmatrix(){
-
-    return m_Q;
-}
-const mat& HFsolver::gethmatrix(){
-
-    return m_h;
-}
-
-const mat& HFsolver::getSmatrix(){
+const mat& HFsolver::overlapMatrix()const
+{
 
     return m_S;
 }
 
-
-void HFsolver::densityOutput(const double &xMin, const double &xMax,
-                             const double &yMin, const double &yMax,
-                             const double &zMin, const double &zMax)
-{
-
-    stringstream cubeFileName;
-    cubeFileName<<"/home/milad/kurs/qmd/density/id"<< m_rank <<"_cubeFile" << setw(4) << setfill('0')  << m_step <<".bin";
-    ofstream cubeFile(cubeFileName.str(), ios::out | ios::binary);
-
-    //Header
-    double nCores = m_system->nAtoms();
-    vec origo = {0,0,0};
-    vec xLimits = {xMin, xMax};
-    vec yLimits = {yMin, yMax};
-    vec zLimits = {zMin, zMax};
-    double nX = m_density.n_rows;
-    double nY = m_density.n_cols;
-    double nZ = m_density.n_slices;
-
-    cubeFile.write(reinterpret_cast<const char*>(&nCores), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&origo(0)), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&origo(1)), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&origo(2)), sizeof(double));
-
-    cubeFile.write(reinterpret_cast<const char*>(&nX), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&xLimits(0)), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&xLimits(1)), sizeof(double));
-
-    cubeFile.write(reinterpret_cast<const char*>(&nY), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&yLimits(0)), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&yLimits(1)), sizeof(double));
-
-    cubeFile.write(reinterpret_cast<const char*>(&nZ), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&zLimits(0)), sizeof(double));
-    cubeFile.write(reinterpret_cast<const char*>(&zLimits(1)), sizeof(double));
-
-    for(int core = 0; core < nCores; core++){
-        rowvec3 R = m_system->m_atoms.at(core)->corePosition();
-        double atomType = m_system->m_atoms.at(core)->coreCharge();
-
-        cubeFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
-        cubeFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
-
-        // Write the x, y and z-components
-        cubeFile.write(reinterpret_cast<const char*>(&R(0)), sizeof(double));
-        cubeFile.write(reinterpret_cast<const char*>(&R(1)), sizeof(double));
-        cubeFile.write(reinterpret_cast<const char*>(&R(2)), sizeof(double));
-    }
-
-    //density data
-    for(uint k = 0; k < m_density.n_slices; k++) {
-        for(uint i = 0; i < m_density.n_rows; i++) {
-            for(uint j = 0; j < m_density.n_cols; j++) {
-
-                cubeFile.write(reinterpret_cast<const char*>(&m_density(i,j,k)), sizeof(double));
-            }
-        }
-    }
-
-    cubeFile.close();
-}
 
 
