@@ -18,9 +18,9 @@ namespace hf
 class ElectronicSystem
 {
 public:
-    ElectronicSystem(const int& maxAngularMomentum);
+    ElectronicSystem();
 
-    void addAtom(Atom *atom);
+    void addAtoms(vector<Atom *> atoms);
     const int &nAtoms();
     const int &nElectrons() const;
     const int &nSpinUpElectrons() const;

@@ -34,7 +34,6 @@ protected:
    ElectronicSystem * m_system;
    int m_rank;
    int m_nProcs;
-   int m_step;
    int m_iteration;
 
    int m_nElectrons;

@@ -2,21 +2,28 @@
 
 using namespace hf;
 
-ElectronicSystem::ElectronicSystem(const int& maxAngularMomentum)
+ElectronicSystem::ElectronicSystem()
 {
-    integrator.setMaxAngularMomentum(maxAngularMomentum);
 }
 
-void ElectronicSystem::addAtom(Atom* atom)
+void ElectronicSystem::addAtoms(vector<Atom*> atoms)
 {
-    m_atoms.push_back(atom);
-    for(const ContractedGTO &CGTO : atom->contractedGTOs()){
-        m_basisFunctions.push_back(&CGTO);
+    int maxAngularMomentum = 0;
+
+    m_atoms = atoms;
+    for(Atom* atom : m_atoms){
+        m_nElectrons        += atom->nElectrons();
+        maxAngularMomentum = max(maxAngularMomentum , atom->angularMomentum());
+
+        for(const ContractedGTO &CGTO : atom->contractedGTOs()){
+            m_basisFunctions.push_back(&CGTO);
+        }
     }
+
+    integrator.setMaxAngularMomentum(maxAngularMomentum);
 
     m_nAtoms             = m_atoms.size();
     m_nBasisFunctions    = m_basisFunctions.size();
-    m_nElectrons        += atom->nElectrons();
     m_nSpinDownElectrons = ceil(m_nElectrons/2.0);
     m_nSpinUpElectrons   = floor(m_nElectrons/2.0);
 

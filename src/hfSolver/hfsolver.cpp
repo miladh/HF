@@ -6,7 +6,6 @@ HFsolver::HFsolver(ElectronicSystem *system):
     m_system(system),
     m_rank(0),
     m_nProcs(1),
-    m_step(0),
     m_nElectrons(system->nElectrons()),
     m_nSpinUpElectrons(system->nSpinUpElectrons()),
     m_nSpinDownElectrons(system->nSpinDownElectrons()),
@@ -21,9 +20,6 @@ HFsolver::HFsolver(ElectronicSystem *system):
             m_Q(i,j) = zeros(m_nBasisFunctions,m_nBasisFunctions);
         }
     }
-
-    m_rank = 0;
-    m_nProcs = 1;
     // MPI----------------------------------------------------------------------
 #if USE_MPI
     m_rank   = m_world.rank();
@@ -93,12 +89,10 @@ void HFsolver::runSolver()
     if(m_rank==0){
         cout << "Elapsed time on SCF: "<< end - laps << "s " << endl;
         cout << setprecision(14)
-             << "Configuration "      << m_step
              << " - SCF iterations: " << m_iteration
              << " - Energy: "         << m_energy << endl;
         cout << "-------------------------------------------------------------------------------------"  << endl;
     }
-    m_step += 1;
 }
 
 

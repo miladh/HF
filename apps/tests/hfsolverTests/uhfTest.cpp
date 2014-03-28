@@ -36,24 +36,16 @@ SUITE(DEVELOPMENT) {
             cout << "basis:     " << "4-31G" << endl;
         }
 
-
-        Atom *atomA;
-        Atom *atomB;
-        Atom *atomC;
-
+        vector<Atom *> atoms;
         double x = 1.797*cos((180-104.45) *M_PI/180.0);
         double y = 1.797*sin((180-104.45) *M_PI/180.0);
 
-        atomA = new Atom("infiles/turbomole/atom_8_basis_4-31G.tm", { 0.0, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", {1.797, 0.0, 0.0});
-        atomC = new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { -x, y, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
+        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_4-31G.tm", { 0.0, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", {1.797, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { -x, y, 0.0}));
 
-
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
-        system->addAtom(atomC);
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
 
         UHF *solver = new UHF(system);
         solver->runSolver();
@@ -88,16 +80,12 @@ SUITE(SLOWTESTS_UHF) {
             cout << "basis:     " << "6-31G**" << endl;
         }
 
-        Atom *atomA;
-        Atom *atomB;
+        vector<Atom *> atoms;
+        atoms.push_back( new Atom("infiles/turbomole/atom_9_basis_6-31Gds.tm", { -1.889725989, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { 1.889725989, 0.0, 0.0}));
 
-        atomA = new Atom("infiles/turbomole/atom_9_basis_6-31Gds.tm", { -1.889725989, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { 1.889725989, 0.0, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
-
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
 
         UHF *solver = new UHF(system);
         solver->runSolver();
@@ -134,14 +122,6 @@ SUITE(SLOWTESTS_UHF) {
             cout << "basis:     " << "6-31G*" << endl;
         }
 
-
-
-        Atom *atomA;
-        Atom *atomB;
-        Atom *atomC;
-        Atom *atomD;
-        Atom *atomE;
-
         rowvec A, B,C,D,E;
         A = {0.0, 0.0, 0.0};
         B = {1.0, 1.0, 1.0};
@@ -152,22 +132,17 @@ SUITE(SLOWTESTS_UHF) {
         double d =1.889725989;
         B *=2.052242424/sqrt(3);C *=2.052242424/sqrt(3);D *=2.052242424/sqrt(3);E *=d/sqrt(3);
 
-        atomA = new Atom("infiles/turbomole/atom_6_basis_6-31Gd.tm", A);
-        atomB = new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", B);
-        atomC = new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", C);
-        atomD = new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", D);
-        atomE = new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", E);
-        int maxAngularMomentum = atomA->angularMomentum();
+        vector<Atom *> atoms;
+       atoms.push_back( new Atom("infiles/turbomole/atom_6_basis_6-31Gd.tm", A));
+       atoms.push_back(  new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", B));
+       atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", C));
+       atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", D));
+       atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", E));
 
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
-        system->addAtom(atomC);
-        system->addAtom(atomD);
-        system->addAtom(atomE);
-
-
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
         UHF *solver = new UHF(system);
+
         solver->runSolver();
 
         double energy = -40.349369;

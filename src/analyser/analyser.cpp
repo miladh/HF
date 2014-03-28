@@ -32,7 +32,7 @@ void Analyser::atomicPartialCharge()
 
         for(int j = id; j < id + atom->nContractedGTOs(); j++){
             for(const mat& PS_i : PS)
-            partialCharge -= PS_i(j,j);
+                partialCharge -= PS_i(j,j);
         }
 
         atom->setCorePartialCharge(partialCharge);
@@ -119,7 +119,7 @@ void Analyser::calculateChargeDensity()
 
 
 double Analyser::gaussianProduct(const int& p, const int& q,
-                                         const double &x, const double &y, const double &z)
+                                 const double &x, const double &y, const double &z)
 {
     double  Gpq = 0.0;
 
@@ -154,9 +154,9 @@ double Analyser::gaussianProduct(const int& p, const int& q,
 
 
 void Analyser::writeDensityToFile(const cube& density,
-                             const double &xMin, const double &xMax,
-                             const double &yMin, const double &yMax,
-                             const double &zMin, const double &zMax)
+                                  const double &xMin, const double &xMax,
+                                  const double &yMin, const double &yMax,
+                                  const double &zMin, const double &zMax)
 {
 
     stringstream cubeFileName;

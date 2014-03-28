@@ -33,16 +33,12 @@ SUITE(DEVELOPMENT) {
             cout << "basis:     " << "3-21G" << endl;
         }
 
-        Atom *atomA;
-        Atom *atomB;
+        vector<Atom *> atoms;
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-0.7, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 0.7, 0.0, 0.0}));
 
-        atomA = new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-0.7, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 0.7, 0.0, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
-
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
 
         RHF *solver = new RHF(system);
         solver->runSolver();
@@ -75,16 +71,12 @@ SUITE(DEVELOPMENT) {
         }
 
 
-        Atom *atomA;
-        Atom *atomB;
+        vector<Atom *> atoms;
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", {-0.69, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { 0.69, 0.0, 0.0}));
 
-        atomA = new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", {-0.69, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { 0.69, 0.0, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
-
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
 
         RHF *solver = new RHF(system);
         solver->runSolver();
@@ -115,16 +107,12 @@ SUITE(DEVELOPMENT) {
             cout << "basis:     " << "6-31G**" << endl;
         }
 
-        Atom *atomA;
-        Atom *atomB;
+        vector<Atom *> atoms;
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {-0.6925, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { 0.6925, 0.0, 0.0}));
 
-        atomA = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {-0.6925, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { 0.6925, 0.0, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
-
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
+        ElectronicSystem *system = new ElectronicSystem();
+        system->addAtoms(atoms);
 
         RHF *solver = new RHF(system);
         solver->runSolver();
@@ -159,24 +147,18 @@ SUITE(DEVELOPMENT) {
         }
 
 
-        Atom *atomA;
-        Atom *atomB;
-        Atom *atomC;
 
         double x = 1.797*cos((180-104.45) *M_PI/180.0);
         double y = 1.797*sin((180-104.45) *M_PI/180.0);
+        vector<Atom *> atoms;
+        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_4-31G.tm", { 0.0, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", {1.797, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { -x, y, 0.0}));
 
-        atomA = new Atom("infiles/turbomole/atom_8_basis_4-31G.tm", { 0.0, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", {1.797, 0.0, 0.0});
-        atomC = new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { -x, y, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
-
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
-        system->addAtom(atomC);
-
+        ElectronicSystem *system = new ElectronicSystem();
+        system->addAtoms(atoms);
         RHF *solver = new RHF(system);
+
         solver->runSolver();
 
         CHECK_CLOSE(-75.907340813845, solver->getEnergy(), 1e-9);
@@ -210,24 +192,17 @@ SUITE(SLOWTESTS) {
             cout << "basis:     " << "6-31G**" << endl;
         }
 
-
-        Atom *atomA;
-        Atom *atomB;
-        Atom *atomC;
-
         double R = 1.782;
         double x = R * cos((180-104.45) *M_PI/180.0);
         double y = R * sin((180-104.45) *M_PI/180.0);
 
-        atomA = new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", { 0.0, 0.0, 0.0});
-        atomB = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { -x, y, 0.0});
-        atomC = new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {R , 0.0, 0.0});
-        int maxAngularMomentum = atomA->angularMomentum();
+        vector<Atom *> atoms;
+        atoms.push_back(  new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", { 0.0, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { -x, y, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {R , 0.0, 0.0}));
 
-        ElectronicSystem *system = new ElectronicSystem (maxAngularMomentum);
-        system->addAtom(atomA);
-        system->addAtom(atomB);
-        system->addAtom(atomC);
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
 
         RHF *solver = new RHF(system);
         solver->runSolver();

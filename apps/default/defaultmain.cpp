@@ -143,15 +143,10 @@ ElectronicSystem* setupSystem(string name)
         exit(0);
     }
 
-    int maxAngularMomentum = atoms[0]->angularMomentum();
-    ElectronicSystem *system = new ElectronicSystem(maxAngularMomentum);
-
-    for(Atom* atom : atoms){
-        system->addAtom(atom);
-    }
+    ElectronicSystem *system = new ElectronicSystem();
+    system->addAtoms(atoms);
 
     return system;
-
 
 }
 

@@ -51,7 +51,7 @@ void UHF::solveSingle()
     eig_sym(eigVal, eigVec, m_S);
     V = eigVec*diagmat(1.0/sqrt(eigVal));
 
-//    DIISprocedure();
+    // DIISprocedure();
 
     eig_sym(eigVal, eigVec, V.t()*m_Fu*V);
     m_Cu = V*eigVec;
@@ -122,7 +122,7 @@ void UHF::DIISprocedure()
 void UHF::calculateEnergy()
 {
     m_energy = 0.5 * accu( (m_Pu + m_Pd) % m_h + m_Fu % m_Pu + m_Fd % m_Pd)
-               + m_system->nuclearPotential();
+            + m_system->nuclearPotential();
 }
 
 void UHF::updateFockMatrix()
