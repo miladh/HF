@@ -27,8 +27,8 @@ int main(int argc, char **argv)
     /********************************************************************************/
 
     //options:
-    string method = "rhf";
-    string chemicalSystem = "CH4";
+    string method = "uhf";
+    string chemicalSystem = "Fe2S2";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
@@ -119,10 +119,20 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {T + D/sqrt(3), -T +D/sqrt(3), -T -D/sqrt(3)}));
 
     }else if(name =="Fe2S2"){        
-        atoms.push_back(new Atom("infiles/turbomole/atom_26_basis_3-21G.tm", {0.0, 1.0 , 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_26_basis_3-21G.tm", {1.0 , 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_3-21G.tm", {0.0, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_3-21G.tm", {1.0, 1.0, 0.0}));
+        double FeFe = 4.556129358;
+        double SS   = 6.908838214;
+        atoms.push_back(new Atom("infiles/turbomole/atom_26_basis_6-31G.tm", {0.0,  FeFe*0.5, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_26_basis_6-31G.tm", {0.0, -FeFe*0.5, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_6-31G.tm", {-SS*0.5, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_6-31G.tm", {SS*0.5, 0.0, 0.0}));
+
+    }else if(name =="FeS2"){
+        double FeS = 3.802128689;
+        double SFeS = 114.0;
+        atoms.push_back(new Atom("infiles/turbomole/atom_26_basis_6-31Gd.tm", {0.0, 0.0 , 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_3-21Gd.tm", {FeS, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_3-21Gd.tm",  {-FeS*cos((180.0-SFeS) *M_PI/180.0),
+                                                                               FeS*sin((180.0-SFeS) *M_PI/180.0), 0.0}));
 
     }else if(name =="benzene"){
         atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.99261000, 0.99261000, 0.00000000}));

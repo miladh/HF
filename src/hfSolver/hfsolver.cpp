@@ -57,9 +57,10 @@ HFsolver::HFsolver(ElectronicSystem *system):
             }
         }
     }
+    if(m_myBasisIndices.size() == 0){
+         throw logic_error("Procs with no task!");
+    }
     //---------------------------------------------------------------------------
-
-
 }
 
 void HFsolver::runSolver()
@@ -73,7 +74,7 @@ void HFsolver::runSolver()
     double end = m_timer.elapsed();
     if(m_rank==0){
         cout << setprecision(3)
-             << "Elapsed time on matrix setup: "<< laps
+             << "Elapsed time on matrix setup: "<< end
              << "s - " <<(end - laps)/(end +1e-10) * 100
              << "% spent on two-body term " << endl;
     }

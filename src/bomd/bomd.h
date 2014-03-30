@@ -25,7 +25,6 @@ public:
     const rowvec& getEnergyGradient() const;
 
 private:
-    int m_rank;
     ElectronicSystem* m_system;
     HFsolver *m_solver;
     GeometricalDerivative* m_GD;
@@ -33,6 +32,7 @@ private:
 
     int m_nAtoms;
     int m_nSteps;
+    int m_rank;
 
     double m_dtn;
     double m_dampingFactor;

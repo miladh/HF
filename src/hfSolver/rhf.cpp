@@ -20,14 +20,22 @@ void RHF::advance()
     m_iteration = 0;
 
     while (stdDeviation  > HFSOLVERTOLERANCE){
+        if(m_rank == 0){
+            cout << "Convergence rate: "
+                 << 100.0*HFSOLVERTOLERANCE/stdDeviation
+                 << setprecision(2)
+                 <<" %" << endl;
+        }
         fockEnergyOld = m_fockEnergy;
         solveSingle();
         stdDeviation = computeStdDeviation(m_fockEnergy, fockEnergyOld);
         updateFockMatrix();
 
         m_iteration+=1;
-        if(m_rank == 0 && m_iteration > maxNumOfIteration){
-            cerr << "Energy has not converged! " << endl;
+        if(m_iteration > maxNumOfIteration){
+            if(m_rank == 0){
+                cerr << "Energy has not converged! " << endl;
+            }
             m_energy = 0.0;
             break;
         }
@@ -41,7 +49,7 @@ void RHF::solveSingle()
     V = eigVec*diagmat(1.0/sqrt(eigVal));
 
 
-    //DIISprocedure();
+//    DIISprocedure();
 
     eig_sym(eigVal, eigVec, V.t() * m_F * V);
 

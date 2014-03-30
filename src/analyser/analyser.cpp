@@ -207,8 +207,8 @@ void Analyser::writeDensityToFile(const cube& density,
     for(uint k = 0; k < density.n_slices; k++) {
         for(uint i = 0; i < density.n_rows; i++) {
             for(uint j = 0; j < density.n_cols; j++) {
-
-                cubeFile.write(reinterpret_cast<const char*>(&density(i,j,k)), sizeof(double));
+                double p = density(i,j,k);
+                cubeFile.write(reinterpret_cast<const char*>(&p), sizeof(double));
             }
         }
     }

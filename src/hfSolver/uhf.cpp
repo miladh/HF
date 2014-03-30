@@ -26,6 +26,13 @@ void UHF::advance()
     m_iteration = 0;
 
     while (stdDeviation_U > HFSOLVERTOLERANCE && stdDeviation_D > HFSOLVERTOLERANCE){
+        if(m_rank == 0){
+            cout << "Convergence rate: "
+                 << 50.0*HFSOLVERTOLERANCE/stdDeviation_U
+                  + 50.0*HFSOLVERTOLERANCE/stdDeviation_D
+                 << setprecision(2)
+                 <<" %" << endl;
+        }
         fockEnergyOld_U = m_fockEnergyU;
         fockEnergyOld_D = m_fockEnergyD;
         solveSingle();

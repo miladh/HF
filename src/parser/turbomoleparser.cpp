@@ -23,7 +23,7 @@ void TurbomoleParser::loadfile(string filename)
         }
         file.close();
     } else {
-        cout << "Error: Could not open file "<< filename << endl;
+        cerr << "Error: Could not open file "<< filename << endl;
         exit(EXIT_FAILURE);
     }
 
