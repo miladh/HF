@@ -6,7 +6,7 @@
 
 #define HFSOLVERTOLERANCE 1.0E-8
 #define PROTONMASS 1836
-#define h 1.0E-5
+//#define h 1.0E-5
 
 
 #define BLOCK_LOW(id,p,n) ((id)*(n)/(p))
