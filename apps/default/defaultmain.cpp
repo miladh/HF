@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     //options:
     string method = "uhf";
-    string chemicalSystem = "FeS2";
+    string chemicalSystem = "CO2";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
@@ -55,6 +55,7 @@ int main(int argc, char **argv)
     solver->runSolver();
 
     Analyser analyser(system,solver);
+    analyser.atomicPartialCharge();
     analyser.calculateChargeDensity();
 
 

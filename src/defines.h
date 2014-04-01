@@ -9,7 +9,7 @@
 //#define h 1.0E-5
 
 
-#define USE_MPI 0
+#define USE_MPI 1
 #define BLOCK_LOW(id,p,n) ((id)*(n)/(p))
 #define BLOCK_HIGH(id,p,n) (BLOCK_LOW((id)+1,p,n)-1)
 #define BLOCK_SIZE(id,p,n) (BLOCK_HIGH(id,p,n)-BLOCK_LOW(id,p,n)+1)

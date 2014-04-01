@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
         random_shuffle(allStates.begin(), allStates.end());
         for(int p = 0; p < world.size(); p++) {
             vector<int> states;
-            for(int i = BLOCK_LOW(p, world.size(), allStates.size());
-                i <= BLOCK_HIGH(p, world.size(), allStates.size());
+            for(int i = BLOCK_LOW(p, signed(world.size()), signed(allStates.size()));
+                i <= BLOCK_HIGH(p, signed(world.size()), signed(allStates.size()));
                 i++) {
 
                 states.push_back(allStates.at(i));
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     //Create output file
     stringstream outFileName;
-    outFileName << "output_" << world.rank() << ".h5";
+    outFileName << "/home/milad/Dropbox/qmd/parameterization/HFdata/output_" << world.rank() << ".h5";
     H5::H5File outputFile(outFileName.str(), H5F_ACC_TRUNC);
 
 
