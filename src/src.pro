@@ -40,4 +40,10 @@ HEADERS += \
     system/electronicsystem.h \
     analyser/analyser.h
 
+
 OTHER_FILES += ../include/hf.h ../install/include/hf.h
+
+
+!equals(PWD, $${OUT_PWD}) {
+    QMAKE_POST_LINK += $(COPY_DIR) $$OUT_PWD/../lib $$PWD/../
+}
