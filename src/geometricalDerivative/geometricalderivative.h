@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <armadillo>
-#include <mpi.h>
-#include "../system/system.h"
+#include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
 #include "../hfSolver/hfsolver.h"
 #include "../hfSolver/rhf.h"
 
@@ -17,11 +17,11 @@ namespace hf {
 class GeometricalDerivative
 {
 public:
-    GeometricalDerivative(System *system, HFsolver *solver);
+    GeometricalDerivative(ElectronicSystem *system, HFsolver *solver);
     const rowvec &energyGradient(const int core);
 
 private:
-    System *m_system;
+    ElectronicSystem *m_system;
     HFsolver *m_solver;
     rowvec3 m_gradE, m_totGradE;
     field<field<rowvec3>>m_dQ;
@@ -35,6 +35,8 @@ private:
 
     int m_rank, m_nProcs;
     // MPI-----------------------
+    boost::mpi::communicator m_world;
+    boost::mpi::timer m_timer;
     ivec m_basisIndexToProcsMap;
     vector<int> m_myBasisIndices;
     //---------------------------

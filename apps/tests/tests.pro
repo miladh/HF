@@ -10,5 +10,5 @@ SOURCES += main.cpp \
     integratorTests/kineticIntegral.cpp \
     integratorTests/coulombIntegral_1.cpp \
     hfsolverTests/rhfTest.cpp \
-    hfsolverTests/uhfTest.cpp
+    hfsolverTests/uhfTest.cpp \
 

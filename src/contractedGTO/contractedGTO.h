@@ -16,11 +16,14 @@ public:
     ContractedGTO();
 
     void addPrimitive(PrimitiveGTO primitiveGTO);
-    int getNumPrimitives() const;
-    const PrimitiveGTO &getPrimitive(const int p) const;
+    const vector<PrimitiveGTO>& primitivesGTOs() const;
+
+    const rowvec &center() const;
+    void setCenter(const rowvec &center);
 
 private:
     vector<PrimitiveGTO> m_primitivesGTOs;
+    rowvec m_center;
 };
 }
 

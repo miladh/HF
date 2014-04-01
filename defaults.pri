@@ -13,11 +13,6 @@ QMAKE_CXXFLAGS_RELEASE += $$QMAKE_CXXFLAGS -O3 -DARMA_NO_DEBUG
 CURRENT_COMPILER = $$QMAKE_CXX
 QMAKE_CXX = ccache $$CURRENT_COMPILER
 
-# Directories
-#INCLUDEPATH += $$TOP_PWD/src
-#INCLUDEPATH += $$TOP_PWD/src/libs
-#SRC_DIR = $$TOP_PWD
-
 
 #Copy infiles
 copydata.commands = $(COPY_DIR) $$PWD/infiles $$OUT_PWD
@@ -39,6 +34,3 @@ QMAKE_LFLAGS += $$system(mpicxx --showme:link)
 QMAKE_CXXFLAGS += $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
 QMAKE_CXXFLAGS_RELEASE += $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
 
-#Openmp
-QMAKE_CXXFLAGS+= -fopenmp
-QMAKE_LFLAGS +=  -fopenmp

@@ -2,8 +2,8 @@
 
 using namespace hf;
 
-RHF::RHF(System *system, const int &rank, const int &nProcs):
-    HFsolver(system, rank, nProcs),
+RHF::RHF(ElectronicSystem *system):
+    HFsolver(system),
     m_F(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_C(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_P(zeros(m_nBasisFunctions,m_nBasisFunctions)),
@@ -20,20 +20,26 @@ void RHF::advance()
     m_iteration = 0;
 
     while (stdDeviation  > HFSOLVERTOLERANCE){
+        if(m_rank == 0){
+            cout << "Convergence rate: "
+                 << 100.0*HFSOLVERTOLERANCE/stdDeviation
+                 << setprecision(2)
+                 <<" %" << endl;
+        }
         fockEnergyOld = m_fockEnergy;
         solveSingle();
         stdDeviation = computeStdDeviation(m_fockEnergy, fockEnergyOld);
         updateFockMatrix();
 
         m_iteration+=1;
-        if(m_rank == 0 && m_iteration > maxNumOfIteration){
-            cerr << "Energy has not converged! " << endl;
+        if(m_iteration > maxNumOfIteration){
+            if(m_rank == 0){
+                cerr << "Energy has not converged! " << endl;
+            }
             m_energy = 0.0;
             break;
         }
     }
-
-    m_system->computePartialCharge(m_P*m_S);
 
 }
 void RHF::solveSingle()
@@ -41,6 +47,7 @@ void RHF::solveSingle()
     vec eigVal; mat eigVec, V;
     eig_sym(eigVal, eigVec, m_S);
     V = eigVec*diagmat(1.0/sqrt(eigVal));
+
 
 //    DIISprocedure();
 
@@ -103,100 +110,20 @@ void RHF::updateFockMatrix()
 
 void RHF::calculateEnergy()
 {
-    m_energy = 0.5 * accu(m_P % (m_h + m_F)) + m_system->getNucleiPotential();
+    m_energy = 0.5 * accu(m_P % (m_h + m_F)) + m_system->nuclearPotential();
 }
 
-const mat& RHF::getExpansionCoeff() const
-{
-    return m_C;
-}
-
-
-field<mat> RHF::getFockMatrix()
+field<const mat *> RHF::fockMatrix()
 {
     updateFockMatrix();
-    field<mat> fockMatrices(1,1);
-    fockMatrices(0,0) = m_F;
+    field<const mat *> fockMatrices(1,1);
+    fockMatrices(0,0) = &m_F;
     return fockMatrices;
 }
 
-field<mat> RHF::getDensityMatrix() const
+field<const mat *> RHF::densityMatrix() const
 {
-    field<mat> densityMatrices(1,1);
-    densityMatrices(0,0) = m_P;
+    field<const mat *> densityMatrices(1,1);
+    densityMatrices(0,0) = &m_P;
     return densityMatrices;
-}
-void RHF::calculateDensity()
-{
-
-    cout << "---Calculating density---" << endl;
-
-    vec x = linspace(-10, 10, m_nProcs * 5);
-    vec y = linspace(-10, 10, m_nProcs * 5);
-    vec z = linspace(-10, 10, m_nProcs * 5);
-    double dr = (x(1) - x(0)) * (y(1) - y(0)) * (z(1) - z(0));
-
-    m_density = zeros(x.n_elem, y.n_elem, z.n_elem);
-    double sumDensity =0;
-
-
-    int xElements = x.n_elem/m_nProcs;
-    int yElements = y.n_elem/m_nProcs;
-    int zElements = z.n_elem/m_nProcs;
-
-    int xMin = m_rank % m_nProcs * xElements;
-    int yMin = m_rank / m_nProcs * yElements;
-    int zMin = m_rank / m_nProcs * zElements;
-
-    int xMax = xMin + xElements;
-    int yMax = m_nProcs * yElements;
-    int zMax = m_nProcs *  zElements;
-
-    for(int i = xMin; i < xMax; i++) {
-        for(int j = yMin; j < yMax; j++) {
-            for(int k = zMin; k < zMax; k++) {
-
-                for(int p = 0; p < m_nBasisFunctions; p++){
-                    double innerProduct = m_system->gaussianProduct(p, p, x(i), y(j), z(k));
-                    sumDensity += m_P(p,p) * innerProduct * dr;
-                    m_density(j,i,k) += m_P(p,p) * innerProduct ;
-
-                    for(int q = p+1; q < m_nBasisFunctions; q++){
-                        innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
-                        sumDensity += 2.0 * m_P(p,q) * innerProduct * dr;
-                        m_density(j,i,k) += 2.0 * m_P(p,q) * innerProduct ;
-
-                    }
-                }
-
-            }
-        }
-    }
-
-
-    //    for(int i = xMin; i < xMax; i++) {
-    //        for(int j = yMin; j < yMax; j++) {
-    //            for(int k = zMin; k < zMax; k++) {
-
-    //                for(int p = 0; p < m_nBasisFunctions; p++){
-    //                    for(int q = 0; q < m_nBasisFunctions; q++){
-    //                        double innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
-    //                        m_density(j,i,k) += 2.0 * m_C(p,6)* m_C(q,6) * innerProduct ;
-
-    //                    }
-    //                }
-
-    //            }
-    //        }
-    //    }
-
-
-
-
-    cout << "density sum: " << sumDensity << endl;
-    //    cout << m_density << endl;
-    //    cout <<"rank: "<<m_rank<<" xLim: " <<xMin << "   "<< xMax << endl;
-    //    cout <<"rank: "<<m_rank<<" yLim: "<< yMin << "   "<< yMax << endl;
-    //    cout <<"rank: "<<m_rank<<" zLim: "<< zMin << "   "<< zMax << endl;
-    densityOutput(x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
 }

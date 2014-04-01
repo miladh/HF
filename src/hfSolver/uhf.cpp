@@ -2,8 +2,8 @@
 
 using namespace hf;
 
-UHF::UHF(System *system, const int &rank, const int &nProcs):
-    HFsolver(system, rank, nProcs),
+UHF::UHF(ElectronicSystem *system):
+    HFsolver(system),
     m_Fu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
     m_Cu(ones(m_nBasisFunctions,m_nBasisFunctions)),
     m_Pu(zeros(m_nBasisFunctions,m_nBasisFunctions)),
@@ -26,6 +26,13 @@ void UHF::advance()
     m_iteration = 0;
 
     while (stdDeviation_U > HFSOLVERTOLERANCE && stdDeviation_D > HFSOLVERTOLERANCE){
+        if(m_rank == 0){
+            cout << "Convergence rate: "
+                 << 50.0*HFSOLVERTOLERANCE/stdDeviation_U
+                  + 50.0*HFSOLVERTOLERANCE/stdDeviation_D
+                 << setprecision(2)
+                 <<" %" << endl;
+        }
         fockEnergyOld_U = m_fockEnergyU;
         fockEnergyOld_D = m_fockEnergyD;
         solveSingle();
@@ -51,7 +58,7 @@ void UHF::solveSingle()
     eig_sym(eigVal, eigVec, m_S);
     V = eigVec*diagmat(1.0/sqrt(eigVal));
 
-//    DIISprocedure();
+//     DIISprocedure();
 
     eig_sym(eigVal, eigVec, V.t()*m_Fu*V);
     m_Cu = V*eigVec;
@@ -122,7 +129,7 @@ void UHF::DIISprocedure()
 void UHF::calculateEnergy()
 {
     m_energy = 0.5 * accu( (m_Pu + m_Pd) % m_h + m_Fu % m_Pu + m_Fd % m_Pd)
-               + m_system->getNucleiPotential();
+            + m_system->nuclearPotential();
 }
 
 void UHF::updateFockMatrix()
@@ -144,74 +151,20 @@ void UHF::updateFockMatrix()
     }
 }
 
-field<mat> UHF::getFockMatrix()
+field<const mat *> UHF::fockMatrix()
 {
     updateFockMatrix();
-    field<mat> fockMatrices(2,1);
-    fockMatrices(0) = m_Fu;
-    fockMatrices(1) = m_Fd;
+    field<const mat *> fockMatrices(2,1);
+    fockMatrices(0) = &m_Fu;
+    fockMatrices(1) = &m_Fd;
     return fockMatrices;
 }
 
-field<mat> UHF::getDensityMatrix() const
+field<const mat *> UHF::densityMatrix() const
 {
-    field<mat> densityMatrices(2,1);
-    densityMatrices(0) = m_Pu;
-    densityMatrices(1) = m_Pd;
+    field<const mat *> densityMatrices(2,1);
+    densityMatrices(0) = &m_Pu;
+    densityMatrices(1) = &m_Pd;
     return densityMatrices;
 }
 
-
-
-
-void UHF::calculateDensity()
-{
-
-    cout << "---Calculating density---" << endl;
-
-    vec x = linspace(-10, 10, m_nProcs * 10);
-    vec y = linspace(-10, 10, m_nProcs * 10);
-    vec z = linspace(-10, 10, m_nProcs * 10);
-    double dr = (x(1) - x(0)) * (y(1) - y(0)) * (z(1) - z(0));
-
-    m_density = zeros(x.n_elem, y.n_elem, z.n_elem);
-    double sumDensity =0;
-
-
-    int xElements = x.n_elem/m_nProcs;
-    int yElements = y.n_elem/m_nProcs;
-    int zElements = z.n_elem/m_nProcs;
-
-    int xMin = m_rank % m_nProcs * xElements;
-    int yMin = m_rank / m_nProcs * yElements;
-    int zMin = m_rank / m_nProcs * zElements;
-
-    int xMax = xMin + xElements;
-    int yMax = m_nProcs * yElements;
-    int zMax = m_nProcs *  zElements;
-
-    for(int i = xMin; i < xMax; i++) {
-        for(int j = yMin; j < yMax; j++) {
-            for(int k = zMin; k < zMax; k++) {
-
-                for(int p = 0; p < m_nBasisFunctions; p++){
-                    double innerProduct = m_system->gaussianProduct(p, p, x(i), y(j), z(k));
-                    sumDensity += (m_Pu(p,p) + m_Pd(p,p)) * innerProduct * dr;
-                    m_density(j,i,k) += (m_Pu(p,p) + m_Pd(p,p)) * innerProduct ;
-
-                    for(int q = p+1; q < m_nBasisFunctions; q++){
-                        innerProduct = m_system->gaussianProduct(p, q, x(i), y(j), z(k));
-                        sumDensity += 2.0 * (m_Pu(p,p) + m_Pd(p,p)) * innerProduct * dr;
-                        m_density(j,i,k) += 2.0 * (m_Pu(p,p) + m_Pd(p,p)) * innerProduct ;
-
-                    }
-                }
-
-            }
-        }
-    }
-
-    cout << "density sum: " << sumDensity << endl;
-    densityOutput(x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
-
-}

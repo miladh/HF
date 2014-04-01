@@ -2,10 +2,10 @@
 
 using namespace hf;
 
-GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
+GeometricalDerivative::GeometricalDerivative(ElectronicSystem *system, HFsolver *solver):
     m_system(system),
     m_solver(solver),
-    m_nBasisFunctions(system->getTotalNumOfBasisFunc())
+    m_nBasisFunctions(system->nBasisFunctions())
 {
     m_dh.set_size(m_nBasisFunctions,m_nBasisFunctions);
     m_dS.set_size(m_nBasisFunctions,m_nBasisFunctions);
@@ -13,9 +13,9 @@ GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
     m_rank = 0;
     m_nProcs = 1;
     // MPI----------------------------------------------------------------------
-#ifdef USE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &m_nProcs);
+#if USE_MPI
+    m_rank   = m_world.rank();
+    m_nProcs = m_world.size();
 #endif
 
     int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
@@ -55,7 +55,6 @@ GeometricalDerivative::GeometricalDerivative(System *system, HFsolver *solver):
 
 }
 
-
 const rowvec& GeometricalDerivative::energyGradient(const int core)
 {
     m_differentiationCore = core;
@@ -84,19 +83,21 @@ void GeometricalDerivative::setupDerivativeMatrices()
 
 void GeometricalDerivative::calculateEnergyGradient()
 {
-    const field<mat>& F = m_solver->getFockMatrix();
-    const field<mat>& P = m_solver->getDensityMatrix();
+    field<const mat *> fockMatrices = m_solver->fockMatrix();
+    field<const mat *> densityMatrices = m_solver->densityMatrix();
     m_gradE  = {0,0,0};
 
-    for(uint i = 0; i < F.n_elem; i ++){
+
+    for(uint i = 0; i < densityMatrices.n_elem; i ++){
+        const mat& P = (*densityMatrices(i));
 
         for(int p: m_myBasisIndices){
             for (int q = 0; q < m_nBasisFunctions; q++){
-                m_gradE += P(i)(p, q) * m_dh(p, q);
+                m_gradE += P(p, q) * m_dh(p, q);
 
                 for (int r = 0; r < m_nBasisFunctions; r++){
                     for (int s = 0; s < m_nBasisFunctions; s++){
-                        m_gradE += 0.5*P(i)(p,q)*P(i)(s,r)*(
+                        m_gradE += 0.5*P(p,q)*P(s,r)*(
                                     m_system->getTwoParticleIntegralDerivative(p,q,r,s,m_differentiationCore)
                                     - 0.5*m_system->getTwoParticleIntegralDerivative(p,s,r,q,m_differentiationCore));
 
@@ -106,8 +107,9 @@ void GeometricalDerivative::calculateEnergyGradient()
         }
     }
 
-    //MPI
-    MPI_Allreduce(m_gradE.memptr(), m_totGradE.memptr(), m_gradE.n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#if USE_MPI
+        boost::mpi::all_reduce(m_world, m_gradE.memptr(), m_gradE.n_elem, m_totGradE.memptr(), std::plus<double>());
+#endif
 
     mat dSx, dSy,dSz;
     dSx = zeros(m_nBasisFunctions,m_nBasisFunctions);
@@ -123,14 +125,17 @@ void GeometricalDerivative::calculateEnergyGradient()
     }
 
 
-    for(uint i = 0; i < F.n_elem; i ++){
-        m_totGradE(0) -= 0.5 * trace(P(i)*dSx*P(i)*F(i));
-        m_totGradE(1) -= 0.5 * trace(P(i)*dSy*P(i)*F(i));
-        m_totGradE(2) -= 0.5 * trace(P(i)*dSz*P(i)*F(i));
+    for(uint i = 0; i < fockMatrices.n_elem; i++){
+        const mat& F = (*fockMatrices(i));
+        const mat& P = (*densityMatrices(i));
+
+        m_totGradE(0) -= 0.5 * trace(P*dSx*P*F(i));
+        m_totGradE(1) -= 0.5 * trace(P*dSy*P*F(i));
+        m_totGradE(2) -= 0.5 * trace(P*dSz*P*F(i));
     }
 
     //    Nuclear repulsion term
-    m_totGradE  +=m_system->getNucleiPotential_derivative(m_differentiationCore);
+    m_totGradE  +=m_system->nuclearPotentialGD(m_differentiationCore);
 
 
 

@@ -7,15 +7,6 @@ PrimitiveGTO::PrimitiveGTO(const double &exponent, const double &weight, const r
     setPowers(powers);
 }
 
-
-const double& PrimitiveGTO::evaluate(const double &x,const double &y,const double &z)
-{
-    m_value = m_weight * pow(x, m_xPower) * pow (y, m_yPower) * pow(z, m_zPower)
-            * exp(-m_exponent * (x*x + y*y + z*z));
-
-    return m_value;
-}
-
 const double& PrimitiveGTO::exponent() const
 {
     return m_exponent;

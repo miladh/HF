@@ -7,7 +7,6 @@ Integrator::Integrator():
     m_corePositionB(rowvec(3)),
     m_corePositionC(rowvec(3)),
     m_corePositionD(rowvec(3))
-
 {
 }
 
@@ -26,7 +25,6 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
         m_dEab(cor) = zeros(iAmax, iBmax, tmax);
         m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
     }
-
 
     int nMax_en = 2 * m_maxAngularMomentum + 1;
     m_Ren.set_size(nMax_en);
@@ -47,7 +45,6 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 
 int Integrator::maxAngularMomentum() const
 {
-    cout << m_primitiveA.exponent() << endl;
     return m_maxAngularMomentum;
 }
 
@@ -115,6 +112,7 @@ void Integrator::setPrimitiveD(const PrimitiveGTO &primitiveD)
 
 void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral, bool kin)
 {
+
     if(oneParticleIntegral){
         if(kin){
             m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
@@ -170,7 +168,8 @@ double Integrator::overlapIntegral()
 {
     return    overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
             * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower())
-            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
+            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower())
+            * m_primitiveA.weight() * m_primitiveB.weight();
 }
 
 
@@ -224,7 +223,7 @@ double Integrator::kineticIntegral() {
     double S_kA_kB = overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
 
     double result = T_iA_iB * S_jA_jB * S_kA_kB + S_iA_iB * T_jA_jB * S_kA_kB + S_iA_iB * S_jA_jB * T_kA_kB;
-    result *= -0.5;
+    result *= -0.5 * m_primitiveA.weight() * m_primitiveB.weight();
     return result;
 }
 
@@ -307,7 +306,7 @@ double Integrator::nuclearAttractionIntegral()
         }
     }
 
-    return 2 * result * M_PI / p;
+    return 2 * result * M_PI / p * m_primitiveA.weight() * m_primitiveB.weight();
 }
 
 
@@ -480,7 +479,9 @@ double Integrator::electronRepulsionIntegral()
         }
     }
 
-    result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q));
+    result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q))
+            * m_primitiveA.weight() * m_primitiveB.weight()
+            * m_primitiveC.weight() * m_primitiveD.weight();
 
     return result;
 

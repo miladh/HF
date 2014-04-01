@@ -13,11 +13,9 @@ namespace hf {
 class UHF : public HFsolver
 {
 public:
-    UHF(System *system, const int &rank, const int &nProcs);
-
-
-    field<mat> getFockMatrix();
-    field<mat> getDensityMatrix() const;
+    UHF(ElectronicSystem *system);
+    field<const mat *> fockMatrix();
+    field<const mat *> densityMatrix() const;
 
 private:
     mat m_Fu, m_Cu, m_Pu;
@@ -32,7 +30,6 @@ protected:
     void solveSingle();
     void calculateEnergy();
     void updateFockMatrix();
-    void calculateDensity();
 
 
 };

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <armadillo>
 
-#include "../system/system.h"
 #include "../hfSolver/hfsolver.h"
 #include "../hfSolver/rhf.h"
 #include "../geometricalDerivative/geometricalderivative.h"
@@ -17,7 +16,7 @@ namespace hf{
 class BOMD
 {
 public:
-    BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs);
+    BOMD(ElectronicSystem *system, HFsolver *solver);
 
     void runDynamics();
     void solveSingleStep();
@@ -26,12 +25,14 @@ public:
     const rowvec& getEnergyGradient() const;
 
 private:
-    int m_rank, m_nProcs;
-    System* m_system;
+    ElectronicSystem* m_system;
     HFsolver *m_solver;
     GeometricalDerivative* m_GD;
-    int m_nCores,  m_nOrbitals;
+    vector<Atom *> m_atoms;
+
+    int m_nAtoms;
     int m_nSteps;
+    int m_rank;
 
     double m_dtn;
     double m_dampingFactor;

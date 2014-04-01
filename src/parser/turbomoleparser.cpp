@@ -1,30 +1,21 @@
-#include "basisset.h"
+#include "turbomoleparser.h"
 
 using namespace hf;
 
-BasisSet::BasisSet()
+TurbomoleParser::TurbomoleParser(string filename)
 {
+    loadfile(filename);
 }
 
-BasisSet::BasisSet(string inFileName)
+void TurbomoleParser::loadfile(string filename)
 {
-    rowvec pow1 = {0, 0, 0};
-    rowvec pow2 = {1, 0, 0};
-    rowvec pow3 = {0, 1, 0};
-    rowvec pow4 = {0, 0, 1};
-
-    rowvec pow5  = {2, 0, 0};
-    rowvec pow6  = {0, 2, 0};
-    rowvec pow7  = {0, 0, 2};
-    rowvec pow8  = {1, 1, 0};
-    rowvec pow9  = {1, 0, 1};
-    rowvec pow10 = {0, 1, 1};
 
     string line, stringToSearch;
     fstream file;
-    file.open(inFileName);
+    file.open(filename);
 
 
+    //-----------------------------------------------------------------------------------
     //Read turbomole file
     if (file.is_open()){
         while (getline(file, line)){
@@ -32,10 +23,11 @@ BasisSet::BasisSet(string inFileName)
         }
         file.close();
     } else {
-        cout << "Error: Could not open file "<< inFileName << endl;
+        cerr << "Error: Could not open file "<< filename << endl;
         exit(EXIT_FAILURE);
     }
 
+    //-----------------------------------------------------------------------------------
     regex typeRegex("\\s*([a-zA-Z]+)\\s*(([0-9])-([0-9]+)([G]))\\s*");
     sregex_iterator type(stringToSearch.begin(), stringToSearch.end(), typeRegex);
     sregex_iterator endType;
@@ -52,13 +44,17 @@ BasisSet::BasisSet(string inFileName)
         }
         smatch what;
         while(regex_search(stringToSearch, what, typeRegex)) {
-            m_coreType =  string(what[1]);
-            m_basisType = string(what[2]);
+            AtomMeta atomMeta = AtomMeta::getData(string(what[1]));
+            setAtomType(atomMeta.type);
+            setAtomCharge(atomMeta.charge);
+            setAtomMass(atomMeta.mass);
             break;
         }
 
     }
 
+
+    //-----------------------------------------------------------------------------------
     //Search for groups of contracted GTOs
     regex searchCGTO("([0-9]\\s+[spd])((\\s+-?[0-9]+\\.[0-9]+)+)");
     sregex_iterator CGTOs(stringToSearch.begin(), stringToSearch.end(), searchCGTO);
@@ -66,7 +62,6 @@ BasisSet::BasisSet(string inFileName)
 
     for(; CGTOs!=endCGTOs; CGTOs++){
         string subString = CGTOs->str(2).c_str();
-//                cout << CGTOs->str(2).c_str() << endl;
 
         //Search for groups of (exponent and coefficient) for each primitive
         regex searchPGTO("(-?[0-9]+\\.[0-9]+)\\s+(-?[0-9]+\\.[0-9]+)\\s*");
@@ -80,6 +75,8 @@ BasisSet::BasisSet(string inFileName)
         regex searchd("[0-9]\\s+d");
 
 
+
+        // s-type:
         if(regex_match(orbitalType, searchs)){
             m_angularMomentum = 0;
             ContractedGTO contractedGTO;
@@ -95,6 +92,8 @@ BasisSet::BasisSet(string inFileName)
 
             m_contractedGTOs.push_back(contractedGTO);
         }
+
+        // p-type:
         else if(regex_match(orbitalType, searchp)){
             m_angularMomentum = 1;
             ContractedGTO contractedGTOx, contractedGTOy, contractedGTOz ;
@@ -117,6 +116,8 @@ BasisSet::BasisSet(string inFileName)
             m_contractedGTOs.push_back(contractedGTOy);
             m_contractedGTOs.push_back(contractedGTOz);
         }
+
+        // d-type:
         else if(regex_match(orbitalType, searchd)){
             m_angularMomentum = 2;
             ContractedGTO contractedGTOxx, contractedGTOyy, contractedGTOzz,
@@ -154,74 +155,51 @@ BasisSet::BasisSet(string inFileName)
     }
 
 }
-
-
-
-rowvec BasisSet::corePosition() const
-{
-    return m_corePosition;
-}
-
-void BasisSet::setCorePosition(const rowvec &corePosition)
-{
-    m_corePosition = corePosition;
-}
-
-const ContractedGTO& BasisSet::getContracted(const int c) const
-{
-    return m_contractedGTOs.at(c);
-}
-
-int BasisSet::getNumContracted() const
-{
-    return m_contractedGTOs.size();
-}
-
-const int& BasisSet::getAngularMomentum() const
+int TurbomoleParser::angularMomentum() const
 {
     return m_angularMomentum;
 }
-const double& BasisSet::partialCharge() const
+
+void TurbomoleParser::setAngularMomentum(int angularMomentum)
 {
-    return m_partialCharge;
+    m_angularMomentum = angularMomentum;
 }
 
-void BasisSet::setPartialCharge(double partialCharge)
+double TurbomoleParser::atomMass() const
 {
-    m_partialCharge = partialCharge;
-}
-const string& BasisSet::coreType() const
-{
-    return m_coreType;
+    return m_atomMass;
 }
 
-const string &BasisSet::basisType() const
+void TurbomoleParser::setAtomMass(double atomMass)
 {
-    return m_basisType;
+    m_atomMass = atomMass;
 }
 
-
-
-const int& BasisSet::coreCharge() const
+int TurbomoleParser::atomCharge() const
 {
-    return m_coreCharge;
+    return m_atomCharge;
 }
 
-void BasisSet::setCoreCharge(const int &coreCharge)
+void TurbomoleParser::setAtomCharge(int atomCharge)
 {
-    m_coreCharge = coreCharge;
-}
-const int& BasisSet::coreMass() const
-{
-    return m_coreMass;
-}
-
-void BasisSet::setCoreMass(const int &coreMass)
-{
-    m_coreMass = PROTONMASS * coreMass;
+    m_atomCharge = atomCharge;
 }
 
 
+vector<ContractedGTO> TurbomoleParser::contractedGTOs() const
+{
+    return m_contractedGTOs;
+}
+
+int TurbomoleParser::atomType() const
+{
+    return m_atomType;
+}
+
+void TurbomoleParser::setAtomType(int atomType)
+{
+    m_atomType = atomType;
+}
 
 
 

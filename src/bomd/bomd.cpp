@@ -2,31 +2,34 @@
 
 using namespace hf;
 
-BOMD::BOMD(System *system, HFsolver *solver, const int &rank, const int &nProcs):
-    m_rank(rank),
-    m_nProcs(nProcs),
+BOMD::BOMD(ElectronicSystem *system, HFsolver *solver):
     m_system(system),
     m_solver(solver),
-    m_nCores(system->getNumOfCores()),
-    m_nOrbitals(system->getTotalNumOfBasisFunc())
-
-
+    m_atoms(system->atoms()),
+    m_nAtoms(system->nAtoms()),
+    m_rank(0)
 {
     m_nSteps = 100;
     m_dtn   =  4.0;
     m_dampingFactor = 0.0;
 
 
-    pos    = zeros(m_nCores, 3);
-    posNew = zeros(m_nCores, 3);
-    posOld = zeros(m_nCores, 3);
+    pos    = zeros(m_nAtoms, 3);
+    posNew = zeros(m_nAtoms, 3);
+    posOld = zeros(m_nAtoms, 3);
 
-    for(int core = 0; core < m_nCores; core++){
-        pos.row(core) = m_system->m_basisSet.at(core)->corePosition();
+    for(int core = 0; core < m_nAtoms; core++){
+        pos.row(core) = m_atoms.at(core)->corePosition();
     }
 
     posOld = pos;
-    m_GD = new GeometricalDerivative(m_system,m_solver);
+    m_GD = new GeometricalDerivative(m_system, m_solver);
+
+#if USE_MPI
+    boost::mpi::communicator world;
+    m_rank = world.rank();
+#endif
+
 }
 
 
@@ -49,7 +52,7 @@ void BOMD::solveSingleStep()
     m_energy  = m_solver->getEnergy();
 
 
-    for(int core = 0; core < m_nCores; core++){
+    for(int core = 0; core < m_nAtoms; core++){
         clock_t begin = clock();
         m_energyGradient = m_GD->energyGradient(core);
         clock_t end = clock();
@@ -73,7 +76,7 @@ void BOMD::solveSingleStep()
 
 void BOMD::IntegrateCoreForwardInTime(int core)
 {
-    int coreMass = m_system->m_basisSet.at(core)->coreMass();
+    int coreMass = m_atoms.at(core)->coreMass();
 
     posNew.row(core) = 2 * pos.row(core) - posOld.row(core)
             - m_dtn * m_dtn * m_energyGradient / coreMass;
@@ -85,8 +88,8 @@ void BOMD::IntegrateCoreForwardInTime(int core)
 
 void BOMD::updateCorePositions()
 {
-    for(int core = 0; core < m_nCores; core++){
-        m_system->m_basisSet.at(core)->setCorePosition(pos.row(core));
+    for(int core = 0; core < m_nAtoms; core++){
+        m_atoms.at(core)->setCorePosition(pos.row(core));
     }
 
 }
@@ -101,16 +104,14 @@ const rowvec& BOMD::getEnergyGradient() const
 }
 
 
-
-
 void BOMD::writeToFile(mat R, int currentTimeStep) {
     ivec atomTypes;
 
-    if(m_nCores == 3){
+    if(m_nAtoms == 3){
         atomTypes << 8 << 1 << 1;
-    }else if(m_nCores == 5){
+    }else if(m_nAtoms == 5){
          atomTypes << 14 << 8 << 8 << 8 << 8;
-    }else if(m_nCores == 9){
+    }else if(m_nAtoms == 9){
         atomTypes << 14 << 8 << 8 << 8 << 8 << 14 << 8 << 8 <<8;
    }
     else{

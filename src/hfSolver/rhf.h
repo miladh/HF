@@ -13,11 +13,10 @@ namespace hf {
 class RHF : public HFsolver
 {
 public:
-    RHF(System *system, const int &rank, const int &nProcs);
+    RHF(ElectronicSystem *system);
 
-    const mat& getExpansionCoeff() const;
-    field<mat> getFockMatrix();
-    field<mat> getDensityMatrix() const;
+    field<const mat *> fockMatrix();
+    field<const mat *> densityMatrix() const;
 
 private:
     mat m_F, m_C, m_P;
@@ -25,13 +24,12 @@ private:
     vector<mat> m_errors, m_fockMatrices;
 
     void DIISprocedure();
+
 protected:
     void advance();
     void solveSingle();
     void calculateEnergy();
     void updateFockMatrix();
-    void calculateDensity();
-
 };
 
 }

@@ -10,12 +10,18 @@ void ContractedGTO::addPrimitive(PrimitiveGTO primitiveGTO)
     m_primitivesGTOs.push_back(primitiveGTO);
 }
 
-const PrimitiveGTO& ContractedGTO::getPrimitive(const int p) const
+void ContractedGTO::setCenter(const rowvec& center)
 {
-    return m_primitivesGTOs.at(p);
+    m_center = center;
 }
 
-int ContractedGTO::getNumPrimitives() const
+const rowvec& ContractedGTO::center() const
 {
-    return m_primitivesGTOs.size();
+    return m_center;
 }
+
+const vector<PrimitiveGTO> &ContractedGTO::primitivesGTOs() const
+{
+    return m_primitivesGTOs;
+}
+
