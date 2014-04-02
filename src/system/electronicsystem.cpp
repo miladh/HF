@@ -9,16 +9,17 @@ ElectronicSystem::ElectronicSystem()
 void ElectronicSystem::addAtoms(vector<Atom*> atoms)
 {
     int maxAngularMomentum = 0;
-
+    int id = 0;
     m_atoms = atoms;
     for(Atom* atom : m_atoms){
         m_nElectrons        += atom->nElectrons();
         maxAngularMomentum = max(maxAngularMomentum , atom->angularMomentum());
 
         for(const ContractedGTO &CGTO : atom->contractedGTOs()){
-//            CGTO.setAtom(atom);
             m_basisFunctions.push_back(&CGTO);
+            m_basisFucntionIndexToAtomID.push_back(id);
         }
+        id++;
     }
 
     integrator.setMaxAngularMomentum(maxAngularMomentum);
@@ -200,26 +201,61 @@ rowvec ElectronicSystem::nuclearPotentialGD(int activeCore)
     return dVn;
 }
 
-
 mat ElectronicSystem::overlapIntegralGD(const int& q, const int& p)
 {
     mat dSpq = zeros(m_nAtoms, 3);
 
-//    const ContractedGTO *CGp = m_basisFunctions.at(p);
-//    const ContractedGTO *CGq = m_basisFunctions.at(q);
+    int coreA = m_basisFucntionIndexToAtomID.at(p);
+    int coreB = m_basisFucntionIndexToAtomID.at(q);
 
-//    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
-//        integrator.setPrimitiveA(Gp);
+    const ContractedGTO *CGp = m_basisFunctions.at(p);
+    const ContractedGTO *CGq = m_basisFunctions.at(q);
 
-//        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
-//            integrator.setPrimitiveB(Gq);
-//            integrator.updateHermiteCoefficients(true, false, false);
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
+        integrator.setPrimitiveA(Gp);
 
-//            Spq += integrator.overlapIntegral();
-//        }
-//    }
-//    return Spq;
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
+            integrator.setPrimitiveB(Gq);
+            integrator.updateHermiteCoefficients(true, false);
+            integrator.updateHermiteCoefficients_derivative(true,false);
 
+            dSpq.row(coreA) += integrator.overlapIntegral_derivative()*Gp.weight()*Gq.weight();
+
+        }
+    }
+
+    dSpq.row(coreB) -= dSpq.row(coreA);
+
+    return dSpq;
+}
+
+mat ElectronicSystem::oneParticleIntegralGD(const int& q, const int& p)
+{
+    mat dhpq = zeros(m_nAtoms, 3);
+
+    int coreA = m_basisFucntionIndexToAtomID.at(p);
+    int coreB = m_basisFucntionIndexToAtomID.at(q);
+
+    const ContractedGTO *CGp = m_basisFunctions.at(p);
+    const ContractedGTO *CGq = m_basisFunctions.at(q);
+
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
+        integrator.setPrimitiveA(Gp);
+
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
+            integrator.setPrimitiveB(Gq);
+            integrator.updateHermiteCoefficients(true, false);
+            integrator.updateHermiteCoefficients_derivative(true,false);
+
+            dhpq.row(coreA) += primitiveA.weight() * primitiveB.weight() *
+                    //                        integrator.kineticIntegral_derivative()*Gp.weight()*Gq.weight();
+
+        }
+    }
+
+    dhpq.row(coreB) -= dhpq.row(coreA);
+
+    return dhpq;
 }
 
 

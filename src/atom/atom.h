@@ -1,8 +1,8 @@
 #ifndef ATOM_H
 #define ATOM_H
 
-#include "../contractedGTO/contractedGTO.h"
 #include "../parser/turbomoleparser.h"
+
 
 namespace hf{
 

@@ -49,7 +49,7 @@ private:
     Integrator integrator;
     vector<Atom *> m_atoms;
     vector<const ContractedGTO *> m_basisFunctions;
-
+    vector<int> m_basisFucntionIndexToAtomID;
     int m_nElectrons = 0;
     int m_nSpinUpElectrons = 0;
     int m_nSpinDownElectrons = 0;

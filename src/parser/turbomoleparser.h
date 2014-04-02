@@ -5,10 +5,8 @@
 #include <armadillo>
 #include <boost/regex.hpp>
 
-#include "../contractedGTO/contractedGTO.h"
 #include"../defines.h"
-
-
+#include "../contractedGTO/contractedGTO.h"
 
 using namespace arma;
 using namespace std;
