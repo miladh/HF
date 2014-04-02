@@ -28,8 +28,8 @@ SUITE(DEVELOPMENT){
         PrimitiveGTO primitiveA(0.2, 1.0);
         PrimitiveGTO primitiveB(0.3, 1.0);
 
-        primitiveA.setCenter(posA);
-        primitiveB.setCenter(posB);
+        primitiveA.setCenter(&posA);
+        primitiveB.setCenter(&posB);
 
         integrator.setMaxAngularMomentum(2);
 
@@ -470,8 +470,8 @@ SUITE(DEVELOPMENT){
 
         PrimitiveGTO primitiveA(0.2, 1.0);
         PrimitiveGTO primitiveB(0.3, 1.0);
-        primitiveA.setCenter(posA);
-        primitiveB.setCenter(posB);
+        primitiveA.setCenter(&posA);
+        primitiveB.setCenter(&posB);
 
         integrator.setMaxAngularMomentum(2);
 

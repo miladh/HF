@@ -38,10 +38,10 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 
 }
 
-rowvec Integrator::corePositionC() const
-{
-    return m_primitiveC.center();
-}
+//rowvec Integrator::corePositionC() const
+//{
+//    return m_primitiveC.center();
+//}
 
 void Integrator::setCorePositionC(const rowvec &corePositionC)
 {

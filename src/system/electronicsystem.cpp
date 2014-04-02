@@ -16,6 +16,7 @@ void ElectronicSystem::addAtoms(vector<Atom*> atoms)
         maxAngularMomentum = max(maxAngularMomentum , atom->angularMomentum());
 
         for(const ContractedGTO &CGTO : atom->contractedGTOs()){
+//            CGTO.setAtom(atom);
             m_basisFunctions.push_back(&CGTO);
         }
     }
@@ -197,6 +198,28 @@ rowvec ElectronicSystem::nuclearPotentialGD(int activeCore)
     }
 
     return dVn;
+}
+
+
+mat ElectronicSystem::overlapIntegralGD(const int& q, const int& p)
+{
+    mat dSpq = zeros(m_nAtoms, 3);
+
+//    const ContractedGTO *CGp = m_basisFunctions.at(p);
+//    const ContractedGTO *CGq = m_basisFunctions.at(q);
+
+//    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
+//        integrator.setPrimitiveA(Gp);
+
+//        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
+//            integrator.setPrimitiveB(Gq);
+//            integrator.updateHermiteCoefficients(true, false, false);
+
+//            Spq += integrator.overlapIntegral();
+//        }
+//    }
+//    return Spq;
+
 }
 
 

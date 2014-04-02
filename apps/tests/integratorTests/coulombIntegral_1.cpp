@@ -24,16 +24,16 @@ TEST(GTOnuclearAttractionIntegral)
 
     Integrator integrator;
 
-    rowvec posA = {1.2,2.3,3.4};
-    rowvec posB = {-1.3,1.4,-2.4};
+    const rowvec posA = {1.2,2.3,3.4};
+    const rowvec posB = {-1.3,1.4,-2.4};
     rowvec posC = {2.3,0.9,3.2};
 
 
     PrimitiveGTO primitiveA(0.2, 1.0);
     PrimitiveGTO primitiveB(0.3, 1.0);
     PrimitiveGTO primitiveC(0.0, 0.0);
-    primitiveA.setCenter(posA);
-    primitiveB.setCenter(posB);
+    primitiveA.setCenter(&posA);
+    primitiveB.setCenter(&posB);
     integrator.setCorePositionC(posC);
 
 

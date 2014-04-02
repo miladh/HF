@@ -19,11 +19,11 @@ public:
     const vector<PrimitiveGTO>& primitiveGTOs() const;
 
     const rowvec &center() const;
-    void setCenter(const rowvec &center);
+    void setCenter(const rowvec* center);
 
 private:
     vector<PrimitiveGTO> m_primitivesGTOs;
-    rowvec m_center;
+    const rowvec* m_center;
 };
 }
 

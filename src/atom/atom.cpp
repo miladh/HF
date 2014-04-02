@@ -17,7 +17,6 @@ void Atom::loadBasisFile(string fileName)
     m_angularMomentum = parser.angularMomentum();
     m_nElectrons = int(m_atomType);
     m_contractedGTOs = parser.contractedGTOs();
-
 }
 
 const int& Atom::atomType() const
@@ -69,7 +68,7 @@ void Atom::setCorePosition(const rowvec &corePosition)
     m_corePosition = corePosition;
 
     for(ContractedGTO &CGTO : m_contractedGTOs) {
-            CGTO.setCenter(m_corePosition);
+            CGTO.setCenter(&m_corePosition);
         }
 
 }

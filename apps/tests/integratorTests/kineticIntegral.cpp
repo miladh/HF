@@ -22,13 +22,13 @@ TEST(GTOkineticIntegral)
 
     Integrator integrator;
 
-    rowvec posA = {1.2,2.3,3.4};
-    rowvec posB = {-1.3,1.4,-2.4};
+    const rowvec posA = {1.2,2.3,3.4};
+    const rowvec posB = {-1.3,1.4,-2.4};
 
     PrimitiveGTO primitiveA(0.2, 1.0);
     PrimitiveGTO primitiveB(0.3, 1.0);
-    primitiveA.setCenter(posA);
-    primitiveB.setCenter(posB);
+    primitiveA.setCenter(&posA);
+    primitiveB.setCenter(&posB);
 
     integrator.setMaxAngularMomentum(2);
 
@@ -459,13 +459,13 @@ TEST(GTOkineticIntegral_derivative)
 
     Integrator integrator;
 
-    rowvec posA = {1.2,2.3,3.4};
-    rowvec posB = {-1.3,1.4,-2.4};
+    const rowvec posA = {1.2,2.3,3.4};
+    const rowvec posB = {-1.3,1.4,-2.4};
     rowvec Tab  = {0, 0, 0};
     PrimitiveGTO primitiveA(0.2, 1.0);
     PrimitiveGTO primitiveB(0.3, 1.0);
-    primitiveA.setCenter(posA);
-    primitiveB.setCenter(posB);
+    primitiveA.setCenter(&posA);
+    primitiveB.setCenter(&posB);
 
     integrator.setMaxAngularMomentum(2);
 
