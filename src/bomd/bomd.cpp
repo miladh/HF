@@ -49,7 +49,7 @@ void BOMD::runDynamics()
 void BOMD::solveSingleStep()
 {
     m_solver->runSolver();
-    m_energy  = m_solver->getEnergy();
+    m_energy  = m_solver->energy();
 
 
     for(int core = 0; core < m_nAtoms; core++){
@@ -94,11 +94,11 @@ void BOMD::updateCorePositions()
 
 }
 
-double BOMD::getEnergy() const
+double BOMD::energy() const
 {
     return m_energy;
 }
-const rowvec& BOMD::getEnergyGradient() const
+const rowvec& BOMD::energyGradient() const
 {
     return m_energyGradient;
 }

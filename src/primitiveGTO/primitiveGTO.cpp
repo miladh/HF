@@ -40,11 +40,11 @@ void PrimitiveGTO::setPowers(const rowvec &powers)
     setZPower(m_powers(2));
 }
 
-
 const int& PrimitiveGTO::xPower() const
 {
     return m_xPower;
 }
+
 void PrimitiveGTO::setXPower(int xPower)
 {
     m_xPower = xPower;
@@ -55,11 +55,11 @@ const int& PrimitiveGTO::yPower() const
 {
     return m_yPower;
 }
+
 void PrimitiveGTO::setYPower(int yPower)
 {
     m_yPower = yPower;
 }
-
 
 const int& PrimitiveGTO::zPower() const
 {
@@ -70,6 +70,17 @@ void PrimitiveGTO::setZPower(int zPower)
 {
     m_zPower = zPower;
 }
+
+const rowvec PrimitiveGTO::center() const
+{
+    return m_center;
+}
+
+void PrimitiveGTO::setCenter(const rowvec &center)
+{
+    m_center = center;
+}
+
 
 
 

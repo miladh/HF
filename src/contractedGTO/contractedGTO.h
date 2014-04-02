@@ -16,7 +16,7 @@ public:
     ContractedGTO();
 
     void addPrimitive(PrimitiveGTO primitiveGTO);
-    const vector<PrimitiveGTO>& primitivesGTOs() const;
+    const vector<PrimitiveGTO>& primitiveGTOs() const;
 
     const rowvec &center() const;
     void setCenter(const rowvec &center);

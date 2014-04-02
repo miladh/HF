@@ -27,12 +27,15 @@ TEST(GTOnuclearAttractionIntegral)
     rowvec posA = {1.2,2.3,3.4};
     rowvec posB = {-1.3,1.4,-2.4};
     rowvec posC = {2.3,0.9,3.2};
-    integrator.setCorePositionA(posA);
-    integrator.setCorePositionB(posB);
-    integrator.setCorePositionC(posC);
+
 
     PrimitiveGTO primitiveA(0.2, 1.0);
     PrimitiveGTO primitiveB(0.3, 1.0);
+    PrimitiveGTO primitiveC(0.0, 0.0);
+    primitiveA.setCenter(posA);
+    primitiveB.setCenter(posB);
+    integrator.setCorePositionC(posC);
+
 
     integrator.setMaxAngularMomentum(2);
 

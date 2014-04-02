@@ -28,7 +28,7 @@ void ElectronicSystem::addAtoms(vector<Atom*> atoms)
     m_nSpinUpElectrons   = floor(m_nElectrons/2.0);
 
     if(m_nSpinDownElectrons + m_nSpinUpElectrons !=m_nElectrons){
-        throw logic_error("Number of electrons not conserved!");
+        throw logic_error("Number of electrons not conserved in system!");
     }
 }
 
@@ -82,14 +82,11 @@ double ElectronicSystem::overlapIntegral(const int& p, const int& q)
     double Spq = 0;
     const ContractedGTO *CGp = m_basisFunctions.at(p);
     const ContractedGTO *CGq = m_basisFunctions.at(q);
-    integrator.setCorePositionA(CGp->center());
-    integrator.setCorePositionB(CGq->center());
 
-
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
         integrator.setPrimitiveA(Gp);
 
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
             integrator.setPrimitiveB(Gq);
             integrator.updateHermiteCoefficients(true, false, false);
 
@@ -104,13 +101,11 @@ double ElectronicSystem::oneParticleIntegral(const int& p, const int& q)
     double hpq = 0;
     const ContractedGTO *CGp = m_basisFunctions.at(p);
     const ContractedGTO *CGq = m_basisFunctions.at(q);
-    integrator.setCorePositionA(CGp->center());
-    integrator.setCorePositionB(CGq->center());
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
         integrator.setPrimitiveA(Gp);
 
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
             integrator.setPrimitiveB(Gq);
             integrator.updateHermiteCoefficients(true, false,true);
 
@@ -137,22 +132,18 @@ double ElectronicSystem::twoParticleIntegral(const int& p, const int& q,
     const ContractedGTO *CGq = m_basisFunctions.at(q);
     const ContractedGTO *CGr = m_basisFunctions.at(r);
     const ContractedGTO *CGs = m_basisFunctions.at(s);
-    integrator.setCorePositionA(CGp->center());
-    integrator.setCorePositionB(CGq->center());
-    integrator.setCorePositionC(CGr->center());
-    integrator.setCorePositionD(CGs->center());
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
         integrator.setPrimitiveA(Gp);
 
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
             integrator.setPrimitiveB(Gq);
             integrator.updateHermiteCoefficients(true, false);
 
-            for(const PrimitiveGTO &Gr : CGr->primitivesGTOs()) {
+            for(const PrimitiveGTO &Gr : CGr->primitiveGTOs()) {
                 integrator.setPrimitiveC(Gr);
 
-                for(const PrimitiveGTO &Gs : CGs->primitivesGTOs()) {
+                for(const PrimitiveGTO &Gs : CGs->primitiveGTOs()) {
                     integrator.setPrimitiveD(Gs);
                     integrator.updateHermiteCoefficients(false, true);
 

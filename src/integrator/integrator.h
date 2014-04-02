@@ -60,17 +60,12 @@ public:
 
 
 private:
-   uint m_maxAngularMomentum;
-
    PrimitiveGTO m_primitiveA;
    PrimitiveGTO m_primitiveB;
    PrimitiveGTO m_primitiveC;
    PrimitiveGTO m_primitiveD;
 
-   rowvec m_corePositionA;
-   rowvec m_corePositionB;
    rowvec m_corePositionC;
-   rowvec m_corePositionD;
 
    field<cube> m_Eab, m_Ecd;
    field<cube> m_dEab, m_dEcd;

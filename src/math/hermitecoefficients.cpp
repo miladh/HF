@@ -15,7 +15,7 @@ bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
 
 
 void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                                 const rowvec &R, field<cube> &E, bool kin)
+                                 field<cube> &E, bool kin)
 {
 
 //    int iAmax = E(0).n_rows;
@@ -29,7 +29,7 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
 //        tmax  -= iAmax + iBmax;
 //    }
 
-
+    const rowvec R = primitiveA.center() - primitiveB.center();
     rowvec iAmax = primitiveA.powers() + 1;
     rowvec iBmax = primitiveB.powers() + 1;
 
@@ -45,7 +45,7 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
     double factor = -(a * b / p);
 
     for(uint cor = 0; cor < E.n_elem; cor++){
-        E(cor)(0,0,0) = exp(factor*R(cor)*R(cor));
+        E(cor)(0,0,0) = std::exp(factor*R(cor)*R(cor));
     }
 
     for(uint cor=0; cor < E.n_elem; cor++){ //Loop for x,y,z
@@ -119,7 +119,7 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
 
 
 void HermiteCoefficients::setup_dEdR(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                                     const rowvec3 &R,field<cube> &E, field<cube> &dE,bool kin)
+                                     field<cube> &E, field<cube> &dE,bool kin)
 {
 
 //    int iAmax = dE(0).n_rows;
@@ -137,7 +137,7 @@ void HermiteCoefficients::setup_dEdR(const PrimitiveGTO &primitiveA, const Primi
 //        dE(cor) = zeros(iAmax, iBmax, tmax);
 //    }
 
-
+    const rowvec R = primitiveA.center() - primitiveB.center();
     rowvec iAmax = primitiveA.powers() + 1;
     rowvec iBmax = primitiveB.powers() + 1;
 

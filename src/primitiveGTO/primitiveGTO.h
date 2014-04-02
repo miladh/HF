@@ -32,12 +32,16 @@ public:
     const int &zPower() const;
     void setZPower(int zPower);
 
+    const rowvec center() const;
+    void setCenter(const rowvec &center);
+
 private:
     double m_value;
     double m_exponent;
     double m_weight;
     int m_xPower, m_yPower, m_zPower;
     rowvec m_powers;
+    rowvec m_center;
 
 
 };

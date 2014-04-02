@@ -50,7 +50,7 @@ SUITE(DEVELOPMENT) {
         UHF *solver = new UHF(system);
         solver->runSolver();
 
-        CHECK_CLOSE(-75.907340813846, solver->getEnergy(), 1e-9);
+        CHECK_CLOSE(-75.907340813846, solver->energy(), 1e-9);
     }
 }
 
@@ -91,7 +91,7 @@ SUITE(SLOWTESTS_UHF) {
         solver->runSolver();
 
         double E = -100.020326;
-        double dE = abs(solver->getEnergy() - E);
+        double dE = abs(solver->energy() - E);
         CHECK_CLOSE(0.154528, dE, 1e-6);
 
     }
@@ -146,7 +146,7 @@ SUITE(SLOWTESTS_UHF) {
         solver->runSolver();
 
         double energy = -40.349369;
-        double dE = abs(solver->getEnergy() - energy);
+        double dE = abs(solver->energy() - energy);
         CHECK_CLOSE(0.159802, dE, 1e-6);
     }
 }

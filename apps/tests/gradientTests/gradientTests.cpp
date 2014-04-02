@@ -59,7 +59,7 @@ SUITE(GRADIENT){
 //            system->m_basisSet.at(1)->setCorePosition(X *  0.5);
 //            BOSolver.solveSingleStep();
 
-//            gradient(x) = BOSolver.getEnergyGradient()(0);
+//            gradient(x) = BOSolver.energyGradient()(0);
 //        }
 
 
@@ -71,12 +71,12 @@ SUITE(GRADIENT){
 //            system->m_basisSet.at(0)->setCorePosition((X-dx) * -0.5);
 //            system->m_basisSet.at(1)->setCorePosition((X-dx) *  0.5);
 //            BOSolver.solveSingleStep();
-//            double Ep = BOSolver.getEnergy();
+//            double Ep = BOSolver.energy();
 
 //            system->m_basisSet.at(0)->setCorePosition((X+dx) * -0.5);
 //            system->m_basisSet.at(1)->setCorePosition((X+dx) *  0.5);
 //            BOSolver.solveSingleStep();
-//            double En = BOSolver.getEnergy();
+//            double En = BOSolver.energy();
 
 //            numericalGradient(x) = (En - Ep) / (2.0 * h);
 //        }
@@ -130,7 +130,7 @@ SUITE(GRADIENT){
 //        system->m_basisSet.at(1)->setCorePosition(X *  0.5);
 //        BOSolver.solveSingleStep();
 
-//        cout << setprecision(14) << "[" << bondLength(x) << "," << BOSolver.getEnergy() << "]," <<endl;
+//        cout << setprecision(14) << "[" << bondLength(x) << "," << BOSolver.energy() << "]," <<endl;
 //    }
 
 //}

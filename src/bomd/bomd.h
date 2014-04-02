@@ -20,9 +20,9 @@ public:
 
     void runDynamics();
     void solveSingleStep();
-    double getEnergy() const;
+    double energy() const;
 
-    const rowvec& getEnergyGradient() const;
+    const rowvec& energyGradient() const;
 
 private:
     ElectronicSystem* m_system;

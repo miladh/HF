@@ -43,7 +43,7 @@ SUITE(DEVELOPMENT) {
         RHF *solver = new RHF(system);
         solver->runSolver();
 
-        CHECK_CLOSE(-1.122933364, solver->getEnergy(), 1e-9);
+        CHECK_CLOSE(-1.122933364, solver->energy(), 1e-9);
     }
 
     TEST(H2_431G)
@@ -81,7 +81,7 @@ SUITE(DEVELOPMENT) {
         RHF *solver = new RHF(system);
         solver->runSolver();
 
-        CHECK_CLOSE(-1.12682776, solver->getEnergy(), 1e-9);
+        CHECK_CLOSE(-1.12682776, solver->energy(), 1e-9);
     }
     TEST(H2_631G_ds)
     {
@@ -117,7 +117,7 @@ SUITE(DEVELOPMENT) {
         RHF *solver = new RHF(system);
         solver->runSolver();
 
-        CHECK_CLOSE(-1.1313335068087, solver->getEnergy(), 1e-9);
+        CHECK_CLOSE(-1.1313335068087, solver->energy(), 1e-9);
 
     }
 
@@ -161,7 +161,7 @@ SUITE(DEVELOPMENT) {
 
         solver->runSolver();
 
-        CHECK_CLOSE(-75.907340813845, solver->getEnergy(), 1e-9);
+        CHECK_CLOSE(-75.907340813845, solver->energy(), 1e-9);
 
     }
 }
@@ -207,7 +207,7 @@ SUITE(SLOWTESTS) {
         RHF *solver = new RHF(system);
         solver->runSolver();
 
-        CHECK_CLOSE(-76.023551569545, solver->getEnergy(), 1e-9);
+        CHECK_CLOSE(-76.023551569545, solver->energy(), 1e-9);
 
     }
 }

@@ -16,7 +16,7 @@ void HermiteIntegrals::setupR(const rowvec &PQ, const double &alpha, field<cube>
     m_boys->evaluateBoysFunctions(alpha*dot(PQ,PQ));
 
     for(int n = 0; n < nMax+1; n++){
-        R(n)(0,0,0) = pow(-2*alpha,n)*m_boys->getBoysFunctions(n);
+        R(n)(0,0,0) = std::pow(-2*alpha,n)*m_boys->getBoysFunctions(n);
     }
 
     // p = previous
@@ -89,7 +89,7 @@ void HermiteIntegrals::setupR(const rowvec &PQ, const double &alpha, field<cube>
     m_boys->evaluateBoysFunctions(alpha*dot(PQ,PQ));
 
     for(int n = 0; n < nMax+1; n++){
-        R(n)(0,0,0) = pow(-2*alpha,n)*m_boys->getBoysFunctions(n);
+        R(n)(0,0,0) = std::pow(-2*alpha,n)*m_boys->getBoysFunctions(n);
     }
 
     // p = previous

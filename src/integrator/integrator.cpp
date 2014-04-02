@@ -3,21 +3,16 @@
 using namespace hf;
 
 Integrator::Integrator():
-    m_corePositionA(rowvec(3)),
-    m_corePositionB(rowvec(3)),
-    m_corePositionC(rowvec(3)),
-    m_corePositionD(rowvec(3))
+    m_corePositionC(rowvec(3))
 {
 }
 
 void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 {
-    m_maxAngularMomentum = maxAngularMomentum;
-
     m_Eab.set_size(3);  m_Ecd.set_size(3);
     m_dEab.set_size(3); m_dEcd.set_size(3);
-    int iAmax = m_maxAngularMomentum + 3;
-    int iBmax = m_maxAngularMomentum + 3;
+    int iAmax = maxAngularMomentum + 3;
+    int iBmax = maxAngularMomentum + 3;
     int tmax  = iAmax + iBmax - 1;
     for(int cor = 0; cor < 3; cor++){
         m_Eab(cor)  = zeros(iAmax, iBmax, tmax);
@@ -26,13 +21,13 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
         m_dEcd(cor) = zeros(iAmax, iBmax, tmax);
     }
 
-    int nMax_en = 2 * m_maxAngularMomentum + 1;
+    int nMax_en = 2 * maxAngularMomentum + 1;
     m_Ren.set_size(nMax_en);
     for(int n = 0; n < nMax_en; n++){
         m_Ren(n) = zeros(nMax_en, nMax_en, nMax_en);
     }
 
-    int nMax_ee  = 4 * m_maxAngularMomentum + 1;
+    int nMax_ee  = 4 * maxAngularMomentum + 1;
     m_Ree.set_size(nMax_ee);
     for(int n = 0; n < nMax_ee; n++){
         m_Ree(n) = zeros(nMax_ee, nMax_ee, nMax_ee);
@@ -43,51 +38,14 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 
 }
 
-int Integrator::maxAngularMomentum() const
-{
-    return m_maxAngularMomentum;
-}
-
-
-rowvec Integrator::corePositionA() const
-{
-    return m_corePositionA;
-}
-
-void Integrator::setCorePositionA(const rowvec &corePositionA)
-{
-    m_corePositionA = corePositionA;
-}
-
-rowvec Integrator::corePositionB() const
-{
-    return m_corePositionB;
-}
-
-void Integrator::setCorePositionB(const rowvec &corePositionB)
-{
-    m_corePositionB = corePositionB;
-}
-
-
 rowvec Integrator::corePositionC() const
 {
-    return m_corePositionC;
+    return m_primitiveC.center();
 }
 
 void Integrator::setCorePositionC(const rowvec &corePositionC)
 {
     m_corePositionC = corePositionC;
-}
-
-rowvec Integrator::corePositionD() const
-{
-    return m_corePositionD;
-}
-
-void Integrator::setCorePositionD(const rowvec &corePositionD)
-{
-    m_corePositionD = corePositionD;
 }
 
 void Integrator::setPrimitiveA(const PrimitiveGTO &primitiveA)
@@ -115,19 +73,13 @@ void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoPar
 
     if(oneParticleIntegral){
         if(kin){
-            m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
-                                         m_corePositionA - m_corePositionB,
-                                         m_Eab);
+            m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB, m_Eab);
         }else{
-            m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB,
-                                         m_corePositionA - m_corePositionB,
-                                         m_Eab,false);
+            m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB, m_Eab,false);
         }
 
     }else if(twoParticleIntegral){
-        m_hermiteCoefficients.setupE(m_primitiveC, m_primitiveD,
-                                     m_corePositionC - m_corePositionD,
-                                     m_Ecd, false);
+        m_hermiteCoefficients.setupE(m_primitiveC, m_primitiveD, m_Ecd, false);
     }else{
         cerr << "Hermite coefficients not updated!" << endl;
     }
@@ -138,27 +90,25 @@ void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, 
 
     if(oneParticleIntegral){
         if(kin){
-        m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB,
-                                         m_corePositionA - m_corePositionB,
-                                         m_Eab, m_dEab);
+        m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB, m_Eab, m_dEab);
         }else{
-            m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB,
-                                             m_corePositionA - m_corePositionB,
-                                             m_Eab, m_dEab, false);
+            m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB, m_Eab, m_dEab, false);
         }
 
     }else if(twoParticleIntegral){
-        m_hermiteCoefficients.setup_dEdR(m_primitiveC, m_primitiveD,
-                                         m_corePositionC - m_corePositionD,
-                                         m_Ecd,m_dEcd, false);
+        m_hermiteCoefficients.setup_dEdR(m_primitiveC, m_primitiveD, m_Ecd,m_dEcd, false);
     }else{
         cerr << "Hermite coefficients not updated!" << endl;
     }
 
 }
 
+/********************************************************************************************
+ *
+ *                                  Molecular Gaussian Integrals
+ *
+ * ******************************************************************************************/
 
-/*---------------------------------------------------------------------------------------------------*/
 double Integrator::overlapIntegral(int cor, int iA, int iB)
 {
     return m_Eab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
@@ -172,33 +122,8 @@ double Integrator::overlapIntegral()
             * m_primitiveA.weight() * m_primitiveB.weight();
 }
 
-
-double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
-{
-    return m_dEab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
-}
-
-
-rowvec Integrator::overlapIntegral_derivative()
-{
-    rowvec dS = zeros<rowvec>(3);
-
-    dS(0) =   overlapIntegral_derivative(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower())
-            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    dS(1) =   overlapIntegral_derivative(1, m_primitiveA.yPower(), m_primitiveB.yPower())
-            * overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    dS(2) =   overlapIntegral_derivative(2, m_primitiveA.zPower(), m_primitiveB.zPower())
-            * overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-
-    return dS;
-}
-
 /*---------------------------------------------------------------------------------------------------*/
+
 double Integrator::kineticIntegral(int cor, int iA, int iB) {
     double b = m_primitiveB.exponent();
 
@@ -227,7 +152,141 @@ double Integrator::kineticIntegral() {
     return result;
 }
 
+/*---------------------------------------------------------------------------------------------------*/
 
+double Integrator::nuclearAttractionIntegral()
+{
+    const rowvec &A = m_primitiveA.center();
+    const rowvec &B = m_primitiveB.center();
+    const rowvec &C = m_corePositionC;
+
+    const double &a  = m_primitiveA.exponent();
+    const double &b  = m_primitiveB.exponent();
+
+    double p = a + b;
+    rowvec PC = (a*A + b*B)/p - C;
+
+    int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
+    int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
+    int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
+
+    m_hermiteIntegrals->setupR(PC,p, m_Ren, tMax - 1 , uMax - 1, vMax - 1 );
+
+    double result = 0.0;
+
+
+    for(int t = 0; t < tMax; t++){
+        for(int u = 0; u < uMax; u++){
+            for(int v = 0; v < vMax; v++){
+                result += m_Eab(0)(m_primitiveA.xPower(), m_primitiveB.xPower(), t)
+                        * m_Eab(1)(m_primitiveA.yPower(), m_primitiveB.yPower(), u)
+                        * m_Eab(2)(m_primitiveA.zPower(), m_primitiveB.zPower(), v)
+                        * m_Ren(0)(t,u,v);
+            }
+        }
+    }
+
+    return 2 * result * M_PI / p * m_primitiveA.weight() * m_primitiveB.weight();
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+
+double Integrator::electronRepulsionIntegral()
+{
+    const rowvec &A = m_primitiveA.center();
+    const rowvec &B = m_primitiveB.center();
+    const rowvec &C = m_primitiveC.center();
+    const rowvec &D = m_primitiveD.center();
+
+    const double &a  = m_primitiveA.exponent();
+    const double &b  = m_primitiveB.exponent();
+    const double &c  = m_primitiveC.exponent();
+    const double &d  = m_primitiveD.exponent();
+
+    double p = a + b;
+    double q = c + d;
+
+    double alpha = p*q/(p+q);
+    rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
+
+
+    double result = 0.0;
+    int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
+    int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
+    int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
+    int kMax = m_primitiveC.xPower() + m_primitiveD.xPower() + 1;
+    int lMax = m_primitiveC.yPower() + m_primitiveD.yPower() + 1;
+    int mMax = m_primitiveC.zPower() + m_primitiveD.zPower() + 1;
+
+    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, tMax + kMax - 2,
+                               uMax + lMax - 2, vMax + mMax - 2);
+
+
+    for(int t = 0; t < tMax; t++){
+        for(int u = 0; u < uMax; u++){
+            for(int v = 0; v < vMax; v++){
+
+                double Etuv = m_Eab(0)(m_primitiveA.xPower() , m_primitiveB.xPower(), t)
+                            * m_Eab(1)(m_primitiveA.yPower() , m_primitiveB.yPower(), u)
+                            * m_Eab(2)(m_primitiveA.zPower() , m_primitiveB.zPower(), v);
+
+                for(int k = 0; k < kMax; k++){
+                    for(int l = 0; l < lMax; l++){
+                        for(int m = 0; m < mMax; m++){
+
+                            double Eklm = m_Ecd(0)(m_primitiveC.xPower() , m_primitiveD.xPower(), k)
+                                        * m_Ecd(1)(m_primitiveC.yPower() , m_primitiveD.yPower(), l)
+                                        * m_Ecd(2)(m_primitiveC.zPower() , m_primitiveD.zPower(), m);
+                            result += Etuv * Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q))
+            * m_primitiveA.weight() * m_primitiveB.weight()
+            * m_primitiveC.weight() * m_primitiveD.weight();
+
+    return result;
+
+}
+
+
+/********************************************************************************************
+ *
+ *                  Molecular Gaussian Integral Geometrical Derivatives (GD)
+ *
+ * ******************************************************************************************/
+
+double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
+{
+    return m_dEab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
+}
+
+
+rowvec Integrator::overlapIntegral_derivative()
+{
+    rowvec dS = zeros<rowvec>(3);
+
+    dS(0) =   overlapIntegral_derivative(0, m_primitiveA.xPower(), m_primitiveB.xPower())
+            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower())
+            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
+
+    dS(1) =   overlapIntegral_derivative(1, m_primitiveA.yPower(), m_primitiveB.yPower())
+            * overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
+            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
+
+    dS(2) =   overlapIntegral_derivative(2, m_primitiveA.zPower(), m_primitiveB.zPower())
+            * overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
+            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
+
+    return dS;
+}
+
+/*---------------------------------------------------------------------------------------------------*/
 
 double Integrator::kineticIntegral_derivative(int cor, int iA, int iB) {
     double b = m_primitiveB.exponent();
@@ -272,44 +331,7 @@ rowvec Integrator::kineticIntegral_derivative() {
     return dT;
 }
 
-
 /*---------------------------------------------------------------------------------------------------*/
-double Integrator::nuclearAttractionIntegral()
-{
-    const rowvec &A = m_corePositionA;
-    const rowvec &B = m_corePositionB;
-    const rowvec &C = m_corePositionC;
-
-    const double &a  = m_primitiveA.exponent();
-    const double &b  = m_primitiveB.exponent();
-
-    double p = a + b;
-    rowvec PC = (a*A + b*B)/p - C;
-
-    int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
-    int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
-    int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
-
-    m_hermiteIntegrals->setupR(PC,p, m_Ren, tMax - 1 , uMax - 1, vMax - 1 );
-
-    double result = 0.0;
-
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
-                result += m_Eab(0)(m_primitiveA.xPower(), m_primitiveB.xPower(), t)
-                        * m_Eab(1)(m_primitiveA.yPower(), m_primitiveB.yPower(), u)
-                        * m_Eab(2)(m_primitiveA.zPower(), m_primitiveB.zPower(), v)
-                        * m_Ren(0)(t,u,v);
-            }
-        }
-    }
-
-    return 2 * result * M_PI / p * m_primitiveA.weight() * m_primitiveB.weight();
-}
-
-
 
 rowvec Integrator::nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB)
 {
@@ -382,8 +404,8 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(bool differentiateWrtA, 
                                                         bool differentiateWrtC)
 {
     rowvec dVab = zeros<rowvec>(3);
-    const rowvec &A = m_corePositionA;
-    const rowvec &B = m_corePositionB;
+    const rowvec &A = m_primitiveA.center();
+    const rowvec &B = m_primitiveB.center();
     const rowvec &C = m_corePositionC;
 
     const double &a  = m_primitiveA.exponent();
@@ -420,82 +442,18 @@ rowvec Integrator::nuclearAttractionIntegral_derivative(bool differentiateWrtA, 
         return 2 * M_PI / p * dVab;
 }
 
-
-
 /*---------------------------------------------------------------------------------------------------*/
 
-double Integrator::electronRepulsionIntegral()
-{
-    const rowvec &A = m_corePositionA;
-    const rowvec &B = m_corePositionB;
-    const rowvec &C = m_corePositionC;
-    const rowvec &D = m_corePositionD;
-
-    const double &a  = m_primitiveA.exponent();
-    const double &b  = m_primitiveB.exponent();
-    const double &c  = m_primitiveC.exponent();
-    const double &d  = m_primitiveD.exponent();
-
-    double p = a + b;
-    double q = c + d;
-
-    double alpha = p*q/(p+q);
-    rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
-
-
-    double result = 0.0;
-    int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
-    int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
-    int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
-    int kMax = m_primitiveC.xPower() + m_primitiveD.xPower() + 1;
-    int lMax = m_primitiveC.yPower() + m_primitiveD.yPower() + 1;
-    int mMax = m_primitiveC.zPower() + m_primitiveD.zPower() + 1;
-
-    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, tMax + kMax - 2,
-                               uMax + lMax - 2, vMax + mMax - 2);
-
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
-
-                double Etuv = m_Eab(0)(m_primitiveA.xPower() , m_primitiveB.xPower(), t)
-                            * m_Eab(1)(m_primitiveA.yPower() , m_primitiveB.yPower(), u)
-                            * m_Eab(2)(m_primitiveA.zPower() , m_primitiveB.zPower(), v);
-
-                for(int k = 0; k < kMax; k++){
-                    for(int l = 0; l < lMax; l++){
-                        for(int m = 0; m < mMax; m++){
-
-                            double Eklm = m_Ecd(0)(m_primitiveC.xPower() , m_primitiveD.xPower(), k)
-                                        * m_Ecd(1)(m_primitiveC.yPower() , m_primitiveD.yPower(), l)
-                                        * m_Ecd(2)(m_primitiveC.zPower() , m_primitiveD.zPower(), m);
-                            result += Etuv * Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q))
-            * m_primitiveA.weight() * m_primitiveB.weight()
-            * m_primitiveC.weight() * m_primitiveD.weight();
-
-    return result;
-
-}
 rowvec Integrator::electronRepulsionIntegral_derivative(bool differentiateWrtA, bool differentiateWrtB,
                                                         bool differentiateWrtC, bool differentiateWrtD)
 {
     rowvec dQabcd = zeros<rowvec>(3);
     rowvec dQdPab, dQdPcd;
     rowvec dQdRab, dQdRcd;
-    const rowvec &A = m_corePositionA;
-    const rowvec &B = m_corePositionB;
-    const rowvec &C = m_corePositionC;
-    const rowvec &D = m_corePositionD;
+    const rowvec &A = m_primitiveA.center();
+    const rowvec &B = m_primitiveB.center();
+    const rowvec &C = m_primitiveC.center();
+    const rowvec &D = m_primitiveD.center();
 
     const double &a  = m_primitiveA.exponent();
     const double &b  = m_primitiveB.exponent();

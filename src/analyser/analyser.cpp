@@ -135,8 +135,8 @@ double Analyser::gaussianProduct(const int& p, const int& q,
     double Rp = Xp * Xp + Yp * Yp + Zp * Zp;
     double Rq = Xq * Xq + Yq * Yq + Zq * Zq;
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
 
             Gpq +=  Gp.weight() * Gq.weight()
                     * std::pow(Xp, Gp.xPower()) * std::pow(Xq, Gq.xPower())

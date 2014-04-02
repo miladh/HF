@@ -127,3 +127,10 @@ field<const mat *> RHF::densityMatrix() const
     densityMatrices(0,0) = &m_P;
     return densityMatrices;
 }
+
+field<const mat *> RHF::expansionCoefficients() const
+{
+    field<const mat *> coefficientsMatrices(1,1);
+    coefficientsMatrices(0,0) = &m_C;
+    return coefficientsMatrices;
+}
