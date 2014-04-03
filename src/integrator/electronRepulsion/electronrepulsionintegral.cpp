@@ -65,7 +65,7 @@ double ElectronRepulsionIntegral::evaluate()
     int lMax = m_primitiveC->yPower() + m_primitiveD->yPower() + 1;
     int mMax = m_primitiveC->zPower() + m_primitiveD->zPower() + 1;
 
-    m_R->updateR(PQ,alpha,
+    m_R->updateR(PQ, alpha,
                  tMax + kMax - 2, uMax + lMax - 2, vMax + mMax - 2);
 
 

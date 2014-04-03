@@ -32,7 +32,6 @@ OverlapIntegral::OverlapIntegral(const field<cube>* Eab,
 
 double OverlapIntegral::evaluate(int cor, int iA, int iB)
 {
-//    const cube& E =  m_Eab->at(cor);
     return m_Eab->at(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA->exponent() + m_primitiveB->exponent()));
 }
 
@@ -44,3 +43,14 @@ double OverlapIntegral::evaluate()
             * evaluate(2, m_primitiveA->zPower(), m_primitiveB->zPower())
             * m_primitiveA->weight() * m_primitiveB->weight();
 }
+const PrimitiveGTO *OverlapIntegral::primitiveA() const
+{
+    return m_primitiveA;
+}
+const PrimitiveGTO *OverlapIntegral::primitiveB() const
+{
+    return m_primitiveB;
+}
+
+
+

@@ -24,7 +24,8 @@ SOURCES += \
     integrator/overlap/overlapintegral.cpp \
     integrator/kinetic/kineticintegral.cpp \
     integrator/nuclearAttraction/nuclearattractionintegral.cpp \
-    integrator/electronRepulsion/electronrepulsionintegral.cpp
+    integrator/electronRepulsion/electronrepulsionintegral.cpp \
+    integrator/overlap/overlapintegralgd.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -46,7 +47,8 @@ HEADERS += \
     integrator/overlap/overlapintegral.h \
     integrator/kinetic/kineticintegral.h \
     integrator/nuclearAttraction/nuclearattractionintegral.h \
-    integrator/electronRepulsion/electronrepulsionintegral.h
+    integrator/electronRepulsion/electronrepulsionintegral.h \
+    integrator/overlap/overlapintegralgd.h
 
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h

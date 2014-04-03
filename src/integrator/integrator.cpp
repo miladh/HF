@@ -40,7 +40,6 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
     Eab = new HermiteCoefficients(maxAngularMomentum);
     Ecd = new HermiteCoefficients(maxAngularMomentum);
 
-
     m_overlap = new OverlapIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
     m_kinetic = new KineticIntegral(m_overlap, &m_primitiveA, &m_primitiveB);
     m_nuclearAttraction = new NuclearAttractionIntegral(2 * maxAngularMomentum + 1,
@@ -56,6 +55,11 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
                                                         &m_primitiveB,
                                                         &m_primitiveC,
                                                         &m_primitiveD);
+
+
+
+    m_overlapGD = new OverlapIntegralGD(m_overlap, Eab->QDerivativeCoefficients());
+
 
 
 //    cout << "--------------"<< endl;
@@ -119,12 +123,17 @@ void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, 
     if(oneParticleIntegral){
         if(kin){
         m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB, m_Eab, m_dEab);
+        Eab->updatedE_dQ(m_primitiveA, m_primitiveB);
         }else{
             m_hermiteCoefficients.setup_dEdR(m_primitiveA, m_primitiveB, m_Eab, m_dEab, false);
+            Eab->updatedE_dQ(m_primitiveA, m_primitiveB,false);
+
         }
 
     }else if(twoParticleIntegral){
         m_hermiteCoefficients.setup_dEdR(m_primitiveC, m_primitiveD, m_Ecd,m_dEcd, false);
+        Ecd->updatedE_dQ(m_primitiveA, m_primitiveB, false);
+
     }else{
         cerr << "Hermite coefficients not updated!" << endl;
     }
@@ -192,32 +201,22 @@ double Integrator::kineticIntegral(int cor, int iA, int iB) {
  *
  * ******************************************************************************************/
 
+rowvec Integrator::overlapIntegral_derivative()
+{
+    return m_overlapGD->evaluate();
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
+
+
 double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
 {
     return m_dEab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
 }
 
 
-rowvec Integrator::overlapIntegral_derivative()
-{
-    rowvec dS = zeros<rowvec>(3);
-
-    dS(0) =   overlapIntegral_derivative(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower())
-            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    dS(1) =   overlapIntegral_derivative(1, m_primitiveA.yPower(), m_primitiveB.yPower())
-            * overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    dS(2) =   overlapIntegral_derivative(2, m_primitiveA.zPower(), m_primitiveB.zPower())
-            * overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-
-    return dS;
-}
-
-/*---------------------------------------------------------------------------------------------------*/
 
 double Integrator::kineticIntegral_derivative(int cor, int iA, int iB) {
     double b = m_primitiveB.exponent();

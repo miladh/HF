@@ -23,6 +23,9 @@ public:
     double evaluate(int cor, int iA, int iB);
     double evaluate();
 
+    const PrimitiveGTO *primitiveA() const;
+    const PrimitiveGTO *primitiveB() const;
+
 private:
     const field<cube>* m_Eab;
     const PrimitiveGTO* m_primitiveA;
