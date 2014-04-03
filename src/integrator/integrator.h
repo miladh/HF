@@ -7,12 +7,14 @@
 #include "../math/hermitecoefficients.h"
 #include "../math/hermiteintegrals.h"
 #include "../primitiveGTO/primitiveGTO.h"
+
 #include "overlap/overlapintegral.h"
 #include "kinetic/kineticintegral.h"
 #include "nuclearAttraction/nuclearattractionintegral.h"
 #include "electronRepulsion/electronrepulsionintegral.h"
 
 #include "overlap/overlapintegralgd.h"
+#include "kinetic/kineticintegralgd.h"
 
 
 
@@ -48,6 +50,7 @@ public:
     void setCorePositionD(const rowvec &corePositionD);
 
 
+    double overlapIntegral();
     double kineticIntegral();
     double nuclearAttractionIntegral();
     double electronRepulsionIntegral();
@@ -64,7 +67,6 @@ public:
    rowvec electronRepulsionIntegral_derivative(bool differentiateWrtA, bool differentiateWrtB,
                                                bool differentiateWrtC,  bool differentiateWrtD);
 
-   double overlapIntegral();
 
 
 private:
@@ -91,15 +93,9 @@ private:
     ElectronRepulsionIntegral* m_electronRepulsion;
 
     OverlapIntegralGD* m_overlapGD;
+    KineticIntegralGD* m_kineticGD;
 
 
-
-
-
-    double overlapIntegral(int cor, int iA, int iB);
-    double kineticIntegral(int cor, int iA, int iB);
-    double overlapIntegral_derivative(int cor, int iA, int iB);
-    double kineticIntegral_derivative(int cor, int iA, int iB);
 
     rowvec nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
     rowvec nuclearAttractionIntegral_P_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
@@ -112,7 +108,10 @@ private:
                                                   int iC, int jC, int kC, int iD, int jD, int kD);
 
 
-    rowvec electronRepulsionIntegral_Pcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB, int iC, int jC, int kC, int iD, int jD, int kD);
+    rowvec electronRepulsionIntegral_Pcd_derivative(int iA, int jA, int kA,
+                                                    int iB, int jB, int kB,
+                                                    int iC, int jC, int kC,
+                                                    int iD, int jD, int kD);
 };
 }
 #endif // INTEGRATOR_H

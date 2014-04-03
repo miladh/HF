@@ -22,6 +22,8 @@ public:
     double evaluate(int cor, int iA, int iB);
     rowvec evaluate();
 
+    OverlapIntegral *overlap() const;
+
 private:
     OverlapIntegral* m_overlap;
     const field<cube>* m_dEab_dQab;

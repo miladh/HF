@@ -59,13 +59,13 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 
 
     m_overlapGD = new OverlapIntegralGD(m_overlap, Eab->QDerivativeCoefficients());
+    m_kineticGD = new KineticIntegralGD(m_kinetic, m_overlapGD);
 
 
 
 //    cout << "--------------"<< endl;
 //    cout << "Integrator: "  << endl;
-//    cout << "coreC adr   "  << &m_corePositionC<< endl;
-//    cout << "primA adr   "  << &m_primitiveB<< endl;
+//    cout << "primA adr   "  << &m_primitiveA.center()<< endl;
 //    cout << "primB adr   "  << &m_primitiveA<< endl;
 //    sleep(4);
 //exit(0);
@@ -165,36 +165,6 @@ double Integrator::electronRepulsionIntegral()
     return m_electronRepulsion->evaluate();
 }
 
-/*---------------------------------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------------------------------*/
-
-double Integrator::overlapIntegral(int cor, int iA, int iB)
-{
-    return m_Eab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-double Integrator::kineticIntegral(int cor, int iA, int iB) {
-    double b = m_primitiveB.exponent();
-
-    double S_iA_iBnn = overlapIntegral(cor, iA, iB + 2);
-    double S_iA_iB = overlapIntegral(cor, iA, iB);
-    double S_iA_iBpp;
-    if(iB - 2 >= 0) {
-        S_iA_iBpp= overlapIntegral(cor, iA, iB - 2);
-    } else {
-        S_iA_iBpp = 0;
-    }
-    return 4 * b * b * S_iA_iBnn - 2*b * (2*iB + 1) * S_iA_iB + iB * (iB - 1) * S_iA_iBpp;
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-
-
 /********************************************************************************************
  *
  *                  Molecular Gaussian Integral Geometrical Derivatives (GD)
@@ -206,61 +176,17 @@ rowvec Integrator::overlapIntegral_derivative()
     return m_overlapGD->evaluate();
 }
 
-/*---------------------------------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------------------------------*/
-
-
-double Integrator::overlapIntegral_derivative(int cor, int iA, int iB)
-{
-    return m_dEab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
-}
-
-
-
-double Integrator::kineticIntegral_derivative(int cor, int iA, int iB) {
-    double b = m_primitiveB.exponent();
-
-    double dS_iA_iBnn = overlapIntegral_derivative(cor, iA, iB + 2);
-    double dS_iA_iB   = overlapIntegral_derivative(cor, iA, iB);
-    double dS_iA_iBpp;
-
-    if(iB - 2 >= 0) {
-        dS_iA_iBpp= overlapIntegral_derivative(cor, iA, iB - 2);
-    } else {
-        dS_iA_iBpp = 0;
-    }
-    return 4 * b * b * dS_iA_iBnn - 2*b * (2*iB + 1) * dS_iA_iB + iB * (iB - 1) * dS_iA_iBpp;
-}
-
 
 rowvec Integrator::kineticIntegral_derivative() {
-    rowvec dT = zeros<rowvec>(3);
 
-    double T_iA_iB = kineticIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower());
-    double T_jA_jB = kineticIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-    double T_kA_kB = kineticIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    double dT_iA_iB = kineticIntegral_derivative(0, m_primitiveA.xPower(), m_primitiveB.xPower());
-    double dT_jA_jB = kineticIntegral_derivative(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-    double dT_kA_kB = kineticIntegral_derivative(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    double S_iA_iB = overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower());
-    double S_jA_jB = overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-    double S_kA_kB = overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    double dS_iA_iB = overlapIntegral_derivative(0, m_primitiveA.xPower(), m_primitiveB.xPower());
-    double dS_jA_jB = overlapIntegral_derivative(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-    double dS_kA_kB = overlapIntegral_derivative(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    dT(0) = (dT_iA_iB * S_jA_jB * S_kA_kB) + (dS_iA_iB * T_jA_jB * S_kA_kB) + (dS_iA_iB * S_jA_jB  * T_kA_kB);
-    dT(1) = (T_iA_iB * dS_jA_jB * S_kA_kB) + (S_iA_iB * dT_jA_jB * S_kA_kB) + (S_iA_iB * dS_jA_jB  * T_kA_kB);
-    dT(2) = (T_iA_iB * S_jA_jB * dS_kA_kB) + (S_iA_iB * T_jA_jB * dS_kA_kB) + (S_iA_iB * S_jA_jB  * dT_kA_kB);
-
-    dT *= -0.5;
-    return dT;
+    return m_kineticGD->evaluate();
 }
 
+
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------------------*/
 
 rowvec Integrator::nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB)

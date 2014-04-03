@@ -45,6 +45,14 @@ const field<cube>* HermiteCoefficients::coefficients()const
 
 const field<cube>* HermiteCoefficients::QDerivativeCoefficients()const
 {
+
+//        cout << "--------------"<< endl;
+//        cout << "---E-std------"<< endl;
+
+//        cout <<"E adr:   " << &m_dE_dQ << endl;
+//        cout <<"E1 adr:   " << (m_dE_dQ(0))(0,0,0) <<"    " << &m_dE_dQ(0) << endl;
+//        cout <<"E2 adr:   " << &(m_dE_dQ(1)) << endl;
+//        cout <<"E3 adr:   " << &(m_dE_dQ(2)) << endl;
     return &m_dE_dQ;
 }
 
@@ -143,21 +151,6 @@ void HermiteCoefficients::updateE(const PrimitiveGTO &primitiveA, const Primitiv
 
 void HermiteCoefficients::updatedE_dQ(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, bool kin)
 {
-
-//    int iAmax = dE(0).n_rows;
-//    int iBmax = dE(0).n_cols;
-//    int tmax  = dE(0).n_slices;
-
-
-//    if(!kin){
-//        iAmax -= 2;
-//        iBmax -= 2;
-//        tmax  -= iAmax + iBmax;
-//    }
-
-//    for(int cor = 0; cor < 3; cor++){
-//        dE(cor) = zeros(iAmax, iBmax, tmax);
-//    }
 
     const rowvec R = primitiveA.center() - primitiveB.center();
     rowvec iAmax = primitiveA.powers() + 1;
