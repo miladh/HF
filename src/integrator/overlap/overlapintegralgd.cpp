@@ -45,7 +45,7 @@ rowvec OverlapIntegralGD::evaluate()
                     * m_overlap->evaluate(0, m_primitiveA->xPower(), m_primitiveB->xPower())
                     * m_overlap->evaluate(1, m_primitiveA->yPower(), m_primitiveB->yPower());
 
-    return dSab_dQab;
+    return dSab_dQab * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 OverlapIntegral *OverlapIntegralGD::overlap() const

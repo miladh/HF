@@ -248,18 +248,29 @@ mat ElectronicSystem::oneParticleIntegralGD(const int& q, const int& p)
             integrator.updateHermiteCoefficients_derivative(true,false);
 
             dhpq.row(coreA) += integrator.QDerivativeKineticIntegral();
+            dhpq.row(coreB) -= dhpq.row(coreA);
 
+            integrator.updateHermiteIntegrals();
+            double p   = Gp.exponent() + Gq.exponent();
+            double a_p = Gp.exponent()/p;
+            double b_p = Gq.exponent()/p;
+            for(int i = 0; i < m_nAtoms; i++){
+                integrator.setCorePositionC(m_atoms.at(i)->corePosition());
 
-//            for(const Atom *atom : m_atoms){
-//                integrator.setCorePositionC(atom->corePosition());
-//                dhpq.row(coreA) -= atom->coreCharge() * integrator.nuclearAttractionIntegral();
+                const rowvec& QDerivative = integrator.QDerivativeNuclearAttractionIntegral();
+                const rowvec& PDerivative = integrator.PDerivativeNuclearAttractionIntegral();
 
-//            }
+                dhpq.row(coreA) += (a_p * PDerivative + QDerivative) * m_atoms.at(i)->coreCharge() ;
+                dhpq.row(coreB) += (b_p * PDerivative - QDerivative) * m_atoms.at(i)->coreCharge() ;
+
+                dhpq.row(i) -= m_atoms.at(i)->coreCharge()
+                        * integrator.CDerivativeNuclearAttractionIntegral();
+
+            }
 
         }
     }
 
-    dhpq.row(coreB) -= dhpq.row(coreA);
 
     return dhpq;
 }

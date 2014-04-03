@@ -30,7 +30,6 @@ void NuclearAttractionIntegralGD::updateHermiteIntegrals()
     double p = a + b;
     rowvec PC = (a*A + b*B)/p - C;
 
-//    m_hermiteIntegrals->setupR(PC,p, m_Ren, iA+iB, jA+jB, kA+kB);
     m_R->updateR(PC,p);
 }
 rowvec NuclearAttractionIntegralGD::evaluate()
@@ -84,7 +83,7 @@ rowvec NuclearAttractionIntegralGD::QDerivative()
     }
 
 
-    return 2 * M_PI / p * dVdQ;
+    return 2 * M_PI / p * dVdQ * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 rowvec NuclearAttractionIntegralGD::PDerivative()
@@ -117,7 +116,7 @@ rowvec NuclearAttractionIntegralGD::PDerivative()
         }
     }
 
-    return 2 * M_PI / p * dVdP;
+    return 2 * M_PI / p * dVdP * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 rowvec NuclearAttractionIntegralGD::CDerivative()
@@ -151,7 +150,7 @@ rowvec NuclearAttractionIntegralGD::CDerivative()
         }
     }
 
-    return 2 * M_PI / p * dVdC;
+    return 2 * M_PI / p * dVdC * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 

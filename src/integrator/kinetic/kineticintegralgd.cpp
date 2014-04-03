@@ -31,7 +31,7 @@ double hf::KineticIntegralGD::evaluate(int cor, int iA, int iB)
 
 rowvec hf::KineticIntegralGD::evaluate()
 {
-    rowvec dT = zeros<rowvec>(3);
+    rowvec dTab_dQab = zeros<rowvec>(3);
 
     double T_iA_iB = m_kinetic->evaluate(0, m_primitiveA->xPower(), m_primitiveB->xPower());
     double T_jA_jB = m_kinetic->evaluate(1, m_primitiveA->yPower(), m_primitiveB->yPower());
@@ -49,11 +49,11 @@ rowvec hf::KineticIntegralGD::evaluate()
     double dS_jA_jB = m_overlapGD->evaluate(1, m_primitiveA->yPower(), m_primitiveB->yPower());
     double dS_kA_kB = m_overlapGD->evaluate(2, m_primitiveA->zPower(), m_primitiveB->zPower());
 
-    dT(0) = (dT_iA_iB * S_jA_jB * S_kA_kB) + (dS_iA_iB * T_jA_jB * S_kA_kB) + (dS_iA_iB * S_jA_jB  * T_kA_kB);
-    dT(1) = (T_iA_iB * dS_jA_jB * S_kA_kB) + (S_iA_iB * dT_jA_jB * S_kA_kB) + (S_iA_iB * dS_jA_jB  * T_kA_kB);
-    dT(2) = (T_iA_iB * S_jA_jB * dS_kA_kB) + (S_iA_iB * T_jA_jB * dS_kA_kB) + (S_iA_iB * S_jA_jB  * dT_kA_kB);
+    dTab_dQab(0) = (dT_iA_iB * S_jA_jB * S_kA_kB) + (dS_iA_iB * T_jA_jB * S_kA_kB) + (dS_iA_iB * S_jA_jB  * T_kA_kB);
+    dTab_dQab(1) = (T_iA_iB * dS_jA_jB * S_kA_kB) + (S_iA_iB * dT_jA_jB * S_kA_kB) + (S_iA_iB * dS_jA_jB  * T_kA_kB);
+    dTab_dQab(2) = (T_iA_iB * S_jA_jB * dS_kA_kB) + (S_iA_iB * T_jA_jB * dS_kA_kB) + (S_iA_iB * S_jA_jB  * dT_kA_kB);
 
-    dT *= -0.5;
-    return dT;
+    dTab_dQab *= -0.5 * m_primitiveA->weight() * m_primitiveB->weight();
+    return dTab_dQab;
 
 }

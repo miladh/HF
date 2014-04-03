@@ -185,13 +185,13 @@ double Integrator::electronRepulsionIntegral()
 
 rowvec Integrator::QDerivativeOverlapIntegral()
 {
-    return m_overlapGD->evaluate() * m_primitiveA.weight() * m_primitiveB.weight();
+    return m_overlapGD->evaluate();
 }
 
 
 rowvec Integrator::QDerivativeKineticIntegral() {
 
-    return m_kineticGD->evaluate() * m_primitiveA.weight() * m_primitiveB.weight();
+    return m_kineticGD->evaluate();
 }
 
 rowvec Integrator::QDerivativeNuclearAttractionIntegral()
