@@ -9,6 +9,7 @@
 #include "../primitiveGTO/primitiveGTO.h"
 #include "overlap/overlapintegral.h"
 #include "kinetic/kineticintegral.h"
+#include "nuclearAttraction/nuclearattractionintegral.h"
 
 
 using namespace arma;
@@ -74,13 +75,15 @@ private:
    field<cube> m_dEab, m_dEcd;
    field<cube> m_Ree, m_Ren;
 
-    HermiteCoefficients* Eab;
     HermiteCoefficients m_hermiteCoefficients;
     HermiteIntegrals *m_hermiteIntegrals;
 
+    HermiteCoefficients* Eab;
+    HermiteIntegrals *hermiteIntegrals;
 
     OverlapIntegral* m_overlap;
     KineticIntegral* m_kinetic;
+    NuclearAttractionIntegral* m_nuclearAttraction;
 
 
 

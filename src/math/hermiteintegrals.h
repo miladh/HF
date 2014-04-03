@@ -20,8 +20,12 @@ public:
                 const int tMax, const int uMax, const int vMax);
 
 
+    void updateR(const rowvec &PQ, const double &alpha,
+                 const int tMax, const int uMax, const int vMax);
+    const field<cube> *integrals() const;
 private:
     Boys *m_boys;
+    field<cube> m_R;
 };
 }
 #endif // HERMITEINTEGRALS_H

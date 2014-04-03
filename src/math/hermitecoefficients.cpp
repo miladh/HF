@@ -10,6 +10,7 @@ HermiteCoefficients::HermiteCoefficients(const int maxAngularMomentum)
     int iAmax = maxAngularMomentum + 3;
     int iBmax = maxAngularMomentum + 3;
     int tmax  = iAmax + iBmax - 1;
+
     for(int cor = 0; cor < 3; cor++){
         m_E(cor)  =zeros(iAmax, iBmax, tmax);
     }
@@ -25,14 +26,13 @@ bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
 }
 const field<cube>* HermiteCoefficients::coefficients()const
 {
-//    (m_E.at(0))(0,0,0) += 2;
-    cout << "--------------"<< endl;
-    cout << "---E-std------"<< endl;
+//    cout << "--------------"<< endl;
+//    cout << "---E-std------"<< endl;
 
-    cout <<"E adr:   " << &m_E << endl;
-    cout <<"E1 adr:   " << (m_E(0))(0,0,0) <<"    " << &m_E(0) << endl;
-    cout <<"E2 adr:   " << &(m_E(1)) << endl;
-    cout <<"E3 adr:   " << &(m_E(2)) << endl;
+//    cout <<"E adr:   " << &m_E << endl;
+//    cout <<"E1 adr:   " << (m_E(0))(0,0,0) <<"    " << &m_E(0) << endl;
+//    cout <<"E2 adr:   " << &(m_E(1)) << endl;
+//    cout <<"E3 adr:   " << &(m_E(2)) << endl;
     return &m_E;
 }
 

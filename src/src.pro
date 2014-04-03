@@ -22,7 +22,8 @@ SOURCES += \
     system/electronicsystem.cpp \
     analyser/analyser.cpp \
     integrator/overlap/overlapintegral.cpp \
-    integrator/kinetic/kineticintegral.cpp
+    integrator/kinetic/kineticintegral.cpp \
+    integrator/nuclearAttraction/nuclearattractionintegral.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -42,7 +43,8 @@ HEADERS += \
     system/electronicsystem.h \
     analyser/analyser.h \
     integrator/overlap/overlapintegral.h \
-    integrator/kinetic/kineticintegral.h
+    integrator/kinetic/kineticintegral.h \
+    integrator/nuclearAttraction/nuclearattractionintegral.h
 
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h

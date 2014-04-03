@@ -32,8 +32,8 @@ OverlapIntegral::OverlapIntegral(const field<cube>* Eab,
 
 double OverlapIntegral::evaluate(int cor, int iA, int iB)
 {
-    const cube& E =  m_Eab->at(cor);
-    return E(iA,iB,0) * sqrt(M_PI / (m_primitiveA->exponent() + m_primitiveB->exponent()));
+//    const cube& E =  m_Eab->at(cor);
+    return m_Eab->at(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA->exponent() + m_primitiveB->exponent()));
 }
 
 double OverlapIntegral::evaluate()

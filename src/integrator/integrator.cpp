@@ -35,17 +35,26 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
     }
 
     m_hermiteIntegrals = new HermiteIntegrals(nMax_ee);
+
+
     Eab = new HermiteCoefficients(maxAngularMomentum);
+    hermiteIntegrals = new HermiteIntegrals(2 * maxAngularMomentum + 1);
+
+
     m_overlap = new OverlapIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
     m_kinetic = new KineticIntegral(m_overlap, &m_primitiveA, &m_primitiveB);
+    m_nuclearAttraction = new NuclearAttractionIntegral(hermiteIntegrals,
+                                                        Eab->coefficients(),
+                                                        &m_primitiveA,
+                                                        &m_primitiveB,
+                                                        &m_corePositionC);
 
 
 //    cout << "--------------"<< endl;
-//    cout << "OVERLAP"  << endl;
-//    cout << "m_Eab adr:   "  << &m_primitiveA << endl;
-//    cout << "m_cube1 adr:   " << &m_primitiveA.center() << endl;
-
-
+//    cout << "Integrator: "  << endl;
+//    cout << "coreC adr   "  << &m_corePositionC<< endl;
+//    cout << "primA adr   "  << &m_primitiveB<< endl;
+//    cout << "primB adr   "  << &m_primitiveA<< endl;
 //    sleep(4);
 
 }
@@ -117,15 +126,30 @@ void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, 
  *                                  Molecular Gaussian Integrals
  *
  * ******************************************************************************************/
+double Integrator::overlapIntegral()
+{
+    return m_overlap->evaluate();
+}
+
+double Integrator::kineticIntegral()
+{
+    return m_kinetic->evaluate();
+}
+
+double Integrator::nuclearAttractionIntegral()
+{
+    return m_nuclearAttraction->evaluate();
+}
+
+
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
 
 double Integrator::overlapIntegral(int cor, int iA, int iB)
 {
     return m_Eab(cor)(iA,iB,0) * sqrt(M_PI / (m_primitiveA.exponent() + m_primitiveB.exponent()));
-}
-
-double Integrator::overlapIntegral()
-{
-    return m_overlap->evaluate();
 }
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -142,48 +166,6 @@ double Integrator::kineticIntegral(int cor, int iA, int iB) {
         S_iA_iBpp = 0;
     }
     return 4 * b * b * S_iA_iBnn - 2*b * (2*iB + 1) * S_iA_iB + iB * (iB - 1) * S_iA_iBpp;
-}
-
-double Integrator::kineticIntegral() {
-
-    return m_kinetic->evaluate();
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-double Integrator::nuclearAttractionIntegral()
-{
-    const rowvec &A = m_primitiveA.center();
-    const rowvec &B = m_primitiveB.center();
-    const rowvec &C = m_corePositionC;
-
-    const double &a  = m_primitiveA.exponent();
-    const double &b  = m_primitiveB.exponent();
-
-    double p = a + b;
-    rowvec PC = (a*A + b*B)/p - C;
-
-    int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
-    int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
-    int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
-
-    m_hermiteIntegrals->setupR(PC,p, m_Ren, tMax - 1 , uMax - 1, vMax - 1 );
-
-    double result = 0.0;
-
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
-                result += m_Eab(0)(m_primitiveA.xPower(), m_primitiveB.xPower(), t)
-                        * m_Eab(1)(m_primitiveA.yPower(), m_primitiveB.yPower(), u)
-                        * m_Eab(2)(m_primitiveA.zPower(), m_primitiveB.zPower(), v)
-                        * m_Ren(0)(t,u,v);
-            }
-        }
-    }
-
-    return 2 * result * M_PI / p * m_primitiveA.weight() * m_primitiveB.weight();
 }
 
 /*---------------------------------------------------------------------------------------------------*/
