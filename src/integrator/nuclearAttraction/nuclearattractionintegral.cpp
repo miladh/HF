@@ -2,13 +2,12 @@
 
 using namespace hf;
 
-NuclearAttractionIntegral::NuclearAttractionIntegral(HermiteIntegrals *hermiteIntegrals,
+NuclearAttractionIntegral::NuclearAttractionIntegral(const int highestOrder,
                                                      const field<cube> *Eab,
                                                      const PrimitiveGTO *primitiveA,
                                                      const PrimitiveGTO *primitiveB,
                                                      const rowvec* sourceCharge):
-    m_hermiteIntegrals(hermiteIntegrals),
-    m_Ren(hermiteIntegrals->integrals()),
+    m_R(new HermiteIntegrals(highestOrder)),
     m_Eab(Eab),
     m_primitiveA(primitiveA),
     m_primitiveB(primitiveB),
@@ -46,7 +45,7 @@ double NuclearAttractionIntegral::evaluate()
     int uMax = m_primitiveA->yPower() + m_primitiveB->yPower() + 1;
     int vMax = m_primitiveA->zPower() + m_primitiveB->zPower() + 1;
 
-    m_hermiteIntegrals->updateR(PC,p, tMax - 1 , uMax - 1, vMax - 1 );
+    m_R->updateR(PC,p, tMax - 1 , uMax - 1, vMax - 1 );
 
     double result = 0.0;
 
@@ -57,7 +56,7 @@ double NuclearAttractionIntegral::evaluate()
                 result += m_Eab->at(0)(m_primitiveA->xPower(), m_primitiveB->xPower(), t)
                         * m_Eab->at(1)(m_primitiveA->yPower(), m_primitiveB->yPower(), u)
                         * m_Eab->at(2)(m_primitiveA->zPower(), m_primitiveB->zPower(), v)
-                        * m_Ren->at(0)(t,u,v);
+                        * m_R->R(0,t,u,v);
             }
         }
     }

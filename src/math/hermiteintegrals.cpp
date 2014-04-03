@@ -10,9 +10,9 @@ HermiteIntegrals::HermiteIntegrals(const int highestOrder):
 }
 
 
-const field<cube>* HermiteIntegrals::integrals()const
+double HermiteIntegrals::R(const int n,  const int t, const int u, const int v)const
 {
-    return &m_R;
+    return m_R(n)(t,u,v);
 }
 
 void HermiteIntegrals::updateR(const rowvec &PQ, const double &alpha,

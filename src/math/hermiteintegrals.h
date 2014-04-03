@@ -22,7 +22,7 @@ public:
 
     void updateR(const rowvec &PQ, const double &alpha,
                  const int tMax, const int uMax, const int vMax);
-    const field<cube> *integrals() const;
+    double R(const int n, const int t, const int u, const int v) const;
 private:
     Boys *m_boys;
     field<cube> m_R;

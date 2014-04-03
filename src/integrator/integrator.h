@@ -10,6 +10,7 @@
 #include "overlap/overlapintegral.h"
 #include "kinetic/kineticintegral.h"
 #include "nuclearAttraction/nuclearattractionintegral.h"
+#include "electronRepulsion/electronrepulsionintegral.h"
 
 
 using namespace arma;
@@ -79,11 +80,13 @@ private:
     HermiteIntegrals *m_hermiteIntegrals;
 
     HermiteCoefficients* Eab;
-    HermiteIntegrals *hermiteIntegrals;
+    HermiteCoefficients* Ecd;
+
 
     OverlapIntegral* m_overlap;
     KineticIntegral* m_kinetic;
     NuclearAttractionIntegral* m_nuclearAttraction;
+    ElectronRepulsionIntegral* m_electronRepulsion;
 
 
 

@@ -17,7 +17,7 @@ namespace hf
 class NuclearAttractionIntegral
 {
 public:
-    NuclearAttractionIntegral(HermiteIntegrals *hermiteIntegrals,
+    NuclearAttractionIntegral(const int highestOrder,
                               const field<cube> *Eab,
                               const PrimitiveGTO *primitiveA,
                               const PrimitiveGTO *primitiveB,
@@ -25,8 +25,7 @@ public:
 
     double evaluate();
 private:
-    HermiteIntegrals* m_hermiteIntegrals;
-    const field<cube>* m_Ren;
+    HermiteIntegrals* m_R;
     const field<cube>* m_Eab;
     const PrimitiveGTO* m_primitiveA;
     const PrimitiveGTO* m_primitiveB;

@@ -38,16 +38,24 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 
 
     Eab = new HermiteCoefficients(maxAngularMomentum);
-    hermiteIntegrals = new HermiteIntegrals(2 * maxAngularMomentum + 1);
+    Ecd = new HermiteCoefficients(maxAngularMomentum);
 
 
     m_overlap = new OverlapIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
     m_kinetic = new KineticIntegral(m_overlap, &m_primitiveA, &m_primitiveB);
-    m_nuclearAttraction = new NuclearAttractionIntegral(hermiteIntegrals,
+    m_nuclearAttraction = new NuclearAttractionIntegral(2 * maxAngularMomentum + 1,
                                                         Eab->coefficients(),
                                                         &m_primitiveA,
                                                         &m_primitiveB,
                                                         &m_corePositionC);
+
+    m_electronRepulsion = new ElectronRepulsionIntegral(4 * maxAngularMomentum + 1,
+                                                        Eab->coefficients(),
+                                                        Ecd->coefficients(),
+                                                        &m_primitiveA,
+                                                        &m_primitiveB,
+                                                        &m_primitiveC,
+                                                        &m_primitiveD);
 
 
 //    cout << "--------------"<< endl;
@@ -56,7 +64,7 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 //    cout << "primA adr   "  << &m_primitiveB<< endl;
 //    cout << "primB adr   "  << &m_primitiveA<< endl;
 //    sleep(4);
-
+//exit(0);
 }
 
 void Integrator::setCorePositionC(const rowvec &corePositionC)
@@ -98,6 +106,8 @@ void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoPar
 
     }else if(twoParticleIntegral){
         m_hermiteCoefficients.setupE(m_primitiveC, m_primitiveD, m_Ecd, false);
+        Ecd->updateE(m_primitiveC, m_primitiveD, false);
+
     }else{
         cerr << "Hermite coefficients not updated!" << endl;
     }
@@ -141,6 +151,10 @@ double Integrator::nuclearAttractionIntegral()
     return m_nuclearAttraction->evaluate();
 }
 
+double Integrator::electronRepulsionIntegral()
+{
+    return m_electronRepulsion->evaluate();
+}
 
 /*---------------------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------------------*/
@@ -170,68 +184,6 @@ double Integrator::kineticIntegral(int cor, int iA, int iB) {
 
 /*---------------------------------------------------------------------------------------------------*/
 
-double Integrator::electronRepulsionIntegral()
-{
-    const rowvec &A = m_primitiveA.center();
-    const rowvec &B = m_primitiveB.center();
-    const rowvec &C = m_primitiveC.center();
-    const rowvec &D = m_primitiveD.center();
-
-    const double &a  = m_primitiveA.exponent();
-    const double &b  = m_primitiveB.exponent();
-    const double &c  = m_primitiveC.exponent();
-    const double &d  = m_primitiveD.exponent();
-
-    double p = a + b;
-    double q = c + d;
-
-    double alpha = p*q/(p+q);
-    rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
-
-
-    double result = 0.0;
-    int tMax = m_primitiveA.xPower() + m_primitiveB.xPower() + 1;
-    int uMax = m_primitiveA.yPower() + m_primitiveB.yPower() + 1;
-    int vMax = m_primitiveA.zPower() + m_primitiveB.zPower() + 1;
-    int kMax = m_primitiveC.xPower() + m_primitiveD.xPower() + 1;
-    int lMax = m_primitiveC.yPower() + m_primitiveD.yPower() + 1;
-    int mMax = m_primitiveC.zPower() + m_primitiveD.zPower() + 1;
-
-    m_hermiteIntegrals->setupR(PQ,alpha, m_Ree, tMax + kMax - 2,
-                               uMax + lMax - 2, vMax + mMax - 2);
-
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
-
-                double Etuv = m_Eab(0)(m_primitiveA.xPower() , m_primitiveB.xPower(), t)
-                            * m_Eab(1)(m_primitiveA.yPower() , m_primitiveB.yPower(), u)
-                            * m_Eab(2)(m_primitiveA.zPower() , m_primitiveB.zPower(), v);
-
-                for(int k = 0; k < kMax; k++){
-                    for(int l = 0; l < lMax; l++){
-                        for(int m = 0; m < mMax; m++){
-
-                            double Eklm = m_Ecd(0)(m_primitiveC.xPower() , m_primitiveD.xPower(), k)
-                                        * m_Ecd(1)(m_primitiveC.yPower() , m_primitiveD.yPower(), l)
-                                        * m_Ecd(2)(m_primitiveC.zPower() , m_primitiveD.zPower(), m);
-                            result += Etuv * Eklm * m_Ree(0)(t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    result *= 2*pow(M_PI,2.5)/ (p*q*sqrt(p+q))
-            * m_primitiveA.weight() * m_primitiveB.weight()
-            * m_primitiveC.weight() * m_primitiveD.weight();
-
-    return result;
-
-}
 
 
 /********************************************************************************************
