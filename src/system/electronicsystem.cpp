@@ -317,15 +317,15 @@ mat ElectronicSystem::twoParticleIntegralGD(const int& p, const int& q,
                     double c_cd = Gc.exponent()/cd;
                     double d_cd = Gd.exponent()/cd;
 
-//                    rowvec QabDerivative = integrator.QabDerivativeNuclearAttractionIntegral();
-//                    rowvec PabDerivative = integrator.PabDerivativeNuclearAttractionIntegral();
-//                    rowvec QcdDerivative = integrator.QcdDerivativeNuclearAttractionIntegral();
-//                    rowvec PabDerivative = integrator.PcdDerivativeNuclearAttractionIntegral();
+                    rowvec QabDerivative = integrator.QabDerivativeElectronRepulsionIntegral();
+                    rowvec PabDerivative = integrator.PabDerivativeElectronRepulsionIntegral();
+                    rowvec QcdDerivative = integrator.QcdDerivativeElectronRepulsionIntegral();
+                    rowvec PcdDerivative = integrator.PcdDerivativeElectronRepulsionIntegral();
 
-//                    dQpqrs.row(coreA) += a_ab * PabDerivative + QabDerivative;
-//                    dQpqrs.row(coreB) += b_ab * PabDerivative - QabDerivative;
-//                    dQpqrs.row(coreC) += c_cd * PcdDerivative + QcdDerivative;
-//                    dQpqrs.row(coreD) += d_cd * PcdDerivative - QcdDerivative;
+                    dQpqrs.row(coreA) += a_ab * PabDerivative + QabDerivative;
+                    dQpqrs.row(coreB) += b_ab * PabDerivative - QabDerivative;
+                    dQpqrs.row(coreC) += c_cd * PcdDerivative + QcdDerivative;
+                    dQpqrs.row(coreD) += d_cd * PcdDerivative - QcdDerivative;
 
 
                 }

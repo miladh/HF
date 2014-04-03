@@ -16,6 +16,7 @@
 #include "overlap/overlapintegralgd.h"
 #include "kinetic/kineticintegralgd.h"
 #include "nuclearAttraction/nuclearattractionintegralgd.h"
+#include "electronRepulsion/electronrepulsionintegralgd.h"
 
 
 
@@ -54,9 +55,15 @@ public:
 
    rowvec QDerivativeOverlapIntegral();
    rowvec QDerivativeKineticIntegral();
+
    rowvec QDerivativeNuclearAttractionIntegral();
    rowvec PDerivativeNuclearAttractionIntegral();
    rowvec CDerivativeNuclearAttractionIntegral();
+
+   rowvec QabDerivativeElectronRepulsionIntegral();
+   rowvec PabDerivativeElectronRepulsionIntegral();
+   rowvec QcdDerivativeElectronRepulsionIntegral();
+   rowvec PcdDerivativeElectronRepulsionIntegral();
 
 
 
@@ -66,7 +73,6 @@ public:
 
    rowvec electronRepulsionIntegral_derivative(bool differentiateWrtA, bool differentiateWrtB,
                                                bool differentiateWrtC,  bool differentiateWrtD);
-
 
 
 private:
@@ -95,6 +101,7 @@ private:
     OverlapIntegralGD* m_overlapGD;
     KineticIntegralGD* m_kineticGD;
     NuclearAttractionIntegralGD* m_nuclearAttractionGD;
+    ElectronRepulsionIntegralGD* m_electronRepulsionGD;
 
 
 

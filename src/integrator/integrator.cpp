@@ -211,6 +211,31 @@ rowvec Integrator::CDerivativeNuclearAttractionIntegral()
     return m_nuclearAttractionGD->CDerivative();
 }
 
+
+rowvec Integrator::QabDerivativeElectronRepulsionIntegral()
+{
+
+    return m_electronRepulsionGD->QabDerivative();
+}
+
+rowvec Integrator::PabDerivativeElectronRepulsionIntegral()
+{
+
+    return m_electronRepulsionGD->PabDerivative();
+}
+
+rowvec Integrator::QcdDerivativeElectronRepulsionIntegral()
+{
+
+    return m_electronRepulsionGD->QcdDerivative();
+}
+
+rowvec Integrator::PcdDerivativeElectronRepulsionIntegral()
+{
+
+    return m_electronRepulsionGD->PcdDerivative();
+}
+
 /*---------------------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------------------*/
