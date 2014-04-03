@@ -15,6 +15,7 @@
 
 #include "overlap/overlapintegralgd.h"
 #include "kinetic/kineticintegralgd.h"
+#include "nuclearAttraction/nuclearattractionintegralgd.h"
 
 
 
@@ -69,6 +70,7 @@ public:
 
 
 
+   rowvec QDerivativeNuclearAttractionIntegral();
 private:
    PrimitiveGTO m_primitiveA;
    PrimitiveGTO m_primitiveB;
@@ -94,6 +96,7 @@ private:
 
     OverlapIntegralGD* m_overlapGD;
     KineticIntegralGD* m_kineticGD;
+    NuclearAttractionIntegralGD* m_nuclearAttractionGD;
 
 
 
