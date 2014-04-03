@@ -147,6 +147,10 @@ void Integrator::updateHermiteCoefficients_derivative(bool oneParticleIntegral, 
 
 }
 
+void Integrator::updateHermiteIntegrals()
+{
+    m_nuclearAttractionGD->updateHermiteIntegrals();
+}
 /********************************************************************************************
  *
  *                                  Molecular Gaussian Integrals
@@ -172,27 +176,39 @@ double Integrator::electronRepulsionIntegral()
     return m_electronRepulsion->evaluate();
 }
 
+
 /********************************************************************************************
  *
  *                  Molecular Gaussian Integral Geometrical Derivatives (GD)
  *
  * ******************************************************************************************/
 
-rowvec Integrator::overlapIntegral_derivative()
+rowvec Integrator::QDerivativeOverlapIntegral()
 {
-    return m_overlapGD->evaluate();
+    return m_overlapGD->evaluate() * m_primitiveA.weight() * m_primitiveB.weight();
 }
 
 
-rowvec Integrator::kineticIntegral_derivative() {
+rowvec Integrator::QDerivativeKineticIntegral() {
 
-    return m_kineticGD->evaluate();
+    return m_kineticGD->evaluate() * m_primitiveA.weight() * m_primitiveB.weight();
 }
 
 rowvec Integrator::QDerivativeNuclearAttractionIntegral()
 {
 
     return m_nuclearAttractionGD->QDerivative();
+}
+
+rowvec Integrator::PDerivativeNuclearAttractionIntegral()
+{
+
+    return m_nuclearAttractionGD->PDerivative();
+}
+
+rowvec Integrator::CDerivativeNuclearAttractionIntegral()
+{
+    return m_nuclearAttractionGD->CDerivative();
 }
 
 /*---------------------------------------------------------------------------------------------------*/

@@ -38,30 +38,29 @@ public:
     void setPrimitiveC(const PrimitiveGTO &primitiveC);
     void setPrimitiveD(const PrimitiveGTO &primitiveD);
 
-    rowvec corePositionA() const;
-    void setCorePositionA(const rowvec &corePositionA);
-
-    rowvec corePositionB() const;
-    void setCorePositionB(const rowvec &corePositionB);
-
     rowvec corePositionC() const;
     void setCorePositionC(const rowvec &corePositionC);
-
-    rowvec corePositionD() const;
-    void setCorePositionD(const rowvec &corePositionD);
-
 
     double overlapIntegral();
     double kineticIntegral();
     double nuclearAttractionIntegral();
     double electronRepulsionIntegral();
 
+
+    void updateHermiteIntegrals();
     void updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral, bool kin= true);
     void updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral, bool kin =true);
 
 
-   rowvec overlapIntegral_derivative();
-   rowvec kineticIntegral_derivative();
+   rowvec QDerivativeOverlapIntegral();
+   rowvec QDerivativeKineticIntegral();
+   rowvec QDerivativeNuclearAttractionIntegral();
+   rowvec PDerivativeNuclearAttractionIntegral();
+   rowvec CDerivativeNuclearAttractionIntegral();
+
+
+
+
    rowvec nuclearAttractionIntegral_derivative(bool differentiateWrtA, bool differentiateWrtB,
                                                bool differentiateWrtC);
 
@@ -70,7 +69,6 @@ public:
 
 
 
-   rowvec QDerivativeNuclearAttractionIntegral();
 private:
    PrimitiveGTO m_primitiveA;
    PrimitiveGTO m_primitiveB;

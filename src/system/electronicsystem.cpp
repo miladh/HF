@@ -219,7 +219,7 @@ mat ElectronicSystem::overlapIntegralGD(const int& q, const int& p)
             integrator.updateHermiteCoefficients(true, false);
             integrator.updateHermiteCoefficients_derivative(true,false);
 
-            dSpq.row(coreA) += integrator.overlapIntegral_derivative()*Gp.weight()*Gq.weight();
+            dSpq.row(coreA) += integrator.QDerivativeOverlapIntegral();
 
         }
     }
@@ -247,7 +247,7 @@ mat ElectronicSystem::oneParticleIntegralGD(const int& q, const int& p)
             integrator.updateHermiteCoefficients(true, false);
             integrator.updateHermiteCoefficients_derivative(true,false);
 
-            dhpq.row(coreA) += integrator.kineticIntegral_derivative()*Gp.weight()*Gq.weight();
+            dhpq.row(coreA) += integrator.QDerivativeKineticIntegral();
 
 
 //            for(const Atom *atom : m_atoms){
