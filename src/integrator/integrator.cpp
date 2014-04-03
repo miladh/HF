@@ -37,6 +37,7 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
     m_hermiteIntegrals = new HermiteIntegrals(nMax_ee);
     Eab = new HermiteCoefficients(maxAngularMomentum);
     m_overlap = new OverlapIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
+    m_kinetic = new KineticIntegral(m_overlap, &m_primitiveA, &m_primitiveB);
 
 
 //    cout << "--------------"<< endl;
@@ -144,17 +145,8 @@ double Integrator::kineticIntegral(int cor, int iA, int iB) {
 }
 
 double Integrator::kineticIntegral() {
-    double T_iA_iB = kineticIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower());
-    double T_jA_jB = kineticIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-    double T_kA_kB = kineticIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
 
-    double S_iA_iB = overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower());
-    double S_jA_jB = overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower());
-    double S_kA_kB = overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower());
-
-    double result = T_iA_iB * S_jA_jB * S_kA_kB + S_iA_iB * T_jA_jB * S_kA_kB + S_iA_iB * S_jA_jB * T_kA_kB;
-    result *= -0.5 * m_primitiveA.weight() * m_primitiveB.weight();
-    return result;
+    return m_kinetic->evaluate();
 }
 
 /*---------------------------------------------------------------------------------------------------*/

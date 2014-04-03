@@ -8,6 +8,7 @@
 #include "../math/hermiteintegrals.h"
 #include "../primitiveGTO/primitiveGTO.h"
 #include "overlap/overlapintegral.h"
+#include "kinetic/kineticintegral.h"
 
 
 using namespace arma;
@@ -76,7 +77,11 @@ private:
     HermiteCoefficients* Eab;
     HermiteCoefficients m_hermiteCoefficients;
     HermiteIntegrals *m_hermiteIntegrals;
+
+
     OverlapIntegral* m_overlap;
+    KineticIntegral* m_kinetic;
+
 
 
     double overlapIntegral(int cor, int iA, int iB);
