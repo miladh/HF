@@ -20,7 +20,9 @@ SOURCES += \
     atom/atom.cpp \
     parser/turbomoleparser.cpp \
     system/electronicsystem.cpp \
-    analyser/analyser.cpp
+    analyser/analyser.cpp \
+    integrator/overlap/overlapintegral.cpp \
+    integrator/kinetic/kineticintegral.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -38,7 +40,9 @@ HEADERS += \
     atom/atom.h \
     parser/turbomoleparser.h \
     system/electronicsystem.h \
-    analyser/analyser.h
+    analyser/analyser.h \
+    integrator/overlap/overlapintegral.h \
+    integrator/kinetic/kineticintegral.h
 
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h

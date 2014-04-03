@@ -45,6 +45,7 @@ public:
     vector<const ContractedGTO *> basisFunctions() const;
 
     mat overlapIntegralGD(const int &q, const int &p);
+    mat oneParticleIntegralGD(const int &q, const int &p);
 private:
     Integrator integrator;
     vector<Atom *> m_atoms;

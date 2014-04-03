@@ -7,6 +7,8 @@
 #include "../math/hermitecoefficients.h"
 #include "../math/hermiteintegrals.h"
 #include "../primitiveGTO/primitiveGTO.h"
+#include "overlap/overlapintegral.h"
+
 
 using namespace arma;
 using namespace std;
@@ -71,8 +73,11 @@ private:
    field<cube> m_dEab, m_dEcd;
    field<cube> m_Ree, m_Ren;
 
+    HermiteCoefficients* Eab;
     HermiteCoefficients m_hermiteCoefficients;
     HermiteIntegrals *m_hermiteIntegrals;
+    OverlapIntegral* m_overlap;
+
 
     double overlapIntegral(int cor, int iA, int iB);
     double kineticIntegral(int cor, int iA, int iB);

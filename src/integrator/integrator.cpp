@@ -11,6 +11,7 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
 {
     m_Eab.set_size(3);  m_Ecd.set_size(3);
     m_dEab.set_size(3); m_dEcd.set_size(3);
+
     int iAmax = maxAngularMomentum + 3;
     int iBmax = maxAngularMomentum + 3;
     int tmax  = iAmax + iBmax - 1;
@@ -34,14 +35,19 @@ void Integrator::setMaxAngularMomentum(const int maxAngularMomentum)
     }
 
     m_hermiteIntegrals = new HermiteIntegrals(nMax_ee);
+    Eab = new HermiteCoefficients(maxAngularMomentum);
+    m_overlap = new OverlapIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
 
+
+//    cout << "--------------"<< endl;
+//    cout << "OVERLAP"  << endl;
+//    cout << "m_Eab adr:   "  << &m_primitiveA << endl;
+//    cout << "m_cube1 adr:   " << &m_primitiveA.center() << endl;
+
+
+//    sleep(4);
 
 }
-
-//rowvec Integrator::corePositionC() const
-//{
-//    return m_primitiveC.center();
-//}
 
 void Integrator::setCorePositionC(const rowvec &corePositionC)
 {
@@ -73,8 +79,10 @@ void Integrator::updateHermiteCoefficients(bool oneParticleIntegral, bool twoPar
 
     if(oneParticleIntegral){
         if(kin){
+            Eab->updateE(m_primitiveA, m_primitiveB);
             m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB, m_Eab);
         }else{
+            Eab->updateE(m_primitiveA, m_primitiveB,false);
             m_hermiteCoefficients.setupE(m_primitiveA, m_primitiveB, m_Eab,false);
         }
 
@@ -116,10 +124,7 @@ double Integrator::overlapIntegral(int cor, int iA, int iB)
 
 double Integrator::overlapIntegral()
 {
-    return    overlapIntegral(0, m_primitiveA.xPower(), m_primitiveB.xPower())
-            * overlapIntegral(1, m_primitiveA.yPower(), m_primitiveB.yPower())
-            * overlapIntegral(2, m_primitiveA.zPower(), m_primitiveB.zPower())
-            * m_primitiveA.weight() * m_primitiveB.weight();
+    return m_overlap->evaluate();
 }
 
 /*---------------------------------------------------------------------------------------------------*/
