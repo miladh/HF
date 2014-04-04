@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     //options:
     string method = "rhf";
-    string chemicalSystem = "H2";
+    string chemicalSystem = "H2O";
 
     if(rank==0){
         cout << "---------------------------BOMD------------------------------"  << endl;

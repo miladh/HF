@@ -101,7 +101,6 @@ void GeometricalDerivative::calculateEnergyGradient()
 
 
 
-
     for(uint i = 0; i < densityMatrices.n_elem; i ++){
         const mat& P = (*densityMatrices(i));
         const mat& F = (*fockMatrices(i));

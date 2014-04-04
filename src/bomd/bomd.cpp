@@ -10,7 +10,7 @@ BOMD::BOMD(ElectronicSystem *system, HFsolver *solver):
     m_corePositions(zeros(m_nAtoms, 3)),
     m_coreVelocities(zeros(m_nAtoms, 3))
 {
-    m_nSteps = 2000;
+    m_nSteps = 20;
     m_dt   =  0.1;
     m_dampingFactor = 0.0;
 
@@ -32,6 +32,12 @@ void BOMD::runDynamics()
 {
     initialStep();
     for(int i = 0; i < m_nSteps; i++){
+        if(m_rank == 0 ){
+            cout << "MD step:   " << i << endl;
+            cout << "-------------------------------------------------------------------------------------"  << endl;
+
+        }
+
         solveSingleStep();
         writeLammpsFile(i);
         updateCores();
