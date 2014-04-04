@@ -58,7 +58,7 @@ SUITE(GRADIENT){
 
             atomA->setCorePosition(X * -0.5);
             atomB->setCorePosition(X * 0.5);
-            BOSolver.solveSingleStep();
+            BOSolver.computeForces();
 
             mat gradE = BOSolver.energyGradient();
             gradient(x) = gradE(1,0);
@@ -73,15 +73,14 @@ SUITE(GRADIENT){
 
             atomA->setCorePosition((X-dx) * -0.5);
             atomB->setCorePosition((X-dx) *  0.5);
-            BOSolver.solveSingleStep();
-            double Ep = BOSolver.energy();
+            BOSolver.computeForces();
+            double Ep = BOSolver.potentialEnergy();
 
             atomA->setCorePosition((X+dx) * -0.5);
             atomB->setCorePosition((X+dx) *  0.5);
-            BOSolver.solveSingleStep();
-            double En = BOSolver.energy();
-
-            numericalGradient(x) = (En - Ep) / (2.0 * h);
+            BOSolver.computeForces();
+            double En = BOSolver.potentialEnergy();
+            numericalGradient(x) = -(En - Ep) / (2.0 * h);
         }
 
 

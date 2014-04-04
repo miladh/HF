@@ -11,17 +11,6 @@ OverlapIntegralGD::OverlapIntegralGD(OverlapIntegral *overlap,
     m_primitiveB(overlap->primitiveB())
 
 {
-//        cout << "--------------"<< endl;
-//        cout << "OVERLAP"  << endl;
-//        cout << "m_Eab adr:   "  << m_dEab_dQab << endl;
-//        cout << "m_cube1 adr:   " << &m_dEab_dQab->at(0) << endl;
-//        cout << "m_cube2 adr:   " << &m_dEab_dQab->at(1) << endl;
-//        cout << "m_cube3 adr:   " << &m_dEab_dQab->at(2) << endl;
-
-//        cout << "--------------"<< endl;
-//        cout << "PrimOverlap"  << endl;
-//        cout << "m_Eab adr:   "  << m_primitiveA << endl;
-//        cout << "m_cube1 adr:   " << &m_primitiveA->center() << endl;
 }
 
 double OverlapIntegralGD::evaluate(int cor, int iA, int iB)

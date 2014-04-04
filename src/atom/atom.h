@@ -9,7 +9,8 @@ namespace hf{
 class Atom
 {
 public:
-    Atom(string basisFile, const rowvec& corePosition);
+    Atom(string basisFile, const rowvec& corePosition,
+         const rowvec &coreVelocity = zeros<rowvec>(3));
 
 
     const int &coreCharge() const;
@@ -28,6 +29,9 @@ public:
     void setCorePosition(const rowvec &corePosition);
 
 
+    const rowvec &coreVelocity() const;
+    void setCoreVelocity(const rowvec &coreVelocity);
+
 private:
     int m_atomType;
     int m_nElectrons;
@@ -37,6 +41,7 @@ private:
     double m_corePartialCharge;
 
     rowvec m_corePosition;
+    rowvec m_coreVelocity;
     vector<ContractedGTO> m_contractedGTOs;
 
     void loadBasisFile(string fileName);

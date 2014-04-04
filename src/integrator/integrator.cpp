@@ -45,14 +45,6 @@ Integrator::Integrator(const int maxAngularMomentum):
                                                             &m_primitiveC,
                                                             &m_primitiveD);
 
-
-
-//    cout << "--------------"<< endl;
-//    cout << "Integrator: "  << endl;
-//    cout << "primA adr   "  << &m_primitiveA.center()<< endl;
-//    cout << "primB adr   "  << &m_primitiveA<< endl;
-//    sleep(4);
-//exit(0);
 }
 
 void Integrator::setNuclearSourceCharge(const rowvec &nuclearSourceCharge)
@@ -80,6 +72,11 @@ void Integrator::setPrimitiveD(const PrimitiveGTO &primitiveD)
     m_primitiveD = primitiveD;
 }
 
+/********************************************************************************************
+ *
+ *                                Update functions
+ *
+ * ******************************************************************************************/
 void Integrator::updateKineticHermiteCoefficients()
 {
     Eab->updateE(m_primitiveA, m_primitiveB);
@@ -122,7 +119,7 @@ void Integrator::updateElectronRepulsionHermiteCoefficientsGD()
 }
 /********************************************************************************************
  *
- *                                  Molecular Gaussian Integrals
+ *                              Molecular Gaussian Integrals
  *
  * ******************************************************************************************/
 double Integrator::overlapIntegral()

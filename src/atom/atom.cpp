@@ -2,10 +2,11 @@
 
 using namespace hf;
 
-Atom::Atom(string basisFile, const rowvec& corePosition)
+Atom::Atom(string basisFile, const rowvec& corePosition, const rowvec& coreVelocity)
 {
     loadBasisFile(basisFile);
     setCorePosition(corePosition);
+    setCoreVelocity(coreVelocity);
 }
 
 void Atom::loadBasisFile(string fileName)
@@ -48,6 +49,7 @@ int Atom::nContractedGTOs() const
 {
     return m_contractedGTOs.size();
 }
+
 const double& Atom::corePartialCharge() const
 {
     return m_corePartialCharge;
@@ -72,6 +74,16 @@ void Atom::setCorePosition(const rowvec &corePosition)
         }
 
 }
+const rowvec &Atom::coreVelocity() const
+{
+    return m_coreVelocity;
+}
+
+void Atom::setCoreVelocity(const rowvec &coreVelocity)
+{
+    m_coreVelocity = coreVelocity;
+}
+
 
 
 void Atom::setCorePartialCharge(const double& corePartialCharge)

@@ -14,19 +14,6 @@ NuclearAttractionIntegral::NuclearAttractionIntegral(const int highestOrder,
     m_sourceCharge(sourceCharge)
 
 {
-//    cout << "--------------"<< endl;
-//    cout << "NUC: "  << endl;
-//    cout << "coreC adr   "  << m_sourceCharge<< endl;
-//    cout << "primA adr   "  << m_primitiveB<< endl;
-//    cout << "primB adr   "  << m_primitiveA<< endl;
-
-//    cout << "--------------"<< endl;
-
-//    cout <<"E adr:   " << &m_Eab << endl;
-//    cout <<"E1 adr:   " << (m_Eab->at(0))(0,0,0) <<"    " << &m_Eab->at(0) << endl;
-//    cout <<"E2 adr:   " << &(m_Eab->at(1)) << endl;
-//    cout <<"E3 adr:   " << &(m_Eab->at(2)) << endl;
-
 }
 
 double NuclearAttractionIntegral::evaluate()

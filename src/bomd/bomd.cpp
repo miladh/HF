@@ -7,95 +7,127 @@ BOMD::BOMD(ElectronicSystem *system, HFsolver *solver):
     m_solver(solver),
     m_atoms(system->atoms()),
     m_nAtoms(system->nAtoms()),
-    m_rank(0)
+    m_corePositions(zeros(m_nAtoms, 3)),
+    m_coreVelocities(zeros(m_nAtoms, 3))
 {
-    m_nSteps = 100;
-    m_dtn   =  0.4;
+    m_nSteps = 2000;
+    m_dt   =  0.1;
     m_dampingFactor = 0.0;
 
+    m_time = zeros(m_nSteps);
+    m_kineticEnergy = zeros(m_nSteps);
+    m_potentialEnergy = zeros(m_nSteps);
+    m_totalEnergy = zeros(m_nSteps);
 
-    pos    = zeros(m_nAtoms, 3);
-    posNew = zeros(m_nAtoms, 3);
-    posOld = zeros(m_nAtoms, 3);
-
-    for(int core = 0; core < m_nAtoms; core++){
-        pos.row(core) = m_atoms.at(core)->corePosition();
-    }
-
-    posOld = pos;
     m_GD = new GeometricalDerivative(m_system, m_solver);
 
+    m_rank = 0;
 #if USE_MPI
     boost::mpi::communicator world;
     m_rank = world.rank();
 #endif
 
 }
-
-
 void BOMD::runDynamics()
 {
-    for(int nStep = 0; nStep < m_nSteps; nStep++){
+    initialStep();
+    for(int i = 0; i < m_nSteps; i++){
         solveSingleStep();
-        writeToFile(pos,nStep);
-        posOld = pos;
-        pos = posNew;
-        updateCorePositions();
-
+        writeLammpsFile(i);
+        updateCores();
+        systemProperties(i);
     }
+    writeSystemProperties();
+}
 
+void BOMD::initialStep()
+{
+    for(int i = 0; i < m_nAtoms; i++){
+        m_corePositions.row(i)  = m_atoms[i]->corePosition();
+        m_coreVelocities.row(i) = m_atoms[i]->coreVelocity();
+    }
+    computeForces();
+}
+
+
+void BOMD::computeForces()
+{
+    m_solver->runSolver();
+    m_energyGradient = -m_GD->energyGradient();
+}
+
+
+void BOMD::updateCores()
+{
+    for(int i = 0; i < m_nAtoms; i++){
+        m_atoms[i]->setCorePosition(m_corePositions.row(i));
+        m_atoms[i]->setCoreVelocity(m_coreVelocities.row(i));
+    }
 }
 
 void BOMD::solveSingleStep()
 {
-    m_solver->runSolver();
-    m_energy  = m_solver->energy();
+    halfKick();
+    for (int i=0; i< m_nAtoms; i++){
+        m_corePositions.row(i) += m_dt * m_coreVelocities.row(i);
+    }
+    updateCores();
+    computeForces();
+    halfKick();
+}
 
-    m_energyGradient = m_GD->energyGradient();
+void BOMD::halfKick()
+{
+    for (int i=0; i < m_nAtoms; i++){
+        m_coreVelocities.row(i) += 0.5 * m_dt * m_energyGradient.row(i)/m_atoms[i]->coreMass();
+    }
+}
 
-    for(int core = 0; core < m_nAtoms; core++){
-        IntegrateCoreForwardInTime(core);
+
+void BOMD::systemProperties(int currentTimeStep)
+{
+    int i = currentTimeStep;
+    m_time(i)         = i * m_dt;
+    m_potentialEnergy(i) = m_solver->energy();
+    for (Atom* atom : m_atoms){
+        m_kineticEnergy(i) += 0.5 * atom->coreMass() * dot(atom->coreVelocity(),atom->coreVelocity());
     }
 
-
-    if(m_rank==0){
-        cout << "-------------------------------------------------------------------------------------"  << endl;
-    }
+    m_totalEnergy(i) = m_kineticEnergy(i) + m_potentialEnergy(i);
 }
 
 
-
-void BOMD::IntegrateCoreForwardInTime(int core)
+double BOMD::potentialEnergy() const
 {
-    int coreMass = m_atoms.at(core)->coreMass();
-
-    posNew.row(core) = 2 * pos.row(core) - posOld.row(core)
-            - m_dtn * m_dtn * m_energyGradient.row(core) / coreMass;
-
-
+    return m_solver->energy();
 }
 
-
-
-void BOMD::updateCorePositions()
-{
-    for(int core = 0; core < m_nAtoms; core++){
-        m_atoms.at(core)->setCorePosition(pos.row(core));
-    }
-
-}
-
-double BOMD::energy() const
-{
-    return m_energy;
-}
 const mat& BOMD::energyGradient() const
 {
     return m_energyGradient;
 }
 
 
-void BOMD::writeToFile(mat R, int currentTimeStep) {
+void BOMD::writeSystemProperties()
+{
+    fstream output;
+    output.open ( "/home/milad/kurs/qmd/systemProperties/properties.txt",fstream::out);
+    output  << "Time    "  <<"Kinetic       "
+            << "Potential     " <<"Total Energy     "
+            <<endl;
+
+    for(int state = 0; state < m_nSteps; state++){
+        output << m_time(state)
+               <<"       "<< m_kineticEnergy(state)
+               <<"       "<< m_potentialEnergy(state)
+               <<"       "<< m_totalEnergy(state)
+               << endl;
+    }
+    output.close();
+}
+
+
+void BOMD::writeLammpsFile(int currentTimeStep) {
     ivec atomTypes;
 
     if(m_nAtoms == 3){
@@ -129,16 +161,16 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     // nColumns is the number of data types you want to write. In our case we want to
     // write four - the atom type and the x, y and z components of the position.
     // If you want velocities, forces, etc., just add more columns and write more data.
-    int nColumns = 1 + 3 + 1;
+    int nColumns = 1 + 3 + 3 + 3;
     // We could divide the data into chunks by the LAMMPS file format, but we don't - i.e. only
     // use one chunk. The chunk length is then the same as the number of atoms times the number
     // of columns.
     int nChunks = 1;
-    int chunkLength = R.n_rows * nColumns;
+    int chunkLength = m_nAtoms * nColumns;
 
     // Write all the above to the lammps file
     lammpsFile.write(reinterpret_cast<const char*>(&currentTimeStep), sizeof(int));
-    lammpsFile.write(reinterpret_cast<const char*>(&R.n_rows), sizeof(int));
+    lammpsFile.write(reinterpret_cast<const char*>(&m_nAtoms), sizeof(int));
     lammpsFile.write(reinterpret_cast<const char*>(&xMin), sizeof(double));
     lammpsFile.write(reinterpret_cast<const char*>(&xMax), sizeof(double));
     lammpsFile.write(reinterpret_cast<const char*>(&yMin), sizeof(double));
@@ -153,20 +185,22 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     lammpsFile.write(reinterpret_cast<const char*>(&chunkLength), sizeof(int));
 
     // Write all the data for each atom to file
-    for(uint i = 0; i < R.n_rows; i++) {
+    for(int i = 0; i < m_nAtoms; i++) {
         // IMPORTANT: Even though atom numbers are usually integers, they must be written
         // as double according to the LAMMPS standard.
         double atomType = atomTypes(i);
-//        double force = m_energyGradient(0);
         lammpsFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
 
         // Write the x, y and z-components
-        lammpsFile.write(reinterpret_cast<const char*>(&R(i,0)), sizeof(double));
-        lammpsFile.write(reinterpret_cast<const char*>(&R(i,1)), sizeof(double));
-        lammpsFile.write(reinterpret_cast<const char*>(&R(i,2)), sizeof(double));
-
-        lammpsFile.write(reinterpret_cast<const char*>(&m_energy), sizeof(double));
-//        lammpsFile.write(reinterpret_cast<const char*>(&force), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_corePositions(i,0)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_corePositions(i,1)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_corePositions(i,2)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_coreVelocities(i,0)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_coreVelocities(i,1)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_coreVelocities(i,2)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_energyGradient(i,0)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_energyGradient(i,1)), sizeof(double));
+        lammpsFile.write(reinterpret_cast<const char*>(&m_energyGradient(i,2)), sizeof(double));
 
     }
     lammpsFile.close();

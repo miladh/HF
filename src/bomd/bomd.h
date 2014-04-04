@@ -19,10 +19,10 @@ public:
     BOMD(ElectronicSystem *system, HFsolver *solver);
 
     void runDynamics();
-    void solveSingleStep();
-    double energy() const;
+    void computeForces();
 
     const mat &energyGradient() const;
+    double potentialEnergy() const;
 
 private:
     ElectronicSystem* m_system;
@@ -34,19 +34,29 @@ private:
     int m_nSteps;
     int m_rank;
 
-    double m_dtn;
+    double m_dt;
     double m_dampingFactor;
-    double m_energy, m_fockEnergy;
-
 
     mat m_energyGradient;
-    mat pos, posNew, posOld;
+    mat m_corePositions;
+    mat m_coreVelocities;
 
-    void IntegrateCoreForwardInTime(int core);
-    void writeToFile(mat R, int currentTimeStep);
-    void updateCorePositions();
+    vec m_time;
+    vec m_totalEnergy;
+    vec m_kineticEnergy;
+    vec m_potentialEnergy;
 
 
+    void solveSingleStep();
+    void initialStep();
+    void halfKick();
+    void updateCores();
+
+    void writeLammpsFile(int currentTimeStep);
+    void writeSystemProperties();
+
+
+    void systemProperties(int currentTimeStep);
 };
 }
 #endif // BOMD_H

@@ -18,24 +18,6 @@ ElectronRepulsionIntegral::ElectronRepulsionIntegral(const int highestOrder,
     m_primitiveD(primitiveD)
 
 {
-//        cout << "--------------"<< endl;
-//        cout << "Electron: "  << endl;
-    //    cout << "coreC adr   "  << m_sourceCharge<< endl;
-    //    cout << "primA adr   "  << m_primitiveB<< endl;
-    //    cout << "primB adr   "  << m_primitiveA<< endl;
-
-//        cout <<"E adr:   " << &m_Eab << endl;
-//        cout <<"E1 adr:   " << (m_Eab->at(0))(0,0,0) <<"    " << &m_Eab->at(0) << endl;
-//        cout <<"E2 adr:   " << &(m_Eab->at(1)) << endl;
-//        cout <<"E3 adr:   " << &(m_Eab->at(2)) << endl;
-
-//        cout << "--------------"<< endl;
-
-//        cout <<"E adr:   " << &m_Ecd << endl;
-//        cout <<"E1 adr:   " << (m_Ecd->at(0))(0,0,0) <<"    " << &m_Ecd->at(0) << endl;
-//        cout <<"E2 adr:   " << &(m_Ecd->at(1)) << endl;
-//        cout <<"E3 adr:   " << &(m_Ecd->at(2)) << endl;
-
 }
 
 double ElectronRepulsionIntegral::evaluate()

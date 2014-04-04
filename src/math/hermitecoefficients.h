@@ -18,11 +18,6 @@ class HermiteCoefficients
 public:
     HermiteCoefficients(const int maxAngularMomentum);
     HermiteCoefficients();
-    void setupE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, field<cube> &E, bool kin = true);
-
-    void setup_dEdR(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                    field<cube> &E, field<cube> &dE, bool kin=true);
-
 
     const field<cube>* coefficients() const;
     const field<cube> *QDerivativeCoefficients() const;
