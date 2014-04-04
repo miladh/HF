@@ -32,25 +32,7 @@ void NuclearAttractionIntegralGD::updateHermiteIntegrals()
 
     m_R->updateR(PC,p);
 }
-rowvec NuclearAttractionIntegralGD::evaluate()
-{
 
-//    if(differentiateWrtA){
-//        dVab += a/p * PDerivative(iA, jA, kA, iB, jB, kB)
-//               + QDerivative(iA, jA, kA, iB, jB, kB) ;
-//    }
-
-//    if(differentiateWrtB){
-//        dVab += b/p * PDerivative(iA, jA, kA, iB, jB, kB)
-//                - QDerivative(iA, jA, kA, iB, jB, kB) ;
-//    }
-
-//    if(differentiateWrtC){
-//        dVab -= CDerivative(iA, jA, kA, iB, jB, kB);
-//    }
-
-//    return 2 * M_PI / p * dVab;
-}
 
 
 rowvec NuclearAttractionIntegralGD::QDerivative()
@@ -83,7 +65,7 @@ rowvec NuclearAttractionIntegralGD::QDerivative()
     }
 
 
-    return 2 * M_PI / p * dVdQ * m_primitiveA->weight() * m_primitiveB->weight();
+    return 2. * M_PI / p * dVdQ * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 rowvec NuclearAttractionIntegralGD::PDerivative()
@@ -116,7 +98,7 @@ rowvec NuclearAttractionIntegralGD::PDerivative()
         }
     }
 
-    return 2 * M_PI / p * dVdP * m_primitiveA->weight() * m_primitiveB->weight();
+    return 2. * M_PI / p * dVdP * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 rowvec NuclearAttractionIntegralGD::CDerivative()
@@ -150,7 +132,7 @@ rowvec NuclearAttractionIntegralGD::CDerivative()
         }
     }
 
-    return 2 * M_PI / p * dVdC * m_primitiveA->weight() * m_primitiveB->weight();
+    return 2. * M_PI / p * dVdC * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 

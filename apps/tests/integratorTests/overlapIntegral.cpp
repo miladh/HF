@@ -20,7 +20,6 @@ SUITE(DEVELOPMENT){
      *      python scripts
      * */
 
-        Integrator integrator;
 
         rowvec posA = {1.2,2.3,3.4};
         rowvec posB = {-1.3,1.4,-2.4};
@@ -31,17 +30,12 @@ SUITE(DEVELOPMENT){
         primitiveA.setCenter(&posA);
         primitiveB.setCenter(&posB);
 
-        integrator.setMaxAngularMomentum(2);
-
-
-        bool oneParticle = true;
-        bool twoParticle = false;
-        bool kinetic = false;
+        Integrator integrator(2);
 
         //Build E-cube for Lmax = 2: max power in x,y and z is 2!
         primitiveA.setPowers({2,2,2}); primitiveB.setPowers({2,2,2});
         integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);
-        integrator.updateHermiteCoefficients(oneParticle, twoParticle, kinetic);
+        integrator.updateOverlapHermiteCoefficients();
 
 
         primitiveA.setPowers({0,0,0}); primitiveB.setPowers({0,0,0});
@@ -461,7 +455,7 @@ SUITE(DEVELOPMENT){
     TEST(GTOoverlapIntegral_derivative)
     {
 
-        Integrator integrator;
+        Integrator integrator(2);
 
         rowvec posA = {1.2,2.3,3.4};
         rowvec posB = {-1.3,1.4,-2.4};
@@ -473,17 +467,12 @@ SUITE(DEVELOPMENT){
         primitiveA.setCenter(&posA);
         primitiveB.setCenter(&posB);
 
-        integrator.setMaxAngularMomentum(2);
-
-        bool oneParticle = true;
-        bool twoParticle = false;
-        bool kinetic = false;
-
         //Build E-cube for Lmax = 2: max power in x,y and z is 2!
         primitiveA.setPowers({2,2,2}); primitiveB.setPowers({2,2,2});
         integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);
-        integrator.updateHermiteCoefficients(oneParticle, twoParticle, kinetic);
-        integrator.updateHermiteCoefficients_derivative(oneParticle, twoParticle, kinetic);
+
+        integrator.updateOverlapHermiteCoefficients();
+        integrator.updateOverlapHermiteCoefficientsGD();
 
 
 

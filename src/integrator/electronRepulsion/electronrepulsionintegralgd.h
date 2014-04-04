@@ -21,7 +21,7 @@ class ElectronRepulsionIntegralGD
 public:
     ElectronRepulsionIntegralGD(const int highestOrder,
                                 const field<cube> *Eab,
-                                const field<cube> *Ecd,
+                                const field<cube> *Ecd, const field<cube> *dEab_dQab, const field<cube> *dEcd_dQcd,
                                 const PrimitiveGTO *primitiveA,
                                 const PrimitiveGTO *primitiveB,
                                 const PrimitiveGTO *primitiveC,

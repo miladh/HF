@@ -25,7 +25,6 @@ public:
                                 const PrimitiveGTO *primitiveB,
                                 const rowvec* sourceCharge);
 
-    rowvec evaluate();
     void updateHermiteIntegrals();
     rowvec QDerivative();
     rowvec PDerivative();

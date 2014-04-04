@@ -20,7 +20,7 @@ TEST(GTOkineticIntegral)
      *      python scripts
      * */
 
-    Integrator integrator;
+    Integrator integrator(2);
 
     const rowvec posA = {1.2,2.3,3.4};
     const rowvec posB = {-1.3,1.4,-2.4};
@@ -30,17 +30,10 @@ TEST(GTOkineticIntegral)
     primitiveA.setCenter(&posA);
     primitiveB.setCenter(&posB);
 
-    integrator.setMaxAngularMomentum(2);
-
-
-    bool oneParticle = true;
-    bool twoParticle = false;
-    bool kinetic = true;
-
     //Build E-cube for Lmax = 2: max power in x,y and z is 2!
     primitiveA.setPowers({2,2,2}); primitiveB.setPowers({2,2,2});
     integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);
-    integrator.updateHermiteCoefficients(oneParticle, twoParticle, kinetic);
+    integrator.updateKineticHermiteCoefficients();
 
 
     primitiveA.setPowers({0,0,0});primitiveB.setPowers({0,0,0});
@@ -457,7 +450,7 @@ TEST(GTOkineticIntegral)
 TEST(GTOkineticIntegral_derivative)
 {
 
-    Integrator integrator;
+    Integrator integrator(2);
 
     const rowvec posA = {1.2,2.3,3.4};
     const rowvec posB = {-1.3,1.4,-2.4};
@@ -467,18 +460,11 @@ TEST(GTOkineticIntegral_derivative)
     primitiveA.setCenter(&posA);
     primitiveB.setCenter(&posB);
 
-    integrator.setMaxAngularMomentum(2);
-
-
-    bool oneParticle = true;
-    bool twoParticle = false;
-    bool kinetic = true;
-
     //Build E-cube for Lmax = 2: max power in x,y and z is 2!
     primitiveA.setPowers({2,2,2}); primitiveB.setPowers({2,2,2});
-    integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);
-    integrator.updateHermiteCoefficients(oneParticle, twoParticle, kinetic);
-    integrator.updateHermiteCoefficients_derivative(oneParticle, twoParticle, kinetic);
+    integrator.setPrimitiveA(primitiveA);integrator.setPrimitiveB(primitiveB);    
+    integrator.updateKineticHermiteCoefficients();
+    integrator.updateKineticHermiteCoefficientsGD();
 
 
     Tab  = {4.091139572785e-02,1.472810246203e-02,9.491443808862e-02};

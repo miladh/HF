@@ -4,6 +4,8 @@ using namespace hf;
 ElectronRepulsionIntegralGD::ElectronRepulsionIntegralGD(const int highestOrder,
                                                          const field<cube> *Eab,
                                                          const field<cube> *Ecd,
+                                                         const field<cube> *dEab_dQab,
+                                                         const field<cube> *dEcd_dQcd,
                                                          const PrimitiveGTO *primitiveA,
                                                          const PrimitiveGTO *primitiveB,
                                                          const PrimitiveGTO *primitiveC,
@@ -11,6 +13,8 @@ ElectronRepulsionIntegralGD::ElectronRepulsionIntegralGD(const int highestOrder,
     m_R(new HermiteIntegrals(highestOrder)),
     m_Eab(Eab),
     m_Ecd(Ecd),
+    m_dEab_dQab(dEab_dQab),
+    m_dEcd_dQcd(dEcd_dQcd),
     m_primitiveA(primitiveA),
     m_primitiveB(primitiveB),
     m_primitiveC(primitiveC),
@@ -69,7 +73,7 @@ rowvec ElectronRepulsionIntegralGD::QabDerivative()
         for(int u = 0; u < uMax; u++){
             for(int v = 0; v < vMax; v++){
 
-                rowvec3 dEtuv = zeros<rowvec>(3);;
+                rowvec3 dEtuv = zeros<rowvec>(3);
                 dEtuv(0) = m_dEab_dQab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
                 dEtuv(1) = m_Eab->at(0)(iA, iB, t) * m_dEab_dQab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
                 dEtuv(2) = m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_dEab_dQab->at(2)(kA, kB, v);
@@ -92,7 +96,8 @@ rowvec ElectronRepulsionIntegralGD::QabDerivative()
         }
     }
 
-    return dGdQab;
+    return dGdQab * m_primitiveA->weight() * m_primitiveB->weight()
+                  * m_primitiveC->weight() * m_primitiveD->weight();
 
 }
 
@@ -131,7 +136,7 @@ rowvec ElectronRepulsionIntegralGD::QcdDerivative()
                     for(int l = 0; l < lMax; l++){
                         for(int m = 0; m < mMax; m++){
 
-                            rowvec3 dEklm = zeros<rowvec>(3);;
+                            rowvec3 dEklm = zeros<rowvec>(3);
                             dEklm(0) = m_dEcd_dQcd->at(0)(iC, iD, t) * m_Ecd->at(1)(jC, jD, u) * m_Ecd->at(2)(kC, kD, v);
                             dEklm(1) = m_Ecd->at(0)(iC, iD, t) * m_dEcd_dQcd->at(1)(jC, jD, u) * m_Ecd->at(2)(kC, kD, v);
                             dEklm(2) = m_Ecd->at(0)(iC, iD, t) * m_Ecd->at(1)(jC, jD, u) * m_dEcd_dQcd->at(2)(kC, kD, v);
@@ -148,7 +153,8 @@ rowvec ElectronRepulsionIntegralGD::QcdDerivative()
         }
     }
 
-    return dGdQcd;
+    return dGdQcd* m_primitiveA->weight() * m_primitiveB->weight()
+            * m_primitiveC->weight() * m_primitiveD->weight();
 
 }
 
@@ -203,7 +209,8 @@ rowvec ElectronRepulsionIntegralGD::PabDerivative()
         }
     }
 
-    return dGdPab;
+    return dGdPab* m_primitiveA->weight() * m_primitiveB->weight()
+            * m_primitiveC->weight() * m_primitiveD->weight();
 
 }
 
@@ -258,7 +265,8 @@ rowvec ElectronRepulsionIntegralGD::PcdDerivative()
         }
     }
 
-    return dGdPcd;
+    return dGdPcd* m_primitiveA->weight() * m_primitiveB->weight()
+            * m_primitiveC->weight() * m_primitiveD->weight();
 
 }
 

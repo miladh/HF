@@ -10,7 +10,7 @@ BOMD::BOMD(ElectronicSystem *system, HFsolver *solver):
     m_rank(0)
 {
     m_nSteps = 100;
-    m_dtn   =  4.0;
+    m_dtn   =  0.4;
     m_dampingFactor = 0.0;
 
 
@@ -51,18 +51,9 @@ void BOMD::solveSingleStep()
     m_solver->runSolver();
     m_energy  = m_solver->energy();
 
+    m_energyGradient = m_GD->energyGradient();
 
     for(int core = 0; core < m_nAtoms; core++){
-        clock_t begin = clock();
-        m_energyGradient = m_GD->energyGradient(core);
-        clock_t end = clock();
-
-        if(m_rank==0){
-            cout << setprecision(3)
-                 << "Elapsed time on gradient calculation: "
-                 << (double(end - begin))/CLOCKS_PER_SEC << endl;
-        }
-
         IntegrateCoreForwardInTime(core);
     }
 
@@ -79,7 +70,7 @@ void BOMD::IntegrateCoreForwardInTime(int core)
     int coreMass = m_atoms.at(core)->coreMass();
 
     posNew.row(core) = 2 * pos.row(core) - posOld.row(core)
-            - m_dtn * m_dtn * m_energyGradient / coreMass;
+            - m_dtn * m_dtn * m_energyGradient.row(core) / coreMass;
 
 
 }
@@ -98,7 +89,7 @@ double BOMD::energy() const
 {
     return m_energy;
 }
-const rowvec& BOMD::energyGradient() const
+const mat& BOMD::energyGradient() const
 {
     return m_energyGradient;
 }
@@ -138,7 +129,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
     // nColumns is the number of data types you want to write. In our case we want to
     // write four - the atom type and the x, y and z components of the position.
     // If you want velocities, forces, etc., just add more columns and write more data.
-    int nColumns = 1 + 3 + 2;
+    int nColumns = 1 + 3 + 1;
     // We could divide the data into chunks by the LAMMPS file format, but we don't - i.e. only
     // use one chunk. The chunk length is then the same as the number of atoms times the number
     // of columns.
@@ -166,7 +157,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
         // IMPORTANT: Even though atom numbers are usually integers, they must be written
         // as double according to the LAMMPS standard.
         double atomType = atomTypes(i);
-        double force = m_energyGradient(0);
+//        double force = m_energyGradient(0);
         lammpsFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
 
         // Write the x, y and z-components
@@ -175,7 +166,7 @@ void BOMD::writeToFile(mat R, int currentTimeStep) {
         lammpsFile.write(reinterpret_cast<const char*>(&R(i,2)), sizeof(double));
 
         lammpsFile.write(reinterpret_cast<const char*>(&m_energy), sizeof(double));
-        lammpsFile.write(reinterpret_cast<const char*>(&force), sizeof(double));
+//        lammpsFile.write(reinterpret_cast<const char*>(&force), sizeof(double));
 
     }
     lammpsFile.close();

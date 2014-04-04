@@ -38,18 +38,14 @@ public:
     mat overlapIntegralGD(const int &q, const int &p);
     mat oneParticleIntegralGD(const int &q, const int &p);
     mat twoParticleIntegralGD(const int &p, const int &q, const int &r, const int &s);
-    rowvec nuclearPotentialGD(int activeCore);
+    mat nuclearPotentialGD();
 
     vector<Atom *> atoms() const;
     vector<const ContractedGTO *> basisFunctions() const;
 
 
-    mat getOneParticleDerivative(const int a, const int b, const int N);
-    rowvec getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
-                                            const int N);
-
 private:
-    Integrator integrator;
+    Integrator* integrator;
     vector<Atom *> m_atoms;
     vector<const ContractedGTO *> m_basisFunctions;
     vector<int> m_basisFucntionIndexToAtomID;

@@ -5,7 +5,6 @@
 #include <armadillo>
 
 #include "../math/hermitecoefficients.h"
-#include "../math/hermiteintegrals.h"
 #include "../primitiveGTO/primitiveGTO.h"
 
 #include "overlap/overlapintegral.h"
@@ -28,30 +27,24 @@ namespace hf
 class Integrator
 {
 public:
-    Integrator();
-
-    int maxAngularMomentum() const;
-    void setMaxAngularMomentum(const int maxAngularMomentum);
-
+    Integrator(const int maxAngularMomentum);
 
     void setPrimitiveA(const PrimitiveGTO &primitiveA);
     void setPrimitiveB(const PrimitiveGTO &primitiveB);
     void setPrimitiveC(const PrimitiveGTO &primitiveC);
     void setPrimitiveD(const PrimitiveGTO &primitiveD);
 
-    rowvec corePositionC() const;
-    void setCorePositionC(const rowvec &corePositionC);
+    rowvec nuclearSourceCharge() const;
+    void setNuclearSourceCharge(const rowvec &nuclearSourceCharge);
+
+    void updateNuclearAttractionHermiteIntegrals();
+    void updateElectronRepulsionHermiteIntegrals();
+
 
     double overlapIntegral();
     double kineticIntegral();
     double nuclearAttractionIntegral();
     double electronRepulsionIntegral();
-
-
-    void updateHermiteIntegrals();
-    void updateHermiteCoefficients(bool oneParticleIntegral, bool twoParticleIntegral, bool kin= true);
-    void updateHermiteCoefficients_derivative(bool oneParticleIntegral, bool twoParticleIntegral, bool kin =true);
-
 
    rowvec QDerivativeOverlapIntegral();
    rowvec QDerivativeKineticIntegral();
@@ -65,14 +58,13 @@ public:
    rowvec QcdDerivativeElectronRepulsionIntegral();
    rowvec PcdDerivativeElectronRepulsionIntegral();
 
+   void updateOverlapHermiteCoefficients();
+   void updateKineticHermiteCoefficients();
+   void updateElectronRepulsionHermiteCoefficientsGD();
 
-
-
-   rowvec nuclearAttractionIntegral_derivative(bool differentiateWrtA, bool differentiateWrtB,
-                                               bool differentiateWrtC);
-
-   rowvec electronRepulsionIntegral_derivative(bool differentiateWrtA, bool differentiateWrtB,
-                                               bool differentiateWrtC,  bool differentiateWrtD);
+   void updateOverlapHermiteCoefficientsGD();
+   void updateKineticHermiteCoefficientsGD();
+   void updateElectronRepulsionHermiteCoefficients();
 
 
 private:
@@ -81,14 +73,7 @@ private:
    PrimitiveGTO m_primitiveC;
    PrimitiveGTO m_primitiveD;
 
-   rowvec m_corePositionC;
-
-   field<cube> m_Eab, m_Ecd;
-   field<cube> m_dEab, m_dEcd;
-   field<cube> m_Ree, m_Ren;
-
-    HermiteCoefficients m_hermiteCoefficients;
-    HermiteIntegrals *m_hermiteIntegrals;
+   rowvec m_nuclearSourceCharge;
 
     HermiteCoefficients* Eab;
     HermiteCoefficients* Ecd;
@@ -103,23 +88,6 @@ private:
     NuclearAttractionIntegralGD* m_nuclearAttractionGD;
     ElectronRepulsionIntegralGD* m_electronRepulsionGD;
 
-
-
-    rowvec nuclearAttractionIntegral_R_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
-    rowvec nuclearAttractionIntegral_P_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
-    rowvec nuclearAttractionIntegral_C_derivative(int iA, int jA, int kA, int iB, int jB, int kB);
-    rowvec electronRepulsionIntegral_Rab_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
-                                                  int iC, int jC, int kC, int iD, int jD, int kD);
-    rowvec electronRepulsionIntegral_Rcd_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
-                                                  int iC, int jC, int kC, int iD, int jD, int kD);
-    rowvec electronRepulsionIntegral_Pab_derivative(int iA, int jA, int kA, int iB, int jB, int kB,
-                                                  int iC, int jC, int kC, int iD, int jD, int kD);
-
-
-    rowvec electronRepulsionIntegral_Pcd_derivative(int iA, int jA, int kA,
-                                                    int iB, int jB, int kB,
-                                                    int iC, int jC, int kC,
-                                                    int iD, int jD, int kD);
 };
 }
 #endif // INTEGRATOR_H

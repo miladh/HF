@@ -22,7 +22,7 @@ public:
     void solveSingleStep();
     double energy() const;
 
-    const rowvec& energyGradient() const;
+    const mat &energyGradient() const;
 
 private:
     ElectronicSystem* m_system;
@@ -39,7 +39,7 @@ private:
     double m_energy, m_fockEnergy;
 
 
-    rowvec m_energyGradient;
+    mat m_energyGradient;
     mat pos, posNew, posOld;
 
     void IntegrateCoreForwardInTime(int core);
