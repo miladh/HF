@@ -4,6 +4,24 @@ HermiteCoefficients::HermiteCoefficients()
 {
 }
 
+HermiteCoefficients::HermiteCoefficients(const int maxAngularMomentum)
+{
+    m_E.set_size(3);
+    m_dE_dQ.set_size(3);
+
+    int iAmax = maxAngularMomentum + 3;
+    int iBmax = maxAngularMomentum + 3;
+    int tmax  = iAmax + iBmax - 1;
+
+    for(int cor = 0; cor < 3; cor++){
+        m_E(cor)  =zeros(iAmax, iBmax, tmax);
+    }
+
+    for(int cor = 0; cor < 3; cor++){
+        m_dE_dQ(cor) = zeros(iAmax , iBmax, tmax);
+    }
+}
+
 bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
 {
     if(t < 0 || t > (iA + iB) || iA < 0 || iB < 0) {
@@ -12,24 +30,21 @@ bool HermiteCoefficients::interiorPoint(int iA, int iB, int t)
         return true;
     }
 }
-
-
-void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                                 const rowvec &R, field<cube> &E, bool kin)
+const field<cube>* HermiteCoefficients::coefficients()const
 {
-
-//    int iAmax = E(0).n_rows;
-//    int iBmax = E(0).n_cols;
-//    int tmax  = E(0).n_slices;
+    return &m_E;
+}
 
 
-//    if(!kin){
-//        iAmax -= 2;
-//        iBmax -= 2;
-//        tmax  -= iAmax + iBmax;
-//    }
+const field<cube>* HermiteCoefficients::QDerivativeCoefficients()const
+{
+    return &m_dE_dQ;
+}
 
-
+void HermiteCoefficients::updateE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
+                                  bool kin)
+{
+    const rowvec R = primitiveA.center() - primitiveB.center();
     rowvec iAmax = primitiveA.powers() + 1;
     rowvec iBmax = primitiveB.powers() + 1;
 
@@ -44,11 +59,11 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
     double p = a + b;
     double factor = -(a * b / p);
 
-    for(uint cor = 0; cor < E.n_elem; cor++){
-        E(cor)(0,0,0) = exp(factor*R(cor)*R(cor));
+    for(uint cor = 0; cor < m_E.n_elem; cor++){
+        m_E(cor)(0,0,0) = std::exp(factor*R(cor)*R(cor));
     }
 
-    for(uint cor=0; cor < E.n_elem; cor++){ //Loop for x,y,z
+    for(uint cor=0; cor < m_E.n_elem; cor++){ //Loop for x,y,z
 
 
         // p = previous, n = next
@@ -63,20 +78,20 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
 
                 double E_iA_iBp_tp = 0.0;
                 if(interiorPoint(iA, iBp, tp)){
-                    E_iA_iBp_tp = E(cor)(iA, iBp, tp);
+                    E_iA_iBp_tp = m_E(cor)(iA, iBp, tp);
                 }
 
                 double E_iA_iBp_t = 0;
                 if(interiorPoint(iA, iBp, t)) {
-                    E_iA_iBp_t = E(cor)(iA, iBp, t);
+                    E_iA_iBp_t = m_E(cor)(iA, iBp, t);
                 }
 
                 double E_iA_iBp_tn = 0;
                 if(interiorPoint(iA, iBp, tn)) {
-                    E_iA_iBp_tn = E(cor)(iA, iBp, tn);
+                    E_iA_iBp_tn = m_E(cor)(iA, iBp, tn);
                 }
 
-                E(cor)(iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + a / p* R(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
+                m_E(cor)(iA,iB,t) = 1.0 / (2*p) * E_iA_iBp_tp + a / p* R(cor) * E_iA_iBp_t +  (t + 1)*E_iA_iBp_tn;
             }
         }
 
@@ -94,20 +109,20 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
 
                     double E_iAp_iB_tp = 0;
                     if(interiorPoint(iAp, iB, tp)) {
-                        E_iAp_iB_tp = E(cor)(iAp, iB, tp);
+                        E_iAp_iB_tp = m_E(cor)(iAp, iB, tp);
                     }
 
                     double E_iAp_iB_t = 0;
                     if(interiorPoint(iAp, iB, t)) {
-                        E_iAp_iB_t = E(cor)(iAp, iB, t);
+                        E_iAp_iB_t = m_E(cor)(iAp, iB, t);
                     }
 
                     double E_iAp_iB_tn = 0;
                     if(interiorPoint(iAp, iB, tn)) {
-                        E_iAp_iB_tn = E(cor)(iAp, iB, tn);
+                        E_iAp_iB_tn = m_E(cor)(iAp, iB, tn);
                     }
 
-                    E(cor)(iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp - b / p* R(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
+                    m_E(cor)(iA,iB,t) = 1.0 / (2*p) * E_iAp_iB_tp - b / p* R(cor) * E_iAp_iB_t +  (t + 1)*E_iAp_iB_tn;
                 }
             }
         }
@@ -118,26 +133,11 @@ void HermiteCoefficients::setupE(const PrimitiveGTO &primitiveA, const Primitive
 
 
 
-void HermiteCoefficients::setup_dEdR(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                                     const rowvec3 &R,field<cube> &E, field<cube> &dE,bool kin)
+
+void HermiteCoefficients::updatedE_dQ(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, bool kin)
 {
 
-//    int iAmax = dE(0).n_rows;
-//    int iBmax = dE(0).n_cols;
-//    int tmax  = dE(0).n_slices;
-
-
-//    if(!kin){
-//        iAmax -= 2;
-//        iBmax -= 2;
-//        tmax  -= iAmax + iBmax;
-//    }
-
-//    for(int cor = 0; cor < 3; cor++){
-//        dE(cor) = zeros(iAmax, iBmax, tmax);
-//    }
-
-
+    const rowvec R = primitiveA.center() - primitiveB.center();
     rowvec iAmax = primitiveA.powers() + 1;
     rowvec iBmax = primitiveB.powers() + 1;
 
@@ -152,11 +152,11 @@ void HermiteCoefficients::setup_dEdR(const PrimitiveGTO &primitiveA, const Primi
     double p = a + b;
     double factor = -2 * a * b / p;
 
-    for(uint cor = 0; cor < dE.n_elem; cor++){
-        dE(cor)(0,0,0) = factor * R(cor) * E(cor)(0,0,0);
+    for(uint cor = 0; cor < m_dE_dQ.n_elem; cor++){
+        m_dE_dQ(cor)(0,0,0) = factor * R(cor) * m_E(cor)(0,0,0);
     }
 
-    for(uint cor=0; cor < dE.n_elem; cor++){ //Loop for x,y,z
+    for(uint cor=0; cor < m_dE_dQ.n_elem; cor++){ //Loop for x,y,z
 
 
         // p = previous, n = next
@@ -171,23 +171,23 @@ void HermiteCoefficients::setup_dEdR(const PrimitiveGTO &primitiveA, const Primi
 
                 double dE_iA_iBp_tp = 0.0;
                 if(interiorPoint(iA, iBp, tp)){
-                    dE_iA_iBp_tp = dE(cor)(iA, iBp, tp);
+                    dE_iA_iBp_tp = m_dE_dQ(cor)(iA, iBp, tp);
                 }
 
                 double dE_iA_iBp_t = 0;
                 double E_iA_iBp_t  = 0;
                 if(interiorPoint(iA, iBp, t)) {
-                    dE_iA_iBp_t = dE(cor)(iA, iBp, t);
-                    E_iA_iBp_t = E(cor)(iA, iBp, t);
+                    dE_iA_iBp_t = m_dE_dQ(cor)(iA, iBp, t);
+                    E_iA_iBp_t = m_E(cor)(iA, iBp, t);
                 }
 
                 double dE_iA_iBp_tn = 0;
                 if(interiorPoint(iA, iBp, tn)) {
-                    dE_iA_iBp_tn = dE(cor)(iA, iBp, tn);
+                    dE_iA_iBp_tn = m_dE_dQ(cor)(iA, iBp, tn);
                 }
 
-                dE(cor)(iA,iB,t) = 1.0 / (2*p) * dE_iA_iBp_tp + a / p * (R(cor)* dE_iA_iBp_t + E_iA_iBp_t)
-                                   + (t + 1)*dE_iA_iBp_tn;
+                m_dE_dQ(cor)(iA,iB,t) = 1.0 / (2*p) * dE_iA_iBp_tp + a / p * (R(cor)* dE_iA_iBp_t + E_iA_iBp_t)
+                        + (t + 1)*dE_iA_iBp_tn;
             }
         }
 
@@ -205,29 +205,30 @@ void HermiteCoefficients::setup_dEdR(const PrimitiveGTO &primitiveA, const Primi
 
                     double dE_iAp_iB_tp = 0;
                     if(interiorPoint(iAp, iB, tp)) {
-                        dE_iAp_iB_tp = dE(cor)(iAp, iB, tp);
+                        dE_iAp_iB_tp = m_dE_dQ(cor)(iAp, iB, tp);
                     }
 
                     double dE_iAp_iB_t = 0;
                     double E_iAp_iB_t = 0;
                     if(interiorPoint(iAp, iB, t)) {
-                        dE_iAp_iB_t = dE(cor)(iAp, iB, t);
-                        E_iAp_iB_t = E(cor)(iAp, iB, t);
+                        dE_iAp_iB_t = m_dE_dQ(cor)(iAp, iB, t);
+                        E_iAp_iB_t = m_E(cor)(iAp, iB, t);
                     }
 
                     double dE_iAp_iB_tn = 0;
                     if(interiorPoint(iAp, iB, tn)) {
-                        dE_iAp_iB_tn = dE(cor)(iAp, iB, tn);
+                        dE_iAp_iB_tn = m_dE_dQ(cor)(iAp, iB, tn);
                     }
 
-                    dE(cor)(iA,iB,t) = 1.0 / (2*p) * dE_iAp_iB_tp - b / p * (R(cor) *dE_iAp_iB_t  + E_iAp_iB_t )
-                                       +  (t + 1)*dE_iAp_iB_tn;
+                    m_dE_dQ(cor)(iA,iB,t) = 1.0 / (2*p) * dE_iAp_iB_tp - b / p * (R(cor) *dE_iAp_iB_t  + E_iAp_iB_t )
+                            +  (t + 1)*dE_iAp_iB_tn;
                 }
             }
         }
 
     }//End of cor=(x,y,z) loop
 }
+
 
 
 

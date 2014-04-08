@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <armadillo>
+
 #include "../primitiveGTO/primitiveGTO.h"
 
 using namespace arma;
@@ -16,14 +17,14 @@ public:
     ContractedGTO();
 
     void addPrimitive(PrimitiveGTO primitiveGTO);
-    const vector<PrimitiveGTO>& primitivesGTOs() const;
+    const vector<PrimitiveGTO>& primitiveGTOs() const;
 
     const rowvec &center() const;
-    void setCenter(const rowvec &center);
+    void setCenter(const rowvec* center);
 
 private:
     vector<PrimitiveGTO> m_primitivesGTOs;
-    rowvec m_center;
+    const rowvec* m_center;
 };
 }
 

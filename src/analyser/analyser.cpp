@@ -8,11 +8,130 @@ using namespace hf;
 Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
     m_system(system),
     m_solver(solver),
+    m_integrator(new Integrator(m_system->maxAngularMomentum())),
     m_basisFunctions(system->basisFunctions()),
+    m_nBasisFunctions(m_basisFunctions.size()),
     m_rank(0),
     m_nProcs(1)
 {
 }
+
+
+void Analyser::calculateElectrostaticPotential()
+{
+    vec x = linspace(-10, 10, 40);
+    vec y = linspace(-10, 10, 40);
+    vec z = linspace(-10, 10, 40);
+
+    cube densityCube = zeros(y.n_elem, x.n_elem, z.n_elem);
+    field<const mat *> densityMatrices = m_solver->densityMatrix();
+
+
+
+    //MPI---------------------------------------------------------------------
+#if USE_MPI
+    boost::mpi::environment env;
+    boost::mpi::communicator world;
+    m_rank = world.rank();
+    m_nProcs = world.size();
+#endif
+
+    vector<int> myGridPoints;
+    int node = 0;
+    int s = 0;
+    for (int i = 0; i < int(x.n_elem); i++) {
+        if (m_rank == node){
+            myGridPoints.push_back(i);
+        }
+        s++;
+        if(s >= signed(BLOCK_SIZE(node, m_nProcs, x.n_elem))){
+            s = 0;
+            node++;
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    for(uint d = 0; d < densityMatrices.n_elem; d++){
+        const mat& P = (*densityMatrices(d));
+
+        for(const int i : myGridPoints) {
+            cout << m_rank << "   " << x(i) << endl;
+            for(int j = 0; j < int(y.n_elem); j++) {
+                for(int k = 0; k < int(z.n_elem); k++) {
+
+
+                    //----------------------------------------------------------------//
+
+                    rowvec C = {x(i), y(j), z(k)};
+                    for(Atom* atom : m_system->atoms()){
+                        double rAP = sqrt(dot(atom->corePosition() - C, atom->corePosition() - C));
+                        densityCube(j,i,k) += atom->coreCharge() / rAP;
+                    }
+
+                    for(int p = 0; p < m_nBasisFunctions; p++){
+                        densityCube(j,i,k) -= P(p,p) * electronicPotential(p,p,C);
+
+                        for(int q = p+1; q < m_nBasisFunctions; q++){
+                        densityCube(j,i,k) -= 2.0 *  P(p,q) * electronicPotential(p,q,C);
+
+                        }
+                    }
+
+                    //------------------------------------------------------------------//
+
+
+                }
+            }
+        }
+    }
+
+    writeDensityToFile(densityCube, x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
+
+}
+
+
+
+double Analyser::electronicPotential(const int& p, const int& q, const rowvec& C)
+{
+    double Vpq = 0;
+    const ContractedGTO *CGp = m_basisFunctions.at(p);
+    const ContractedGTO *CGq = m_basisFunctions.at(q);
+    m_integrator->setNuclearSourceCharge(C);
+
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        m_integrator->setPrimitiveA(Ga);
+
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            m_integrator->setPrimitiveB(Gb);
+            m_integrator->updateKineticHermiteCoefficients();
+
+                Vpq += m_integrator->nuclearAttractionIntegral();
+
+        }
+    }
+
+    return Vpq;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void Analyser::atomicPartialCharge()
@@ -135,8 +254,8 @@ double Analyser::gaussianProduct(const int& p, const int& q,
     double Rp = Xp * Xp + Yp * Yp + Zp * Zp;
     double Rq = Xq * Xq + Yq * Yq + Zq * Zq;
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
+    for(const PrimitiveGTO &Gp : CGp->primitiveGTOs()) {
+        for(const PrimitiveGTO &Gq : CGq->primitiveGTOs()) {
 
             Gpq +=  Gp.weight() * Gq.weight()
                     * std::pow(Xp, Gp.xPower()) * std::pow(Xq, Gq.xPower())

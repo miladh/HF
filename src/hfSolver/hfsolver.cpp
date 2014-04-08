@@ -171,7 +171,7 @@ double HFsolver::computeStdDeviation(const vec& fockEnergies, const vec& fockEne
     return sum(abs(fockEnergies - fockEnergiesOld)) / fockEnergies.n_elem;
 }
 
-const double& HFsolver::getEnergy() const
+const double& HFsolver::energy() const
 {
     return m_energy;
 }

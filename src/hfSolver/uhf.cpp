@@ -168,3 +168,11 @@ field<const mat *> UHF::densityMatrix() const
     return densityMatrices;
 }
 
+field<const mat *> UHF::expansionCoefficients() const
+{
+    field<const mat *> coefficientsMatrices(2,1);
+    coefficientsMatrices(0) = &m_Cu;
+    coefficientsMatrices(1) = &m_Cd;
+    return coefficientsMatrices;
+}
+

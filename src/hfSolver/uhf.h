@@ -16,6 +16,8 @@ public:
     UHF(ElectronicSystem *system);
     field<const mat *> fockMatrix();
     field<const mat *> densityMatrix() const;
+    field<const mat *> expansionCoefficients() const;
+
 
 private:
     mat m_Fu, m_Cu, m_Pu;

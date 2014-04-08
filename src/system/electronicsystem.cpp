@@ -8,19 +8,19 @@ ElectronicSystem::ElectronicSystem()
 
 void ElectronicSystem::addAtoms(vector<Atom*> atoms)
 {
-    int maxAngularMomentum = 0;
-
+    int id = 0;
     m_atoms = atoms;
     for(Atom* atom : m_atoms){
         m_nElectrons        += atom->nElectrons();
-        maxAngularMomentum = max(maxAngularMomentum , atom->angularMomentum());
+        m_maxAngularMomentum = max(m_maxAngularMomentum , atom->angularMomentum());
 
         for(const ContractedGTO &CGTO : atom->contractedGTOs()){
             m_basisFunctions.push_back(&CGTO);
+            m_basisFucntionIndexToAtomID.push_back(id);
         }
+        id++;
     }
 
-    integrator.setMaxAngularMomentum(maxAngularMomentum);
 
     m_nAtoms             = m_atoms.size();
     m_nBasisFunctions    = m_basisFunctions.size();
@@ -28,8 +28,10 @@ void ElectronicSystem::addAtoms(vector<Atom*> atoms)
     m_nSpinUpElectrons   = floor(m_nElectrons/2.0);
 
     if(m_nSpinDownElectrons + m_nSpinUpElectrons !=m_nElectrons){
-        throw logic_error("Number of electrons not conserved!");
+        throw logic_error("Number of electrons not conserved in system!");
     }
+
+    integrator = new Integrator(m_maxAngularMomentum);
 }
 
 /********************************************************************************************
@@ -62,6 +64,11 @@ const int& ElectronicSystem::nBasisFunctions()
     return m_nBasisFunctions;
 }
 
+const int& ElectronicSystem::maxAngularMomentum() const
+{
+    return m_maxAngularMomentum;
+}
+
 vector<const ContractedGTO *> ElectronicSystem::basisFunctions() const
 {
     return m_basisFunctions;
@@ -82,18 +89,15 @@ double ElectronicSystem::overlapIntegral(const int& p, const int& q)
     double Spq = 0;
     const ContractedGTO *CGp = m_basisFunctions.at(p);
     const ContractedGTO *CGq = m_basisFunctions.at(q);
-    integrator.setCorePositionA(CGp->center());
-    integrator.setCorePositionB(CGq->center());
 
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        integrator->setPrimitiveA(Ga);
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
-        integrator.setPrimitiveA(Gp);
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            integrator->setPrimitiveB(Gb);
+            integrator->updateOverlapHermiteCoefficients();
 
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
-            integrator.setPrimitiveB(Gq);
-            integrator.updateHermiteCoefficients(true, false, false);
-
-            Spq += integrator.overlapIntegral();
+            Spq += integrator->overlapIntegral();
         }
     }
     return Spq;
@@ -104,21 +108,19 @@ double ElectronicSystem::oneParticleIntegral(const int& p, const int& q)
     double hpq = 0;
     const ContractedGTO *CGp = m_basisFunctions.at(p);
     const ContractedGTO *CGq = m_basisFunctions.at(q);
-    integrator.setCorePositionA(CGp->center());
-    integrator.setCorePositionB(CGq->center());
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
-        integrator.setPrimitiveA(Gp);
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        integrator->setPrimitiveA(Ga);
 
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
-            integrator.setPrimitiveB(Gq);
-            integrator.updateHermiteCoefficients(true, false,true);
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            integrator->setPrimitiveB(Gb);
+            integrator->updateKineticHermiteCoefficients();
 
-            hpq += integrator.kineticIntegral();
+            hpq += integrator->kineticIntegral();
 
             for(const Atom *atom : m_atoms){
-                integrator.setCorePositionC(atom->corePosition());
-                hpq -= atom->coreCharge() * integrator.nuclearAttractionIntegral();
+                integrator->setNuclearSourceCharge(atom->corePosition());
+                hpq -= atom->coreCharge() * integrator->nuclearAttractionIntegral();
 
             }
 
@@ -137,26 +139,23 @@ double ElectronicSystem::twoParticleIntegral(const int& p, const int& q,
     const ContractedGTO *CGq = m_basisFunctions.at(q);
     const ContractedGTO *CGr = m_basisFunctions.at(r);
     const ContractedGTO *CGs = m_basisFunctions.at(s);
-    integrator.setCorePositionA(CGp->center());
-    integrator.setCorePositionB(CGq->center());
-    integrator.setCorePositionC(CGr->center());
-    integrator.setCorePositionD(CGs->center());
 
-    for(const PrimitiveGTO &Gp : CGp->primitivesGTOs()) {
-        integrator.setPrimitiveA(Gp);
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        integrator->setPrimitiveA(Ga);
 
-        for(const PrimitiveGTO &Gq : CGq->primitivesGTOs()) {
-            integrator.setPrimitiveB(Gq);
-            integrator.updateHermiteCoefficients(true, false);
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            integrator->setPrimitiveB(Gb);
+            integrator->updateOverlapHermiteCoefficients();
 
-            for(const PrimitiveGTO &Gr : CGr->primitivesGTOs()) {
-                integrator.setPrimitiveC(Gr);
 
-                for(const PrimitiveGTO &Gs : CGs->primitivesGTOs()) {
-                    integrator.setPrimitiveD(Gs);
-                    integrator.updateHermiteCoefficients(false, true);
+            for(const PrimitiveGTO &Gc : CGr->primitiveGTOs()) {
+                integrator->setPrimitiveC(Gc);
 
-                    Qpqrs += integrator.electronRepulsionIntegral();
+                for(const PrimitiveGTO &Gd : CGs->primitiveGTOs()) {
+                    integrator->setPrimitiveD(Gd);
+                    integrator->updateElectronRepulsionHermiteCoefficients();
+
+                    Qpqrs += integrator->electronRepulsionIntegral();
 
                 }
             }
@@ -188,189 +187,164 @@ double ElectronicSystem::nuclearPotential()
  *
  * ******************************************************************************************/
 
-rowvec ElectronicSystem::nuclearPotentialGD(int activeCore)
+mat ElectronicSystem::nuclearPotentialGD()
 {
-
-    rowvec dVn = {0,0,0};
-
-    for(int i = 0; i < int(m_atoms.size()); i++){
-        for(int j = i+1; j < int(m_atoms.size()); j++){
+    mat dVn = zeros(m_nAtoms, 3);
+    for(int i = 0; i < m_nAtoms; i++){
+        for(int j = i+1; j < m_nAtoms; j++){
             rowvec AB = m_atoms.at(i)->corePosition() - m_atoms.at(j)->corePosition();
+            rowvec dV = AB * m_atoms.at(i)->coreCharge() * m_atoms.at(j)->coreCharge()/pow(dot(AB,AB),1.5);
 
-            if(activeCore == i){
-                dVn -= AB * m_atoms.at(i)->coreCharge() * m_atoms.at(j)->coreCharge()/pow(dot(AB,AB),1.5);
-            }else if(activeCore == j){
-                dVn += AB * m_atoms.at(i)->coreCharge() * m_atoms.at(j)->coreCharge()/pow(dot(AB,AB),1.5);
-            }
+            dVn.row(i) -= dV;
+            dVn.row(j) += dV;
+
         }
     }
 
     return dVn;
 }
 
-
-mat ElectronicSystem::getOneParticleDerivative(const int a, const int b, const int N)
+mat ElectronicSystem::overlapIntegralGD(const int& q, const int& p)
 {
-    mat dhab = zeros(2,3);
-//    bool differentiateWrtA;
-//    bool differentiateWrtB;
-//    bool differentiateWrtC;
+    mat dSpq = zeros(m_nAtoms, 3);
 
-//    if(N == m_coreID.at(a)){
-//        differentiateWrtA = true;
-//    }else{
-//        differentiateWrtA = false;
-//    }
+    int coreA = m_basisFucntionIndexToAtomID.at(p);
+    int coreB = m_basisFucntionIndexToAtomID.at(q);
 
-//    if(N == m_coreID.at(b)){
-//        differentiateWrtB = true;
-//    }else{
-//        differentiateWrtB = false;
-//    }
+    const ContractedGTO *CGp = m_basisFunctions.at(p);
+    const ContractedGTO *CGq = m_basisFunctions.at(q);
 
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        integrator->setPrimitiveA(Ga);
 
-    //    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
-    //    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
-    //    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
-    //    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
-
-    //    integrator.setCorePositionA(coreA->corePosition());
-    //    integrator.setCorePositionB(coreB->corePosition());
-
-    //    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
-    //        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-    //        integrator.setPrimitiveA(primitiveA);
-
-    //        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
-    //            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-    //            integrator.setPrimitiveB(primitiveB);
-
-    //            integrator.updateHermiteCoefficients(true, false);
-    //            integrator.updateHermiteCoefficients_derivative(true,false);
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            integrator->setPrimitiveB(Gb);
+            integrator->updateOverlapHermiteCoefficients();
+            integrator->updateOverlapHermiteCoefficientsGD();
 
 
-    //            if(differentiateWrtA){
-    //                dhab.row(0) += integrator.overlapIntegral_derivative()
-    //                        * primitiveA.weight() * primitiveB.weight();
 
-    //                dhab.row(1) += primitiveA.weight() * primitiveB.weight() *
-    //                        integrator.kineticIntegral_derivative();
-    //            }
-    //            else if(differentiateWrtB){
-    //                dhab.row(0) -= integrator.overlapIntegral_derivative()
-    //                        * primitiveA.weight() * primitiveB.weight();
+            dSpq.row(coreA) += integrator->QDerivativeOverlapIntegral();
 
-    //                dhab.row(1) -= primitiveA.weight() * primitiveB.weight() *
-    //                        integrator.kineticIntegral_derivative();
-    //            }
+        }
+    }
 
-    //            for(uint c = 0; c < m_basisSet.size(); c++){
-    //                const BasisSet *coreC = m_basisSet.at(c);
-    //                const int coreCharge = coreC->coreCharge();
-    //                integrator.setCorePositionC(coreC->corePosition());
+    dSpq.row(coreB) -= dSpq.row(coreA);
 
-    //                if((unsigned)N == c){
-    //                    differentiateWrtC = true;
-    //                }else{
-    //                    differentiateWrtC = false;
-    //                }
+    return dSpq;
+}
 
-    //                dhab.row(1) -= coreCharge* primitiveA.weight() * primitiveB.weight()*
-    //                        integrator.nuclearAttractionIntegral_derivative(differentiateWrtA,
-    //                                                                        differentiateWrtB,
-    //                                                                        differentiateWrtC);
-    //            }
+mat ElectronicSystem::oneParticleIntegralGD(const int& q, const int& p)
+{
+    mat dhpq = zeros(m_nAtoms, 3);
 
-    //        }
+    int coreA = m_basisFucntionIndexToAtomID.at(p);
+    int coreB = m_basisFucntionIndexToAtomID.at(q);
 
-    //    }
+    const ContractedGTO *CGp = m_basisFunctions.at(p);
+    const ContractedGTO *CGq = m_basisFunctions.at(q);
 
-    return dhab;
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        integrator->setPrimitiveA(Ga);
+
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            integrator->setPrimitiveB(Gb);
+            integrator->updateKineticHermiteCoefficients();
+            integrator->updateKineticHermiteCoefficientsGD();
+
+            rowvec QDerivative = integrator->QDerivativeKineticIntegral();
+            dhpq.row(coreA) += QDerivative;
+            dhpq.row(coreB) -= QDerivative;
+
+            double ab   = Ga.exponent() + Gb.exponent();
+            double a_ab = Ga.exponent()/ab;
+            double b_ab = Gb.exponent()/ab;
+            for(int i = 0; i < m_nAtoms; i++){
+                integrator->setNuclearSourceCharge(m_atoms.at(i)->corePosition());
+                integrator->updateNuclearAttractionHermiteIntegrals();
+
+                rowvec QDerivative = integrator->QDerivativeNuclearAttractionIntegral();
+                rowvec PDerivative = integrator->PDerivativeNuclearAttractionIntegral();
+
+                dhpq.row(coreA) -= (a_ab * PDerivative + QDerivative) * m_atoms.at(i)->coreCharge() ;
+                dhpq.row(coreB) -= (b_ab * PDerivative - QDerivative) * m_atoms.at(i)->coreCharge() ;
+
+                dhpq.row(i) +=m_atoms.at(i)->coreCharge()
+                        * integrator->CDerivativeNuclearAttractionIntegral();
+
+            }
+
+        }
+    }
+
+    return dhpq;
 }
 
 
-rowvec ElectronicSystem::getTwoParticleIntegralDerivative(const int a, const int b, const int c, const int d,
-                                                          const int N)
+mat ElectronicSystem::twoParticleIntegralGD(const int& p, const int& q,
+                                             const int& r, const int& s)
 {
-    rowvec dQabcd = zeros<rowvec>(3);
+    mat dQpqrs = zeros(m_nAtoms, 3);
 
-    //    bool differentiateWrtA;
-    //    bool differentiateWrtB;
-    //    bool differentiateWrtC;
-    //    bool differentiateWrtD;
+    int coreA = m_basisFucntionIndexToAtomID.at(p);
+    int coreB = m_basisFucntionIndexToAtomID.at(q);
+    int coreC = m_basisFucntionIndexToAtomID.at(r);
+    int coreD = m_basisFucntionIndexToAtomID.at(s);
 
-    //    if(N == m_coreID.at(a)){
-    //        differentiateWrtA = true;
-    //    }else{
-    //        differentiateWrtA = false;
-    //    }
+    const ContractedGTO *CGp = m_basisFunctions.at(p);
+    const ContractedGTO *CGq = m_basisFunctions.at(q);
+    const ContractedGTO *CGr = m_basisFunctions.at(r);
+    const ContractedGTO *CGs = m_basisFunctions.at(s);
 
-    //    if(N == m_coreID.at(b)){
-    //        differentiateWrtB = true;
-    //    }else{
-    //        differentiateWrtB = false;
-    //    }
+    for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+        integrator->setPrimitiveA(Ga);
 
-    //    if(N == m_coreID.at(c)){
-    //        differentiateWrtC = true;
-    //    }else{
-    //        differentiateWrtC = false;
-    //    }
-
-    //    if(N == m_coreID.at(d)){
-    //        differentiateWrtD = true;
-    //    }else{
-    //        differentiateWrtD = false;
-    //    }
+        for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+            integrator->setPrimitiveB(Gb);
+            integrator->updateOverlapHermiteCoefficients();
+            integrator->updateOverlapHermiteCoefficientsGD();
 
 
-    //    const BasisSet *coreA = m_basisSet.at(m_coreID.at(a));
-    //    const BasisSet *coreB = m_basisSet.at(m_coreID.at(b));
-    //    const BasisSet *coreC = m_basisSet.at(m_coreID.at(c));
-    //    const BasisSet *coreD = m_basisSet.at(m_coreID.at(d));
-    //    const ContractedGTO &contractedA = coreA->getContracted(a - m_cumSumContracted.at(m_coreID.at(a)));
-    //    const ContractedGTO &contractedB = coreB->getContracted(b - m_cumSumContracted.at(m_coreID.at(b)));
-    //    const ContractedGTO &contractedC = coreC->getContracted(c - m_cumSumContracted.at(m_coreID.at(c)));
-    //    const ContractedGTO &contractedD = coreD->getContracted(d - m_cumSumContracted.at(m_coreID.at(d)));
+            double ab   = Ga.exponent() + Gb.exponent();
+            double a_ab = Ga.exponent()/ab;
+            double b_ab = Gb.exponent()/ab;
+            for(const PrimitiveGTO &Gc : CGr->primitiveGTOs()) {
+                integrator->setPrimitiveC(Gc);
 
-    //    integrator.setCorePositionA(coreA->corePosition());
-    //    integrator.setCorePositionB(coreB->corePosition());
-    //    integrator.setCorePositionC(coreC->corePosition());
-    //    integrator.setCorePositionD(coreD->corePosition());
+                for(const PrimitiveGTO &Gd : CGs->primitiveGTOs()) {
+                    integrator->setPrimitiveD(Gd);
+                    integrator->updateElectronRepulsionHermiteCoefficients();
+                    integrator->updateElectronRepulsionHermiteCoefficientsGD();
 
-    //    for(int i = 0; i < contractedA.getNumPrimitives(); i++){
-    //        const PrimitiveGTO &primitiveA = contractedA.getPrimitive(i);
-    //        integrator.setPrimitiveA(primitiveA);
 
-    //        for(int j = 0; j < contractedB.getNumPrimitives(); j++){
-    //            const PrimitiveGTO &primitiveB = contractedB.getPrimitive(j);
-    //            integrator.setPrimitiveB(primitiveB);
+                    integrator->updateElectronRepulsionHermiteIntegrals();
+                    double cd   = Gc.exponent() + Gd.exponent();
+                    double c_cd = Gc.exponent()/cd;
+                    double d_cd = Gd.exponent()/cd;
 
-    //            integrator.updateHermiteCoefficients(true, false, false);
-    //            integrator.updateHermiteCoefficients_derivative(true, false,false);
+                    double normalizationFactor = 2.0 *pow(M_PI,2.5)/ (ab*cd*sqrt(ab+cd));
 
-    //            for(int k = 0; k < contractedC.getNumPrimitives(); k++){
-    //                const PrimitiveGTO &primitiveC = contractedC.getPrimitive(k);
-    //                integrator.setPrimitiveC(primitiveC);
+                    rowvec QabDerivative = integrator->QabDerivativeElectronRepulsionIntegral();
+                    rowvec PabDerivative = integrator->PabDerivativeElectronRepulsionIntegral();
+                    rowvec QcdDerivative = integrator->QcdDerivativeElectronRepulsionIntegral();
+                    rowvec PcdDerivative = integrator->PcdDerivativeElectronRepulsionIntegral();
 
-    //                for(int l = 0; l < contractedD.getNumPrimitives(); l++){
-    //                    const PrimitiveGTO &primitiveD = contractedD.getPrimitive(l);
-    //                    integrator.setPrimitiveD(primitiveD);
+                    dQpqrs.row(coreA) += (a_ab * PabDerivative + QabDerivative) * normalizationFactor;
+                    dQpqrs.row(coreB) += (b_ab * PabDerivative - QabDerivative) * normalizationFactor;
+                    dQpqrs.row(coreC) += (c_cd * PcdDerivative + QcdDerivative) * normalizationFactor;
+                    dQpqrs.row(coreD) += (d_cd * PcdDerivative - QcdDerivative) * normalizationFactor;
 
-    //                    integrator.updateHermiteCoefficients(false, true, false);
-    //                    integrator.updateHermiteCoefficients_derivative(false, true,false);
 
-    //                    dQabcd += primitiveA.weight() * primitiveB.weight() * primitiveC.weight() * primitiveD.weight()
-    //                            * integrator.electronRepulsionIntegral_derivative(differentiateWrtA, differentiateWrtB,
-    //                                                                              differentiateWrtC, differentiateWrtD);
+                }
+            }
+        }
+    }
 
-    //                }
-    //            }
-    //        }
-    //    }
-
-    return dQabcd;
+    return dQpqrs;
 }
+
+
+
 
 
 

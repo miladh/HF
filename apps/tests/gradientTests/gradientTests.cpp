@@ -9,86 +9,88 @@ using namespace arma;
 using namespace hf;
 
 SUITE(GRADIENT){
-//    TEST(energyGradient_H2)
-//    {
-//        /*
-//         * test case:   geometrical derivative of energy
-//         * system:      H2
-//         * basis:       3-21G
-//         * method:      RHF
-//         * source:
-//         *      numerical differentiation of energy
-//         * */
+    TEST(energyGradient_H2)
+    {
+        /*
+         * test case:   geometrical derivative of energy
+         * system:      H2
+         * basis:       3-21G
+         * method:      RHF
+         * source:
+         *      numerical differentiation of energy
+         * */
 
-//        //Initializing the system
-//        int nElectrons = 2;
-//        BasisSet *basisCoreA = new BasisSet("infiles/turbomole/H_3-21G");
-//        BasisSet *basisCoreB = new BasisSet("infiles/turbomole/H_3-21G");
+        int myRank = 0;
+#if USE_MPI
+        boost::mpi::communicator world;
+        myRank = world.rank();
+#endif
 
-//        rowvec coreCharges = {1 , 1};
-//        rowvec coreMass = {1 , 1};
-//        int maxAngularMomentum = basisCoreA->getAngularMomentum()+1;
+        if(myRank == 0){
+            cout << "system:    " << "H2" << endl;
+            cout << "method:    " << "RHF" << endl;
+            cout << "basis:     " << "3-21G" << endl;
+        }
 
-//        basisCoreA->setCorePosition(zeros<rowvec>(3));
-//        basisCoreA->setCoreCharge(coreCharges(0));
-//        basisCoreA->setCoreMass(coreMass(0));
+        //Initializing the system
+        vector<Atom *> atoms;
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-0.5, 0.0, 0.0}));
+        atoms.push_back( new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 0.5, 0.0, 0.0}));
 
-//        basisCoreB->setCorePosition(zeros<rowvec>(3));
-//        basisCoreB->setCoreCharge(coreCharges(1));
-//        basisCoreB->setCoreMass(coreMass(1));
+        ElectronicSystem *system = new ElectronicSystem ();
+        system->addAtoms(atoms);
 
+        RHF *solver = new RHF(system);
+        BOMD BOSolver(system, solver);
 
-//        System *system = new System(nElectrons, maxAngularMomentum);
-//        system->addBasisSet(basisCoreA);
-//        system->addBasisSet(basisCoreB);
-
-//        HFsolver* solver = new RHF(system, 0, 1);
-//        BOMD BOSolver(system, solver, 0, 1);
-
-
-//        //Domain
-//        vec bondLength = linspace(0.2, 4.9, 10);
-//        vec gradient   = 0*bondLength;
-//        vec numericalGradient = 0*bondLength;
-
-//        //Calculate gradient analytically
-//        for(uint x = 0; x < bondLength.n_elem; x++){
-//            rowvec X = {bondLength(x) , 0 ,0 };
-
-//            system->m_basisSet.at(0)->setCorePosition(X * -0.5);
-//            system->m_basisSet.at(1)->setCorePosition(X *  0.5);
-//            BOSolver.solveSingleStep();
-
-//            gradient(x) = BOSolver.getEnergyGradient()(0);
-//        }
+        Atom* atomA = atoms.at(0);
+        Atom* atomB = atoms.at(1);
 
 
-//        //Calculate gradient numerically
-//        for(uint x = 0; x < bondLength.n_elem; x++){
-//            rowvec X = {bondLength(x) , 0 ,0 };
-//            rowvec dx = {h , 0 ,0 };
+        //Domain
+        vec bondLength = linspace(1.0, 4.9, 10);
+        vec gradient   = 0*bondLength;
+        vec numericalGradient = 0*bondLength;
 
-//            system->m_basisSet.at(0)->setCorePosition((X-dx) * -0.5);
-//            system->m_basisSet.at(1)->setCorePosition((X-dx) *  0.5);
-//            BOSolver.solveSingleStep();
-//            double Ep = BOSolver.getEnergy();
+        //Calculate gradient analytically
+        for(uint x = 0; x < bondLength.n_elem; x++){
+            rowvec X = {bondLength(x) , 0 ,0 };
 
-//            system->m_basisSet.at(0)->setCorePosition((X+dx) * -0.5);
-//            system->m_basisSet.at(1)->setCorePosition((X+dx) *  0.5);
-//            BOSolver.solveSingleStep();
-//            double En = BOSolver.getEnergy();
+            atomA->setCorePosition(X * -0.5);
+            atomB->setCorePosition(X * 0.5);
+            BOSolver.computeForces();
 
-//            numericalGradient(x) = (En - Ep) / (2.0 * h);
-//        }
+            mat gradE = BOSolver.energyGradient();
+            gradient(x) = gradE(1,0);
+        }
+
+        double h = 1.0E-9;
+        //Calculate gradient numerically
+        for(uint x = 0; x < bondLength.n_elem; x++){
+            rowvec X = {bondLength(x) , 0 ,0 };
+            rowvec dx = {h , 0 ,0 };
 
 
-//        for(uint i = 0; i < numericalGradient.n_elem; i++){
-//            CHECK_CLOSE(numericalGradient(i), gradient(i), 1e-6);
-//            //        cout << setprecision(14) << "[" << bondLength(i) << "," << numericalGradient(i) <<"," << gradient(i) << "]," <<endl;
+            atomA->setCorePosition((X-dx) * -0.5);
+            atomB->setCorePosition((X-dx) *  0.5);
+            BOSolver.computeForces();
+            double Ep = BOSolver.potentialEnergy();
 
-//        }
+            atomA->setCorePosition((X+dx) * -0.5);
+            atomB->setCorePosition((X+dx) *  0.5);
+            BOSolver.computeForces();
+            double En = BOSolver.potentialEnergy();
+            numericalGradient(x) = -(En - Ep) / (2.0 * h);
+        }
 
-//    }
+
+        for(uint i = 0; i < numericalGradient.n_elem; i++){
+            CHECK_CLOSE(numericalGradient(i), gradient(i), 1e-6);
+            //        cout << setprecision(14) << "[" << bondLength(i) << "," << numericalGradient(i) <<"," << gradient(i) << "]," <<endl;
+
+        }
+
+    }
 }
 
 
@@ -130,7 +132,7 @@ SUITE(GRADIENT){
 //        system->m_basisSet.at(1)->setCorePosition(X *  0.5);
 //        BOSolver.solveSingleStep();
 
-//        cout << setprecision(14) << "[" << bondLength(x) << "," << BOSolver.getEnergy() << "]," <<endl;
+//        cout << setprecision(14) << "[" << bondLength(x) << "," << BOSolver.energy() << "]," <<endl;
 //    }
 
 //}

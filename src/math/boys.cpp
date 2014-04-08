@@ -43,7 +43,7 @@ double Boys::taylorExpandendBoys(uint nterms, double dxt) const
     double dx = m_arg - index * dxt;
 
     for(uint k = 0; k < nterms; k++){
-        FnMax  += (m_Ftabulated(index, m_highestOrder + k )*pow(-dx, k)) / factorial(k) ;
+        FnMax  += (m_Ftabulated(index, m_highestOrder + k )*std::pow(-dx, k)) / factorial(k) ;
     }
     return FnMax;
 
@@ -52,8 +52,8 @@ double Boys::taylorExpandendBoys(uint nterms, double dxt) const
 double Boys::asymptoticBoys() const
 {
     double FnMax;
-    FnMax = doubleFactorial(2*m_highestOrder - 1) / pow(2,m_highestOrder+1)
-            * sqrt(M_PI / pow(m_arg,2*m_highestOrder+1));
+    FnMax = doubleFactorial(2*m_highestOrder - 1) / std::pow(2,m_highestOrder+1)
+            * sqrt(M_PI / std::pow(m_arg,2*m_highestOrder+1));
     return FnMax;
 }
 
@@ -61,7 +61,7 @@ double Boys::asymptoticBoys() const
 void Boys::downwardRecursion(){
 
     for(uint n = m_highestOrder; n > 0; n-- ){
-        m_results(n-1) = (2* m_arg * m_results(n)  + exp(-m_arg)) / (2*n - 1);
+        m_results(n-1) = (2* m_arg * m_results(n)  + std::exp(-m_arg)) / (2*n - 1);
     }
 }
 

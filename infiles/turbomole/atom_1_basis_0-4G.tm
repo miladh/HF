@@ -1,6 +1,6 @@
 $basis
 *
-H   QuadZeta
+H   0-4G
 *
     1  s
     13.00773              1.0             

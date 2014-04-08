@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
             stateDataSet.write(atoms, atomCompound);
         }
 
-        double energy = solver->getEnergy();
+        double energy = solver->energy();
         H5::Attribute energyAttribute(stateDataSet.createAttribute("energy", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
         energyAttribute.write(H5::PredType::NATIVE_DOUBLE, &energy);
 

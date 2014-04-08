@@ -7,3 +7,6 @@
 #include "../src/bomd/bomd.h"
 #include "../src/atom/atom.h"
 #include "../src/analyser/analyser.h"
+#include "../src/contractedGTO/contractedGTO.h"
+#include "../src/primitiveGTO/primitiveGTO.h"
+#include "../src/parser/turbomoleparser.h"

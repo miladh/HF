@@ -16,16 +16,19 @@ class HermiteCoefficients
 {
 
 public:
+    HermiteCoefficients(const int maxAngularMomentum);
     HermiteCoefficients();
-    void setupE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB,
-                const rowvec &R, field<cube> &E, bool kin = true);
 
-    void setup_dEdR(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, const rowvec3 &R,
-                    field<cube> &E, field<cube> &dE, bool kin=true);
+    const field<cube>* coefficients() const;
+    const field<cube> *QDerivativeCoefficients() const;
 
+    void updateE(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, bool kin=true);
+    void updatedE_dQ(const PrimitiveGTO &primitiveA, const PrimitiveGTO &primitiveB, bool kin=true);
 
 private:
     bool interiorPoint(int iA, int iB, int t);
+    field<cube> m_E;
+    field<cube> m_dE_dQ;
 
 };
 }

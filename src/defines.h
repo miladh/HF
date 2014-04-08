@@ -6,8 +6,8 @@
 
 #define HFSOLVERTOLERANCE 1.0E-8
 #define PROTONMASS 1836
-//#define h 1.0E-5
-
+#define time0 2.42E-17
+#define E0 27.2114
 
 #define USE_MPI 1
 #define BLOCK_LOW(id,p,n) ((id)*(n)/(p))

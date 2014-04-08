@@ -20,7 +20,15 @@ SOURCES += \
     atom/atom.cpp \
     parser/turbomoleparser.cpp \
     system/electronicsystem.cpp \
-    analyser/analyser.cpp
+    analyser/analyser.cpp \
+    integrator/overlap/overlapintegral.cpp \
+    integrator/kinetic/kineticintegral.cpp \
+    integrator/nuclearAttraction/nuclearattractionintegral.cpp \
+    integrator/electronRepulsion/electronrepulsionintegral.cpp \
+    integrator/overlap/overlapintegralgd.cpp \
+    integrator/kinetic/kineticintegralgd.cpp \
+    integrator/nuclearAttraction/nuclearattractionintegralgd.cpp \
+    integrator/electronRepulsion/electronrepulsionintegralgd.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -38,7 +46,15 @@ HEADERS += \
     atom/atom.h \
     parser/turbomoleparser.h \
     system/electronicsystem.h \
-    analyser/analyser.h
+    analyser/analyser.h \
+    integrator/overlap/overlapintegral.h \
+    integrator/kinetic/kineticintegral.h \
+    integrator/nuclearAttraction/nuclearattractionintegral.h \
+    integrator/electronRepulsion/electronrepulsionintegral.h \
+    integrator/overlap/overlapintegralgd.h \
+    integrator/kinetic/kineticintegralgd.h \
+    integrator/nuclearAttraction/nuclearattractionintegralgd.h \
+    integrator/electronRepulsion/electronrepulsionintegralgd.h
 
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h
