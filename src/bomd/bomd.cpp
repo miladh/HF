@@ -10,7 +10,7 @@ BOMD::BOMD(ElectronicSystem *system, HFsolver *solver):
     m_corePositions(zeros(m_nAtoms, 3)),
     m_coreVelocities(zeros(m_nAtoms, 3))
 {
-    m_nSteps = 20;
+    m_nSteps = 100;
     m_dt   =  0.1;
     m_dampingFactor = 0.0;
 
@@ -134,23 +134,10 @@ void BOMD::writeSystemProperties()
 
 
 void BOMD::writeLammpsFile(int currentTimeStep) {
-    ivec atomTypes;
-
-    if(m_nAtoms == 3){
-        atomTypes << 8 << 1 << 1;
-    }else if(m_nAtoms == 5){
-         atomTypes << 14 << 8 << 8 << 8 << 8;
-    }else if(m_nAtoms == 9){
-        atomTypes << 14 << 8 << 8 << 8 << 8 << 14 << 8 << 8 <<8;
-   }
-    else{
-        atomTypes << 1 << 1;
-    }
 
     stringstream outStepName;
     outStepName <<"/home/milad/kurs/qmd/state" << setw(4) << setfill('0')  << currentTimeStep <<".lmp";
     ofstream lammpsFile(outStepName.str(), ios::out | ios::binary);
-
 
     // The system boundaries
     double xMin = -2.0;
@@ -194,7 +181,7 @@ void BOMD::writeLammpsFile(int currentTimeStep) {
     for(int i = 0; i < m_nAtoms; i++) {
         // IMPORTANT: Even though atom numbers are usually integers, they must be written
         // as double according to the LAMMPS standard.
-        double atomType = atomTypes(i);
+        double atomType = m_atoms[i]->atomType();
         lammpsFile.write(reinterpret_cast<const char*>(&atomType), sizeof(double));
 
         // Write the x, y and z-components

@@ -26,6 +26,7 @@ public:
     const int &nSpinUpElectrons() const;
     const int &nSpinDownElectrons() const;
     const int &nBasisFunctions();
+    const int &maxAngularMomentum() const;
 
     double nuclearPotential();
     double overlapIntegral(const int &p, const int &q);
@@ -54,6 +55,7 @@ private:
     int m_nSpinDownElectrons = 0;
     int m_nAtoms = 0;
     int m_nBasisFunctions = 0;
+    int m_maxAngularMomentum = 0;
 
 };
 

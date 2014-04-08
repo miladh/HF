@@ -83,7 +83,7 @@ ElectronicSystem* setupSystem(string name)
 
     }else if(name =="H2O"){
         atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_3-21G.tm", { 0.0, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {1.797, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {2.797, 0.0, 0.0}));
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { -1.797*cos((180-104.45) *M_PI/180.0),
                                                                               1.797*sin((180-104.45) *M_PI/180.0), 0.0}));
     }else if(name =="CO2"){
@@ -92,11 +92,12 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 0.0, 0.0, 0.0}));
 
     }else if(name =="CH4"){
+        double D = 3.243;
         atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.0, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {2.043/sqrt(3), 2.043/sqrt(3), 2.043/sqrt(3)}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-2.043/sqrt(3), -2.043/sqrt(3), 2.043/sqrt(3)}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {2.043/sqrt(3), -2.043/sqrt(3), -2.043/sqrt(3)}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-2.043/sqrt(3), 2.043/sqrt(3), -2.043/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {D/sqrt(3), D/sqrt(3), D/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-D/sqrt(3), -D/sqrt(3), D/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {D/sqrt(3), -D/sqrt(3), -D/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-D/sqrt(3), D/sqrt(3), -D/sqrt(3)}));
 
     }else if(name =="SiO4"){
         double D = 4.9;

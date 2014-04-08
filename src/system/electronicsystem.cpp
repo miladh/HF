@@ -8,12 +8,11 @@ ElectronicSystem::ElectronicSystem()
 
 void ElectronicSystem::addAtoms(vector<Atom*> atoms)
 {
-    int maxAngularMomentum = 0;
     int id = 0;
     m_atoms = atoms;
     for(Atom* atom : m_atoms){
         m_nElectrons        += atom->nElectrons();
-        maxAngularMomentum = max(maxAngularMomentum , atom->angularMomentum());
+        m_maxAngularMomentum = max(m_maxAngularMomentum , atom->angularMomentum());
 
         for(const ContractedGTO &CGTO : atom->contractedGTOs()){
             m_basisFunctions.push_back(&CGTO);
@@ -32,7 +31,7 @@ void ElectronicSystem::addAtoms(vector<Atom*> atoms)
         throw logic_error("Number of electrons not conserved in system!");
     }
 
-    integrator = new Integrator(maxAngularMomentum);
+    integrator = new Integrator(m_maxAngularMomentum);
 }
 
 /********************************************************************************************
@@ -63,6 +62,11 @@ const int& ElectronicSystem::nAtoms()
 const int& ElectronicSystem::nBasisFunctions()
 {
     return m_nBasisFunctions;
+}
+
+const int& ElectronicSystem::maxAngularMomentum() const
+{
+    return m_maxAngularMomentum;
 }
 
 vector<const ContractedGTO *> ElectronicSystem::basisFunctions() const
