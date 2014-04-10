@@ -22,7 +22,7 @@ void UHF::advance()
     vec fockEnergyOld_U, fockEnergyOld_D;
     double stdDeviation_U = 1.0;
     double stdDeviation_D = 1.0;
-    int maxNumOfIteration = 200;
+    int maxNumOfIteration = 500;
     m_iteration = 0;
 
     while (stdDeviation_U > HFSOLVERTOLERANCE && stdDeviation_D > HFSOLVERTOLERANCE){
