@@ -20,46 +20,32 @@ HFsolver::HFsolver(ElectronicSystem *system):
             m_Q(i,j) = zeros(m_nBasisFunctions,m_nBasisFunctions);
         }
     }
+
     // MPI----------------------------------------------------------------------
 #if USE_MPI
     m_rank   = m_world.rank();
     m_nProcs = m_world.size();
 #endif
 
-    int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
-    int nFunctionCallsPerProc = ceil(double(totFunctionCalls)/m_nProcs);
+    int nPQElements = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
 
-    m_basisIndexToProcsMap = ivec(m_nBasisFunctions);
-    vector<mpiTask> taskVector;
-
-
-    for (int p = 0; p < m_nBasisFunctions; p++){
-        mpiTask task;
-        task.nFunctionCalls = m_nBasisFunctions - p;
-        task.isAvailable = true;
-        task.p = p;
-        taskVector.push_back(task);
-    }
-
-    for(int proc = 0; proc < m_nProcs; proc++){
-        int nMyFunctionCalls = 0;
-
-        for(mpiTask &task: taskVector){
-            if(task.isAvailable
-                    && nMyFunctionCalls + task.nFunctionCalls <= nFunctionCallsPerProc){
-                nMyFunctionCalls += task.nFunctionCalls;
-                task.isAvailable = false;
-
-                if (m_rank == proc){
-                    m_myBasisIndices.push_back(task.p);
-                }
-                m_basisIndexToProcsMap(task.p) = proc;
+    m_pqIndicesToProcsMap = imat(m_nBasisFunctions, m_nBasisFunctions);
+    int procs = 0;
+    int s = 0;
+    for (int p = 0; p < m_nBasisFunctions; p++) {
+        for (int q = p; q < m_nBasisFunctions; q++) {
+            if (m_rank == procs){
+                m_myPQIndices.push_back(pair<int, int>(p,q));
+            }
+            m_pqIndicesToProcsMap(p,q) = procs;
+            s++;
+            if(s >= BLOCK_SIZE(procs, m_nProcs, nPQElements)){
+                s = 0;
+                procs++;
             }
         }
     }
-    if(m_myBasisIndices.size() == 0){
-         throw logic_error("Procs with no task!");
-    }
+
     //---------------------------------------------------------------------------
 }
 
@@ -102,15 +88,18 @@ void HFsolver::runSolver()
 void HFsolver::setupTwoParticleMatrix()
 {
     double begin = m_timer.elapsed();
-    for(int p: m_myBasisIndices){
+
+    int p,q;
+    for(pair<int,int>pq: m_myPQIndices){
+        p = pq.first;
+        q = pq.second;
         for(int r = 0; r < m_nBasisFunctions; r++){
-            for(int q = p; q < m_nBasisFunctions; q++){
-                for(int s = r; s < m_nBasisFunctions; s++){
-                    m_Q(p,r)(q,s) = m_system->twoParticleIntegral(p,q,r,s);
-                }
+            for(int s = r; s < m_nBasisFunctions; s++){
+                m_Q(p,q)(r,s) = m_system->twoParticleIntegral(p,q,r,s);
             }
         }
     }
+
     double end = m_timer.elapsed();
     cout << setprecision(3)
          << "Elapsed time on two-electron integral (rank = " << m_rank << "): "
@@ -119,19 +108,19 @@ void HFsolver::setupTwoParticleMatrix()
 
     begin = m_timer.elapsed();
     for (int p = 0; p < m_nBasisFunctions; p++) {
-        for (int r = 0; r < m_nBasisFunctions; r++) {
+        for(int q = p; q < m_nBasisFunctions; q++){
 #if USE_MPI
-            boost::mpi::broadcast(m_world, m_Q(p,r).memptr(), m_Q(p,r).n_elem, m_basisIndexToProcsMap(p));
+            boost::mpi::broadcast(m_world, m_Q(p,q).memptr(), m_Q(p,q).n_elem, m_pqIndicesToProcsMap(p,q));
 #endif
-            for(int q = p; q < m_nBasisFunctions; q++){
+            for (int r = 0; r < m_nBasisFunctions; r++) {
                 for(int s = r; s < m_nBasisFunctions; s++){
-                    m_Q(q,r)(p,s) = m_Q(p,r)(q,s);
-                    m_Q(p,s)(q,r) = m_Q(p,r)(q,s);
-                    m_Q(q,s)(p,r) = m_Q(p,r)(q,s);
-                    m_Q(r,p)(s,q) = m_Q(p,r)(q,s);
-                    m_Q(s,p)(r,q) = m_Q(p,r)(q,s);
-                    m_Q(r,q)(s,p) = m_Q(p,r)(q,s);
-                    m_Q(s,q)(r,p) = m_Q(p,r)(q,s);
+                    m_Q(p,q)(s,r) = m_Q(p,q)(r,s);
+                    m_Q(q,p)(r,s) = m_Q(p,q)(r,s);
+                    m_Q(q,p)(s,r) = m_Q(p,q)(r,s);
+                    m_Q(r,s)(p,q) = m_Q(p,q)(r,s);
+                    m_Q(r,s)(q,p) = m_Q(p,q)(r,s);
+                    m_Q(s,r)(p,q) = m_Q(p,q)(r,s);
+                    m_Q(s,r)(q,p) = m_Q(p,q)(r,s);
                 }
             }
         }

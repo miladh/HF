@@ -26,15 +26,15 @@ private:
     mat m_gradE, m_totGradE;
 
     int m_nBasisFunctions;
+    int m_rank, m_nProcs;
 
     void calculateEnergyGradient();
 
-    int m_rank, m_nProcs;
     // MPI-----------------------
     boost::mpi::communicator m_world;
     boost::mpi::timer m_timer;
-    ivec m_basisIndexToProcsMap;
-    vector<int> m_myBasisIndices;
+    imat m_pqIndicesToProcsMap;
+    vector<pair<int,int> > m_myPQIndices;
     //---------------------------
 };
 

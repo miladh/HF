@@ -101,7 +101,7 @@ void RHF::updateFockMatrix()
 
             for (int r = 0; r < m_nBasisFunctions; r++){
                 for (int s = 0; s < m_nBasisFunctions; s++){
-                    m_F(p,q) += 0.5 * m_P(r,s) * (2.0 * m_Q(p,r)(q,s) - m_Q(p,r)(s,q));
+                    m_F(p,q) += 0.5 * m_P(r,s) * (2.0 * m_Q(p,q)(r,s) - m_Q(p,s)(r,q));
                 }
             }
         }

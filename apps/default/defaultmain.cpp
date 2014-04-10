@@ -27,8 +27,8 @@ int main(int argc, char **argv)
     /********************************************************************************/
 
     //options:
-    string method = "rhf";
-    string chemicalSystem = "O2";
+    string method = "uhf";
+    string chemicalSystem = "H2";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;

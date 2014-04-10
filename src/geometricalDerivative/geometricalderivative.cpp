@@ -5,50 +5,38 @@ using namespace hf;
 GeometricalDerivative::GeometricalDerivative(ElectronicSystem *system, HFsolver *solver):
     m_system(system),
     m_solver(solver),
-    m_nBasisFunctions(system->nBasisFunctions())
+    m_nBasisFunctions(system->nBasisFunctions()),
+    m_rank(0),
+    m_nProcs(1)
 {
-    m_rank = 0;
-    m_nProcs = 1;
+
+
     // MPI----------------------------------------------------------------------
 #if USE_MPI
     m_rank   = m_world.rank();
     m_nProcs = m_world.size();
 #endif
 
-    int totFunctionCalls = 0.5 * m_nBasisFunctions * (m_nBasisFunctions + 1);
-    int nFunctionCallsPerProc = ceil(double(totFunctionCalls)/m_nProcs);
+    int nPQElements =  m_nBasisFunctions * m_nBasisFunctions;
 
-    m_basisIndexToProcsMap = ivec(m_nBasisFunctions);
-    vector<mpiTask> taskVector;
-
-
-    for (int p = 0; p < m_nBasisFunctions; p++){
-        mpiTask task;
-        task.nFunctionCalls = m_nBasisFunctions - p;
-        task.isAvailable = true;
-        task.p = p;
-        taskVector.push_back(task);
-    }
-
-
-    for(int proc = 0; proc < m_nProcs; proc++){
-        int nMyFunctionCalls = 0;
-
-        for(mpiTask &task: taskVector){
-            if(task.isAvailable
-                    && nMyFunctionCalls + task.nFunctionCalls <= nFunctionCallsPerProc){
-                nMyFunctionCalls += task.nFunctionCalls;
-                task.isAvailable = false;
-
-                if (m_rank == proc){
-                    m_myBasisIndices.push_back(task.p);
-                }
-                m_basisIndexToProcsMap(task.p) = proc;
+    m_pqIndicesToProcsMap = imat(m_nBasisFunctions, m_nBasisFunctions);
+    int procs = 0;
+    int s = 0;
+    for (int p = 0; p < m_nBasisFunctions; p++) {
+        for (int q = 0; q < m_nBasisFunctions; q++) {
+            if (m_rank == procs){
+                m_myPQIndices.push_back(pair<int, int>(p,q));
+            }
+            m_pqIndicesToProcsMap(p,q) = procs;
+            s++;
+            if(s >= BLOCK_SIZE(procs, m_nProcs, nPQElements)){
+                s = 0;
+                procs++;
             }
         }
     }
-    //---------------------------------------------------------------------------
 
+    //---------------------------------------------------------------------------
 
 }
 
@@ -70,23 +58,24 @@ void GeometricalDerivative::calculateEnergyGradient()
         const mat& P = (*densityMatrices(i));
 
 
-        for(int p: m_myBasisIndices){
-            for (int q = 0; q < m_nBasisFunctions; q++){
+        int p,q;
+        for(pair<int,int>pq: m_myPQIndices){
+            p = pq.first;
+            q = pq.second;
 
-                mat h = m_system->oneParticleIntegralGD(p,q);
-                for(int c = 0; c < int(m_gradE.n_rows); c++){
-                    m_gradE.row(c) += P(p, q) * h.row(c);
-                }
+            mat h = m_system->oneParticleIntegralGD(p,q);
+            for(int c = 0; c < int(m_gradE.n_rows); c++){
+                m_gradE.row(c) += P(p, q) * h.row(c);
+            }
 
-                for (int r = 0; r < m_nBasisFunctions; r++){
-                    for (int s = 0; s < m_nBasisFunctions; s++){
+            for (int r = 0; r < m_nBasisFunctions; r++){
+                for (int s = 0; s < m_nBasisFunctions; s++){
 
-                        mat J = m_system->twoParticleIntegralGD(p,q,r,s);
-                        mat K = m_system->twoParticleIntegralGD(p,s,r,q);
+                    mat J = m_system->twoParticleIntegralGD(p,q,r,s);
+                    mat K = m_system->twoParticleIntegralGD(p,s,r,q);
 
-                        for(int c = 0; c < int(m_gradE.n_rows); c++){
-                            m_gradE.row(c) += 0.5*P(p,q)*P(s,r)*(J.row(c) - 0.5 * K.row(c));
-                        }
+                    for(int c = 0; c < int(m_gradE.n_rows); c++){
+                        m_gradE.row(c) += 0.5*P(p,q)*P(s,r)*(J.row(c) - 0.5 * K.row(c));
                     }
                 }
             }
@@ -103,14 +92,19 @@ void GeometricalDerivative::calculateEnergyGradient()
             mat dSy = zeros(m_nBasisFunctions,m_nBasisFunctions);
             mat dSz = zeros(m_nBasisFunctions,m_nBasisFunctions);
 
-            for(int p: m_myBasisIndices){
-                for (int q = 0; q < m_nBasisFunctions; q++){
-                    mat overlapGD = m_system->overlapIntegralGD(p,q);
-                    dSx(p,q) += overlapGD(c,0);
-                    dSy(p,q) += overlapGD(c,1);
-                    dSz(p,q) += overlapGD(c,2);
-                }
+            int p,q;
+            for(pair<int,int>pq: m_myPQIndices){
+                p = pq.first;
+                q = pq.second;
+                mat overlapGD = m_system->overlapIntegralGD(p,q);
+                dSx(p,q) += overlapGD(c,0);
+                dSy(p,q) += overlapGD(c,1);
+                dSz(p,q) += overlapGD(c,2);
             }
+
+            dSx = symmatu(dSx);
+            dSy = symmatu(dSy);
+            dSz = symmatu(dSz);
 
             m_gradE(c,0) -= 0.5 * trace(P*dSx*P*F);
             m_gradE(c,1) -= 0.5 * trace(P*dSy*P*F);
