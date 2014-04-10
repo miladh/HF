@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     /********************************************************************************/
 
     //options:
-    string method = "uhf";
+    string method = "rhf";
     string chemicalSystem = "O2";
     if(rank==0){
 
@@ -54,8 +54,8 @@ int main(int argc, char **argv)
 
     solver->runSolver();
 
-    Analyser analyser(system,solver);
-    analyser.calculateElectrostaticPotential();
+//    Analyser analyser(system,solver);
+//    analyser.calculateElectrostaticPotential();
 //    analyser.atomicPartialCharge();
 //    analyser.calculateChargeDensity();
 
