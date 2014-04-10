@@ -5,7 +5,8 @@
 #include <armadillo>
 #include <boost/regex.hpp>
 
-#include"../defines.h"
+#include "../defines.h"
+#include "../math/boys.h"
 #include "../contractedGTO/contractedGTO.h"
 
 using namespace arma;
@@ -14,6 +15,7 @@ using namespace boost;
 
 
 namespace hf{
+
 
 class TurbomoleParser
 {
@@ -37,6 +39,8 @@ public:
 
 private:
     void loadfile(string filename);
+    double normalize(const double &exponent, const rowvec &powers);
+
     int m_atomType;
     int m_atomCharge;
     double m_atomMass;

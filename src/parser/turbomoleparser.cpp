@@ -84,9 +84,8 @@ void TurbomoleParser::loadfile(string filename)
             for(; PGTOs!=endPGTOs; PGTOs++){
                 double exponent = atof(PGTOs->str(1).c_str());
                 double weight   = atof(PGTOs->str(2).c_str());
-                weight = pow(2*exponent / M_PI, 0.75) * weight;
 
-                PrimitiveGTO primitiveGTO(exponent,weight,pow1);
+                PrimitiveGTO primitiveGTO(exponent,weight*normalize(exponent,pow1),pow1);
                 contractedGTO.addPrimitive(primitiveGTO);
             }
 
@@ -101,11 +100,10 @@ void TurbomoleParser::loadfile(string filename)
             for(; PGTOs!=endPGTOs; PGTOs++){
                 double exponent = atof(PGTOs->str(1).c_str());
                 double weight   = atof(PGTOs->str(2).c_str());
-                weight = pow(2*exponent / M_PI, 0.75) * 2 * sqrt(exponent) * weight;
 
-                PrimitiveGTO primitiveGTOx(exponent,weight,pow2);
-                PrimitiveGTO primitiveGTOy(exponent,weight,pow3);
-                PrimitiveGTO primitiveGTOz(exponent,weight,pow4);
+                PrimitiveGTO primitiveGTOx(exponent,weight*normalize(exponent,pow2),pow2);
+                PrimitiveGTO primitiveGTOy(exponent,weight*normalize(exponent,pow3),pow3);
+                PrimitiveGTO primitiveGTOz(exponent,weight*normalize(exponent,pow4),pow4);
 
                 contractedGTOx.addPrimitive(primitiveGTOx);
                 contractedGTOy.addPrimitive(primitiveGTOy);
@@ -126,14 +124,13 @@ void TurbomoleParser::loadfile(string filename)
             for(; PGTOs!=endPGTOs; PGTOs++){
                 double exponent = atof(PGTOs->str(1).c_str());
                 double weight   = atof(PGTOs->str(2).c_str());
-                weight = pow(2*exponent / M_PI, 0.75) * 2 * sqrt(exponent) * weight;
 
-                PrimitiveGTO primitiveGTOxx(exponent,weight,pow5);
-                PrimitiveGTO primitiveGTOyy(exponent,weight,pow6);
-                PrimitiveGTO primitiveGTOzz(exponent,weight,pow7);
-                PrimitiveGTO primitiveGTOxy(exponent,weight,pow8);
-                PrimitiveGTO primitiveGTOxz(exponent,weight,pow9);
-                PrimitiveGTO primitiveGTOyz(exponent,weight,pow10);
+                PrimitiveGTO primitiveGTOxx(exponent,weight*normalize(exponent,pow5),pow5);
+                PrimitiveGTO primitiveGTOyy(exponent,weight*normalize(exponent,pow6),pow6);
+                PrimitiveGTO primitiveGTOzz(exponent,weight*normalize(exponent,pow7),pow7);
+                PrimitiveGTO primitiveGTOxy(exponent,weight*normalize(exponent,pow8),pow8);
+                PrimitiveGTO primitiveGTOxz(exponent,weight*normalize(exponent,pow9),pow9);
+                PrimitiveGTO primitiveGTOyz(exponent,weight*normalize(exponent,pow10),pow10);
 
 
                 contractedGTOxx.addPrimitive(primitiveGTOxx);
@@ -155,6 +152,22 @@ void TurbomoleParser::loadfile(string filename)
     }
 
 }
+
+double TurbomoleParser::normalize(const double& exponent, const rowvec& powers)
+{
+
+    int i = powers.at(0);
+    int j = powers.at(1);
+    int k = powers.at(2);
+
+    double numerator = std::pow(4.0 * exponent, i + j + k);
+    double denominator = Boys::doubleFactorial(2*i-1)
+                       * Boys::doubleFactorial(2*j-1)
+                       * Boys::doubleFactorial(2*k-1);
+
+    return std::pow((2*exponent/M_PI) , 0.75) * sqrt(numerator/denominator);
+}
+
 int TurbomoleParser::angularMomentum() const
 {
     return m_angularMomentum;
