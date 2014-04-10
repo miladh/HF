@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     //options:
     string method = "rhf";
-    string chemicalSystem = "benzene";
+    string chemicalSystem = "H2O";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
@@ -56,8 +56,8 @@ int main(int argc, char **argv)
 
     Analyser analyser(system,solver);
     analyser.calculateElectrostaticPotential();
-    analyser.atomicPartialCharge();
-    analyser.calculateChargeDensity();
+//    analyser.atomicPartialCharge();
+//    analyser.calculateChargeDensity();
 
 
     /********************************************************************************/
