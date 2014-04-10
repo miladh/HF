@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     gradientTests/gradientTests.cpp \
     integratorTests/overlapIntegral.cpp \
     integratorTests/kineticIntegral.cpp \
-    integratorTests/coulombIntegral_1.cpp \
     hfsolverTests/rhfTest.cpp \
     hfsolverTests/uhfTest.cpp \
+    integratorTests/electronRepulsionIntegral.cpp \
+    integratorTests/nuclearAttractionIntegral.cpp
 

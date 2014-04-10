@@ -27,8 +27,8 @@ int main(int argc, char **argv)
     /********************************************************************************/
 
     //options:
-    string method = "rhf";
-    string chemicalSystem = "benzene";
+    string method = "uhf";
+    string chemicalSystem = "O2";
     if(rank==0){
 
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
@@ -56,8 +56,8 @@ int main(int argc, char **argv)
 
     Analyser analyser(system,solver);
     analyser.calculateElectrostaticPotential();
-    analyser.atomicPartialCharge();
-    analyser.calculateChargeDensity();
+//    analyser.atomicPartialCharge();
+//    analyser.calculateChargeDensity();
 
 
     /********************************************************************************/
@@ -86,8 +86,8 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_3_basis_3-21G.tm", { 2.5255, 0.0, 0.0}));
 
     }else if(name =="O2"){
-        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_3-21G.tm", {-1.14, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_3-21G.tm", { 1.14, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", {-1.14, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", { 1.14, 0.0, 0.0}));
 
     }else if(name =="H2O"){
         double D = 2.8;

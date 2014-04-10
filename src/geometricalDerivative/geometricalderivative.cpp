@@ -93,13 +93,6 @@ void GeometricalDerivative::calculateEnergyGradient()
         }
     }
 
-#if USE_MPI
-    boost::mpi::all_reduce(m_world, m_gradE.memptr(), m_gradE.n_elem, m_totGradE.memptr(), std::plus<double>());
-#else
-    m_totGradE = m_gradE;
-#endif
-
-
 
     for(uint i = 0; i < densityMatrices.n_elem; i ++){
         const mat& P = (*densityMatrices(i));
@@ -119,17 +112,26 @@ void GeometricalDerivative::calculateEnergyGradient()
                 }
             }
 
-            m_totGradE(c,0) -= 0.5 * trace(P*dSx*P*F);
-            m_totGradE(c,1) -= 0.5 * trace(P*dSy*P*F);
-            m_totGradE(c,2) -= 0.5 * trace(P*dSz*P*F);
+            m_gradE(c,0) -= 0.5 * trace(P*dSx*P*F);
+            m_gradE(c,1) -= 0.5 * trace(P*dSy*P*F);
+            m_gradE(c,2) -= 0.5 * trace(P*dSz*P*F);
 
         }
 
 
     }
 
-    //    Nuclear repulsion term
+#if USE_MPI
+    m_totGradE = 0*m_gradE;
+    boost::mpi::all_reduce(m_world, m_gradE.memptr(), m_gradE.n_elem, m_totGradE.memptr(), std::plus<double>());
+#else
+    m_totGradE = m_gradE;
+#endif
+
+
+    //Nuclear repulsion term
     m_totGradE  +=m_system->nuclearPotentialGD();
+
 
 }
 
