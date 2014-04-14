@@ -134,21 +134,28 @@ void UHF::updateFockMatrix()
     for (int p = 0; p < m_nBasisFunctions; p++){
         for (int q = p; q < m_nBasisFunctions; q++){
 
-            m_Fu(p,q) = m_h(p,q);
-            m_Fd(p,q) = m_h(p,q);
+            double hpq = m_h(p,q);
+            double Fupq = hpq;
+            double Fdpq = hpq;
 
             for (int r = 0; r < m_nBasisFunctions; r++){
                 for (int s = 0; s < m_nBasisFunctions; s++){
+                    double Qprqs = m_Q(p,q)(r,s);
+                    double Qprsq = m_Q(p,s)(r,q);
+                    double QprqsMinusQprsq = Qprqs - Qprsq;
+                    double Pusr = m_Pu(s,r);
+                    double Pdsr = m_Pd(s,r);
 
-                    m_Fu(p,q) += m_Pu(s,r) * (m_Q(p,q)(r,s) - m_Q(p,s)(r,q)) + m_Pd(s,r) * m_Q(p,q)(r,s);
-                    m_Fd(p,q) += m_Pd(s,r) * (m_Q(p,q)(r,s) - m_Q(p,s)(r,q)) + m_Pu(s,r) * m_Q(p,q)(r,s);
+                    Fupq += Pusr * QprqsMinusQprsq + Pdsr * Qprqs;
+                    Fdpq += Pdsr * QprqsMinusQprsq + Pusr * Qprqs;
                 }
             }
+            m_Fu(p,q) = Fupq;
+            m_Fu(q,p) = Fupq;
+            m_Fd(p,q) = Fdpq;
+            m_Fd(q,p) = Fdpq;
         }
     }
-
-      m_Fu = symmatu(m_Fu);
-      m_Fd = symmatu(m_Fd);
 }
 
 field<const mat *> UHF::fockMatrix()

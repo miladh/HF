@@ -102,10 +102,11 @@ void RHF::updateFockMatrix()
                     m_F(p,q) += 0.5 * m_P(r,s) * (2.0 * m_Q(p,q)(r,s) - m_Q(p,s)(r,q));
                 }
             }
+
+            m_F(q,p) = m_F(p,q);
         }
     }
 
-    m_F = symmatu(m_F);
 }
 
 void RHF::calculateEnergy()

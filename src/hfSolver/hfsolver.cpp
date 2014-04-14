@@ -139,10 +139,11 @@ void HFsolver::setupOneParticleMatrix()
         for(int q = p; q < m_nBasisFunctions; q++){
             m_S(p,q) = m_system->overlapIntegral(p,q);
             m_h(p,q) = m_system->oneParticleIntegral(p,q);
+
+            m_S(q,p) = m_S(p,q);
+            m_h(q,p) = m_h(p,q);
         }
     }
-    m_S = symmatu(m_S);
-    m_h = symmatu(m_h);
     computeTransformationMatrix();
 }
 
