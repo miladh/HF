@@ -115,25 +115,6 @@ double Analyser::electronicPotential(const int& p, const int& q, const rowvec& C
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void Analyser::atomicPartialCharge()
 {
     const mat& S = m_solver->overlapMatrix();

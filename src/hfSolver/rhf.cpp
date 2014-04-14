@@ -44,16 +44,14 @@ void RHF::advance()
 }
 void RHF::solveSingle()
 {
-    vec eigVal; mat eigVec, V;
-    eig_sym(eigVal, eigVec, m_S);
-    V = eigVec*diagmat(1.0/sqrt(eigVal));
+    vec eigVal; mat eigVec;
 
 
 //    DIISprocedure();
 
-    eig_sym(eigVal, eigVec, V.t() * m_F * V);
+    eig_sym(eigVal, eigVec, m_V.t() * m_F * m_V);
 
-    m_C = V*eigVec;
+    m_C = m_V*eigVec;
 
     normalize(m_C, m_nElectrons/2);
 
@@ -95,7 +93,7 @@ void RHF::DIISprocedure()
 void RHF::updateFockMatrix()
 {
     for (int p = 0; p < m_nBasisFunctions; p++){
-        for (int q = 0; q < m_nBasisFunctions; q++){
+        for (int q = p; q < m_nBasisFunctions; q++){
 
             m_F(p,q) = m_h(p,q);
 
@@ -106,6 +104,8 @@ void RHF::updateFockMatrix()
             }
         }
     }
+
+    m_F = symmatu(m_F);
 }
 
 void RHF::calculateEnergy()

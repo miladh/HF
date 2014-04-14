@@ -15,13 +15,6 @@
 #define BLOCK_SIZE(id,p,n) (BLOCK_HIGH(id,p,n)-BLOCK_LOW(id,p,n)+1)
 
 
-struct mpiTask{
-    int nFunctionCalls;
-    bool isAvailable;
-    int p;
-};
-
-
 class AtomMeta
 {
 public:

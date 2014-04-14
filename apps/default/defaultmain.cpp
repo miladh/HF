@@ -1,74 +1,124 @@
 #include <iostream>
 #include <armadillo>
 #include <boost/mpi.hpp>
-
+#include <libconfig.h++>
 #include <hf.h>
 
 using namespace arma;
 using namespace std;
+using namespace libconfig;
 using namespace hf;
 
-ElectronicSystem *setupSystem(string name);
 
+enum solverMethod {
+   rhf, uhf
+};
+
+ElectronicSystem *setupSystem(string name);
 
 int main(int argc, char **argv)
 {
 
-    int rank = 0;
-#if USE_MPI
     boost::mpi::environment env(argc, argv);
     boost::mpi::communicator world;
-    rank = world.rank();
-#endif
-
-
     clock_t begin = clock();
 
-    /********************************************************************************/
+    //read config file---------------------------------------------------------------
+    Config cfg;
+    for(int p = 0; p < world.size(); p++) {
 
-    //options:
-    string method = "uhf";
-    string chemicalSystem = "H2";
-    if(rank==0){
+        world.barrier();
+        if(p != world.rank()) {
+            continue;
+        }
+        cfg.readFile("../../../hf/apps/default/defaultConfig.cfg");
+    }
+    const Setting & root = cfg.getRoot();
 
+
+    //Setup system--------------------------------------------------------------------
+    string chemicalSystem = root["chemicalSystem"]["name"];
+    const Setting &atomsMeta = root["chemicalSystem"]["atoms"];
+    vector<Atom *> atoms;
+
+    for(int i = 0; i < atomsMeta.getLength(); i++){
+        const Setting &atomMeta = atomsMeta[i];
+
+        string basisFile;
+        stringstream basisFilePath;
+        rowvec position = zeros<rowvec>(3);
+
+        atomMeta.lookupValue("basis",basisFile);
+        basisFilePath << "infiles/turbomole/"<< basisFile;
+
+        const Setting &pos =  atomMeta["position"];
+        for(int i =0; i < 3; i++){
+             position[i] = pos[i];
+        }
+
+        atoms.push_back(new Atom(basisFilePath.str(), position));
+    }
+
+    ElectronicSystem *system = new ElectronicSystem();
+    system->addAtoms(atoms);
+
+//    ElectronicSystem *system = setupSystem("benzene");
+
+    //setup solver--------------------------------------------------------------------
+    int solverMethod = root["solverSettings"]["method"];
+    HFsolver* solver;
+    string method;
+
+    switch (solverMethod) {
+    case rhf:
+        method = "rhf";
+        solver = new RHF(system);
+        break;
+
+    case uhf:
+        method = "uhf";
+        solver = new UHF(system);
+        break;
+    }
+
+
+    if(world.rank()==0){
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
         cout << "system:    " << chemicalSystem << endl;
         cout << "method:    " << method << endl;
     }
 
-
-    //Setup system:
-    ElectronicSystem *system = setupSystem(chemicalSystem);
-
-
-    //Choose method:
-    HFsolver* solver;
-    if(method == "rhf"){
-        solver = new RHF(system);
-    }else if(method == "uhf"){
-        solver = new UHF(system);
-    }else{
-        cerr << "unknown method!" << endl;
-        exit(0);
-    }
-
     solver->runSolver();
 
-//    Analyser analyser(system,solver);
-//    analyser.calculateElectrostaticPotential();
-//    analyser.atomicPartialCharge();
-//    analyser.calculateChargeDensity();
+    //Analyzer--------------------------------------------------------------------
+    Analyser analyser(system,solver);
+    int atomicPartialCharge = root["analysisSettings"]["atomicPartialCharge"];
+    int chargeDensity = root["analysisSettings"]["chargeDensity"];
+    int calculateElectrostaticPotential = root["analysisSettings"]["calculateElectrostaticPotential"];
+
+    if(atomicPartialCharge){
+        analyser.atomicPartialCharge();
+    }
+    if(chargeDensity){
+        analyser.calculateChargeDensity();
+    }
+    if(calculateElectrostaticPotential){
+        analyser.calculateElectrostaticPotential();
+    }
 
 
-    /********************************************************************************/
+
     clock_t end = clock();
-    if(rank==0){
+    if(world.rank()==0){
         cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
     }
 
     return 0;
 
 }
+
+
+
 
 ElectronicSystem* setupSystem(string name)
 {
@@ -90,7 +140,7 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", { 1.14, 0.0, 0.0}));
 
     }else if(name =="H2O"){
-        double D = 2.8;
+        double D = 1.797;
         atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_3-21G.tm", { 0.0, 0.0, 0.0}));
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {D, 0.0, 0.0}));
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { -D*cos((180-104.45) *M_PI/180.0),
@@ -173,7 +223,6 @@ ElectronicSystem* setupSystem(string name)
 
     ElectronicSystem *system = new ElectronicSystem();
     system->addAtoms(atoms);
-
     return system;
 
 }

@@ -53,19 +53,16 @@ void UHF::advance()
 void UHF::solveSingle()
 {
     vec eigVal;
-    mat eigVec, V;
-
-    eig_sym(eigVal, eigVec, m_S);
-    V = eigVec*diagmat(1.0/sqrt(eigVal));
+    mat eigVec;
 
 //     DIISprocedure();
 
-    eig_sym(eigVal, eigVec, V.t()*m_Fu*V);
-    m_Cu = V*eigVec;
+    eig_sym(eigVal, eigVec, m_V.t()*m_Fu*m_V);
+    m_Cu = m_V*eigVec;
     m_fockEnergyU = eigVal;
 
-    eig_sym(eigVal, eigVec, V.t()*m_Fd*V);
-    m_Cd = V*eigVec;
+    eig_sym(eigVal, eigVec, m_V.t()*m_Fd*m_V);
+    m_Cd = m_V*eigVec;
     m_fockEnergyD = eigVal;
 
 
@@ -135,7 +132,7 @@ void UHF::calculateEnergy()
 void UHF::updateFockMatrix()
 {
     for (int p = 0; p < m_nBasisFunctions; p++){
-        for (int q = 0; q < m_nBasisFunctions; q++){
+        for (int q = p; q < m_nBasisFunctions; q++){
 
             m_Fu(p,q) = m_h(p,q);
             m_Fd(p,q) = m_h(p,q);
@@ -149,6 +146,9 @@ void UHF::updateFockMatrix()
             }
         }
     }
+
+      m_Fu = symmatu(m_Fu);
+      m_Fd = symmatu(m_Fd);
 }
 
 field<const mat *> UHF::fockMatrix()

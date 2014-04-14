@@ -143,6 +143,14 @@ void HFsolver::setupOneParticleMatrix()
     }
     m_S = symmatu(m_S);
     m_h = symmatu(m_h);
+    computeTransformationMatrix();
+}
+
+void HFsolver::computeTransformationMatrix()
+{
+    vec eigVal; mat eigVec;
+    eig_sym(eigVal, eigVec, m_S);
+    m_V = eigVec*diagmat(1.0/sqrt(eigVal));
 }
 
 const mat& HFsolver::normalize(mat &C, const int& HOcoeff)

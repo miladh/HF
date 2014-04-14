@@ -43,6 +43,7 @@ protected:
    int m_nBasisFunctions;
    mat m_S;
    mat m_h;
+   mat m_V;
    field<mat> m_Q;
 
    double m_energy;
@@ -61,6 +62,9 @@ protected:
 
    const mat &normalize(mat &C, const int &HOcoeff);
    double computeStdDeviation(const vec &fockEnergies, const vec &fockEnergiesOld);
+
+private:
+   void computeTransformationMatrix();
 };
 }
 #endif // HFSOLVER_H
