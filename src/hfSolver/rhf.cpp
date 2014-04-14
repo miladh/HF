@@ -10,13 +10,14 @@ RHF::RHF(ElectronicSystem *system):
     m_fockEnergy(zeros(m_nBasisFunctions))
 
 {
+    setDampingFactor(0.0);
+    setMaxNumOfIteration(200);
 }
 
 void RHF::advance()
 {
     vec fockEnergyOld;
     double stdDeviation= 1.0;
-    int maxNumOfIteration = 200;
     m_iteration = 0;
 
     while (stdDeviation  > HFSOLVERTOLERANCE){
@@ -26,13 +27,17 @@ void RHF::advance()
                  << setprecision(2)
                  <<" %" << endl;
         }
+
+        if(m_useDIISprocedure){
+            DIISprocedure();
+        }
         fockEnergyOld = m_fockEnergy;
         solveSingle();
         stdDeviation = computeStdDeviation(m_fockEnergy, fockEnergyOld);
         updateFockMatrix();
 
         m_iteration+=1;
-        if(m_iteration > maxNumOfIteration){
+        if(m_iteration > m_maxNumOfIteration){
             if(m_rank == 0){
                 cerr << "Energy has not converged! " << endl;
             }
@@ -44,49 +49,12 @@ void RHF::advance()
 }
 void RHF::solveSingle()
 {
-    vec eigVal; mat eigVec;
-
-
-//    DIISprocedure();
-
-    eig_sym(eigVal, eigVec, m_V.t() * m_F * m_V);
-
+    mat eigVec;
+    eig_sym(m_fockEnergy, eigVec, m_V.t() * m_F * m_V);
     m_C = m_V*eigVec;
-
     normalize(m_C, m_nElectrons/2);
 
-    m_P =  2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
-    m_fockEnergy = eigVal;
-}
-
-void RHF::DIISprocedure()
-{
-    m_errors.push_back(m_F*m_P*m_S - m_S*m_P*m_F);
-    m_fockMatrices.push_back(m_F);
-
-
-    if(m_errors.size() > 20){
-        m_errors.erase(m_errors.begin());
-        m_fockMatrices.erase(m_fockMatrices.begin());
-        mat A = zeros(m_errors.size()+1, m_errors.size()+1);
-
-        for(uint i = 0; i < m_errors.size(); i++){
-            A(i, m_errors.size()) = -1;
-            A(m_errors.size(), i) = -1;
-
-            for(uint j = 0; j < m_errors.size(); j++){
-                A(i,j) = trace(m_errors.at(i) * m_errors.at(j));
-            }
-        }
-
-        vec b = zeros(A.n_rows);
-        b(b.n_elem -1) = -1.0;
-        b = inv(A) * b;
-
-        for(uint i = 0; i < b.n_elem - 1; i++){
-            m_F += b(i) * m_fockMatrices.at(i);
-        }
-    }
+    m_P = m_dampingFactor * m_P + (1 - m_dampingFactor) * 2.0 * m_C.cols(0, m_nElectrons/2.0-1) * m_C.cols(0, m_nElectrons/2.0-1).t();
 }
 
 
@@ -113,6 +81,39 @@ void RHF::calculateEnergy()
 {
     m_energy = 0.5 * accu(m_P % (m_h + m_F)) + m_system->nuclearPotential();
 }
+
+
+void RHF::DIISprocedure()
+{
+    if(m_iterationLimitDIISprocedure < m_iteration){
+        m_errors.push_back(m_F*m_P*m_S - m_S*m_P*m_F);
+        m_fockMatrices.push_back(m_F);
+
+        if(signed(m_errors.size()) > m_nTermsInDIISprocedure){
+            m_errors.erase(m_errors.begin());
+            m_fockMatrices.erase(m_fockMatrices.begin());
+            mat A = zeros(m_errors.size()+1, m_errors.size()+1);
+
+            for(uint i = 0; i < m_errors.size(); i++){
+                A(i, m_errors.size()) = -1;
+                A(m_errors.size(), i) = -1;
+
+                for(uint j = 0; j < m_errors.size(); j++){
+                    A(i,j) = trace(m_errors.at(i) * m_errors.at(j));
+                }
+            }
+
+            vec b = zeros(A.n_rows);
+            b(b.n_elem -1) = -1.0;
+            b = inv(A) * b;
+
+            for(uint i = 0; i < b.n_elem - 1; i++){
+                m_F += b(i) * m_fockMatrices.at(i);
+            }
+        }
+    }
+}
+
 
 field<const mat *> RHF::fockMatrix()
 {

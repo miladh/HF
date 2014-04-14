@@ -26,12 +26,12 @@ private:
     vector<mat> m_errorsU, m_fockMatricesU;
     vector<mat> m_errorsD, m_fockMatricesD;
 
-    void DIISprocedure();
 protected:
     void advance();
     void solveSingle();
     void calculateEnergy();
     void updateFockMatrix();
+    void DIISprocedure();
 
 
 };

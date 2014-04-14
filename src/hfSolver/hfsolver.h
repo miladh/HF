@@ -29,7 +29,11 @@ public:
    void setupTwoParticleMatrix();
    void setupOneParticleMatrix();
 
+   void setDampingFactor(double dampingFactor);
+   void setMaxNumOfIteration(int maxNumOfIteration);
 
+   void useDIISprocedure(const int nTermsInDIISprocedure = 3,
+                         const int iterationLimitDIISprocedure = 20);
 
 protected:
    ElectronicSystem * m_system;
@@ -47,6 +51,12 @@ protected:
    field<mat> m_Q;
 
    double m_energy;
+   double m_dampingFactor;
+   int m_maxNumOfIteration;
+   int m_nTermsInDIISprocedure;
+   int m_iterationLimitDIISprocedure;
+   bool m_useDIISprocedure = false;
+
 
    // MPI-----------------------
    boost::mpi::communicator m_world;
@@ -58,7 +68,8 @@ protected:
    virtual void advance() = 0;
    virtual void solveSingle() = 0;
    virtual void updateFockMatrix() = 0;
-   virtual void calculateEnergy()=0;
+   virtual void calculateEnergy() = 0;
+   virtual void DIISprocedure() = 0;
 
    const mat &normalize(mat &C, const int &HOcoeff);
    double computeStdDeviation(const vec &fockEnergies, const vec &fockEnergiesOld);

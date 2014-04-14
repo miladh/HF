@@ -24,13 +24,13 @@ private:
     vec m_fockEnergy;
     vector<mat> m_errors, m_fockMatrices;
 
-    void DIISprocedure();
 
 protected:
     void advance();
     void solveSingle();
     void calculateEnergy();
     void updateFockMatrix();
+    void DIISprocedure();
 };
 
 }

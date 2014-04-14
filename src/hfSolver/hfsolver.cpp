@@ -21,6 +21,8 @@ HFsolver::HFsolver(ElectronicSystem *system):
         }
     }
 
+
+
     // MPI----------------------------------------------------------------------
 #if USE_MPI
     m_rank   = m_world.rank();
@@ -114,20 +116,21 @@ void HFsolver::setupTwoParticleMatrix()
 #endif
             for (int r = 0; r < m_nBasisFunctions; r++) {
                 for(int s = r; s < m_nBasisFunctions; s++){
-                    m_Q(p,q)(s,r) = m_Q(p,q)(r,s);
-                    m_Q(q,p)(r,s) = m_Q(p,q)(r,s);
-                    m_Q(q,p)(s,r) = m_Q(p,q)(r,s);
-                    m_Q(r,s)(p,q) = m_Q(p,q)(r,s);
-                    m_Q(r,s)(q,p) = m_Q(p,q)(r,s);
-                    m_Q(s,r)(p,q) = m_Q(p,q)(r,s);
-                    m_Q(s,r)(q,p) = m_Q(p,q)(r,s);
+                    double Qpqrs = m_Q(p,q)(r,s);
+                    m_Q(p,q)(s,r) = Qpqrs;
+                    m_Q(q,p)(r,s) = Qpqrs;
+                    m_Q(q,p)(s,r) = Qpqrs;
+                    m_Q(r,s)(p,q) = Qpqrs;
+                    m_Q(r,s)(q,p) = Qpqrs;
+                    m_Q(s,r)(p,q) = Qpqrs;
+                    m_Q(s,r)(q,p) = Qpqrs;
                 }
             }
         }
     }
 
     end = m_timer.elapsed();
-    if(m_rank==0){
+    if(m_rank == 0){
         cout <<"Communication time: "<< end - begin <<"s" << endl;
     }
 
@@ -146,6 +149,7 @@ void HFsolver::setupOneParticleMatrix()
     }
     computeTransformationMatrix();
 }
+
 
 void HFsolver::computeTransformationMatrix()
 {
@@ -168,6 +172,26 @@ double HFsolver::computeStdDeviation(const vec& fockEnergies, const vec& fockEne
 {
     return sum(abs(fockEnergies - fockEnergiesOld)) / fockEnergies.n_elem;
 }
+
+void HFsolver::useDIISprocedure(const int nTermsInDIISprocedure,
+                                const int iterationLimitDIISprocedure)
+{
+    m_useDIISprocedure = true;
+    m_nTermsInDIISprocedure = nTermsInDIISprocedure;
+    m_iterationLimitDIISprocedure = iterationLimitDIISprocedure;
+
+}
+
+void HFsolver::setDampingFactor(double dampingFactor)
+{
+    m_dampingFactor = dampingFactor;
+}
+
+void HFsolver::setMaxNumOfIteration(int maxNumOfIteration)
+{
+    m_maxNumOfIteration = maxNumOfIteration;
+}
+
 
 const double& HFsolver::energy() const
 {

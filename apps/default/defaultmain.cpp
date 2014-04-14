@@ -81,6 +81,13 @@ int main(int argc, char **argv)
         break;
     }
 
+    int useDIISprocdure = root["solverSettings"]["DIISprocedureSettings"]["useDIISprocedure"];
+    if(useDIISprocdure){
+        int nTerms = root["solverSettings"]["DIISprocedureSettings"]["nTerms"];
+        int iterationLimit = root["solverSettings"]["DIISprocedureSettings"]["iterationLimit"];
+        solver->useDIISprocedure(nTerms,iterationLimit);
+    }
+
 
     if(world.rank()==0){
         cout << "---------------------------Hartree-Fock------------------------------"  << endl;
