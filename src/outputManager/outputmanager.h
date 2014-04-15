@@ -11,24 +11,26 @@
 
 using namespace arma;
 using namespace std;
+using namespace H5;
 
 namespace hf{
 
 class OutputManager
 {
 public:
-    OutputManager();
+    OutputManager(const int nAtoms);
 
+    void saveAtoms(vector<Atom *> atoms);
     void saveEnergy(const double &energy);
-    void registerAtoms(vector<Atom *> atoms);
+    void saveDipoleMoment(const double &dipoleMoment);
+    void closeOutput();
 
 private:
     int m_rank;
     int m_nProcs;
     stringstream m_outputFileName;
-    H5::H5File *m_output;
 
-    struct AtomProperties {
+    struct AtomAttributes {
         int type;
         char basisType[64];
         double x;
@@ -39,6 +41,10 @@ private:
     };
 
 
+    H5File *m_output;
+    CompType *m_atomCompound;
+    DataSet *m_dataset;
+    AtomAttributes *m_atomAttributes;
 };
 }
 #endif // OUTPUTMANAGER_H

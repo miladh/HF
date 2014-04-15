@@ -32,7 +32,7 @@ private:
     ElectronicSystem* m_system;
     HFsolver* m_solver;
     Integrator* m_integrator;
-    OutputManager m_outputManager;
+    OutputManager *m_outputManager;
     vector<const ContractedGTO *> m_basisFunctions;
 
     int m_nBasisFunctions;

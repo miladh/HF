@@ -2,15 +2,11 @@
 
 
 using namespace hf;
-using namespace H5;
 
-
-OutputManager::OutputManager():
+OutputManager::OutputManager(const int nAtoms):
     m_rank(0),
     m_nProcs(0)
 {
-
-
 
 #if USE_MPI
     boost::mpi::environment env;
@@ -21,56 +17,60 @@ OutputManager::OutputManager():
 
     m_outputFileName << "/home/milad/kurs/qmd/output_" << m_rank << ".h5";
     m_output = new H5File (m_outputFileName.str(), H5F_ACC_TRUNC);
+
+    m_atomCompound = new CompType(sizeof(AtomAttributes));
+    m_atomCompound->insertMember( "type", HOFFSET(AtomAttributes, type), PredType::NATIVE_INT);
+    m_atomCompound->insertMember( "basisType", HOFFSET(AtomAttributes, basisType), StrType(PredType::C_S1, 64));
+    m_atomCompound->insertMember("x", HOFFSET(AtomAttributes, x), PredType::NATIVE_DOUBLE);
+    m_atomCompound->insertMember("y", HOFFSET(AtomAttributes, y), PredType::NATIVE_DOUBLE);
+    m_atomCompound->insertMember("z", HOFFSET(AtomAttributes, z), PredType::NATIVE_DOUBLE);
+    m_atomCompound->insertMember("partialCharge", HOFFSET(AtomAttributes, corePartialCharge), PredType::NATIVE_DOUBLE);
+    m_atomCompound->insertMember("coreCharge", HOFFSET(AtomAttributes, coreCharge), PredType::NATIVE_DOUBLE);
+
+   hsize_t dim[1];
+   dim[0] = nAtoms;
+   DataSpace space(1, dim);
+   m_dataset = new DataSet(m_output->createDataSet("atoms", *m_atomCompound, space));
+
+   m_atomAttributes = new AtomAttributes[nAtoms];
+
 }
 
-void OutputManager::registerAtoms(vector<Atom *> atoms)
+void OutputManager::saveAtoms(vector<Atom *> atoms)
 {
-
-    CompType atomCompound( sizeof(AtomProperties) );
-     atomCompound.insertMember( "type", HOFFSET(AtomProperties, type), PredType::NATIVE_INT);
-     atomCompound.insertMember( "basisType", HOFFSET(AtomProperties, basisType), StrType(PredType::C_S1, 64));
-     atomCompound.insertMember("x", HOFFSET(AtomProperties, x), PredType::NATIVE_DOUBLE);
-     atomCompound.insertMember("y", HOFFSET(AtomProperties, y), PredType::NATIVE_DOUBLE);
-     atomCompound.insertMember("z", HOFFSET(AtomProperties, z), PredType::NATIVE_DOUBLE);
-     atomCompound.insertMember("partialCharge", HOFFSET(AtomProperties, corePartialCharge), PredType::NATIVE_DOUBLE);
-     atomCompound.insertMember("coreCharge", HOFFSET(AtomProperties, coreCharge), PredType::NATIVE_DOUBLE);
-
-    hsize_t dim[1];
-    dim[0] = atoms.size();
-
-    DataSpace space(1, dim);
-    DataSet *dataset = new DataSet(m_output->createDataSet("DatasetName", atomCompound, space));
-
-    AtomProperties * atomProp = new AtomProperties[atoms.size()];
-
-
 
     for(int i = 0; i < signed(atoms.size()); i++) {
         Atom* atom = atoms.at(i);
-        strcpy(atomProp[i].basisType, atom->basisType().c_str());
-        atomProp[i].type = atom->atomType();
-        atomProp[i].x = 4;
-        atomProp[i].y = 5;
-        atomProp[i].z = 7;
-        atomProp[i].coreCharge = atom->coreCharge();
-        atomProp[i].corePartialCharge = atom->corePartialCharge();
-        dataset->write(atomProp, atomCompound);
+        strcpy(m_atomAttributes[i].basisType, atom->basisType().c_str());
+        m_atomAttributes[i].type = atom->atomType();
+        m_atomAttributes[i].x = atom->corePosition()(0);
+        m_atomAttributes[i].y = atom->corePosition()(1);
+        m_atomAttributes[i].z = atom->corePosition()(2);
+        m_atomAttributes[i].coreCharge = atom->coreCharge();
+        m_atomAttributes[i].corePartialCharge = atom->corePartialCharge();
+        m_dataset->write(m_atomAttributes, *m_atomCompound);
     }
-
-    double energy = 2;
-    Attribute energyAttribute(dataset->createAttribute("energy", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
-    energyAttribute.write(PredType::NATIVE_DOUBLE, &energy);
-
-
-    m_output->flush(H5F_SCOPE_GLOBAL);
-    m_output->close();
 
 }
 
 void OutputManager::saveEnergy(const double& energy)
 {
-//    Attribute energyAttribute(stateDataSet.createAttribute("energy", PredType::NATIVE_DOUBLE, H5S_SCALAR));
-//    energyAttribute.write(PredType::NATIVE_DOUBLE, &energy);
+
+    Attribute energyAttribute(m_dataset->createAttribute("energy", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    energyAttribute.write(PredType::NATIVE_DOUBLE, &energy);
 
 }
 
+void OutputManager::saveDipoleMoment(const double& dipoleMoment)
+{
+
+    Attribute energyAttribute(m_dataset->createAttribute("dipole Moment", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    energyAttribute.write(PredType::NATIVE_DOUBLE, &dipoleMoment);
+
+}
+
+void OutputManager::closeOutput()
+{
+    m_output->flush(H5F_SCOPE_GLOBAL);
+    m_output->close();
+}

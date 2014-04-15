@@ -9,12 +9,13 @@ Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
     m_system(system),
     m_solver(solver),
     m_integrator(new Integrator(m_system->maxAngularMomentum())),
+    m_outputManager(new OutputManager(m_system->nAtoms())),
     m_basisFunctions(system->basisFunctions()),
     m_nBasisFunctions(m_basisFunctions.size()),
     m_rank(0),
     m_nProcs(1)
 {
-    m_outputManager.registerAtoms(m_system->atoms());
+    m_outputManager->saveAtoms(m_system->atoms());
 }
 
 void Analyser::saveEnergies()
