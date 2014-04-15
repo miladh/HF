@@ -37,6 +37,31 @@ void Analyser::saveEnergies()
     }
 }
 
+void Analyser::atomicPartialCharge()
+{
+    const mat& S = m_solver->overlapMatrix();
+    field<const mat *> densityMatrices = m_solver->densityMatrix();
+    field<mat> PS(densityMatrices.n_elem, 1);
+
+    for(uint i = 0; i < densityMatrices.n_elem; i ++){
+        const mat& P = (*densityMatrices(i));
+        PS(i) = P * S;
+    }
+
+    double id=0.0;
+    for(Atom *atom : m_system->atoms()){
+        double partialCharge = atom->coreCharge();
+
+        for(int j = id; j < id + atom->nContractedGTOs(); j++){
+            for(const mat& PS_i : PS)
+                partialCharge -= PS_i(j,j);
+        }
+
+        atom->setCorePartialCharge(partialCharge);
+        id += atom->nContractedGTOs();
+    }
+}
+
 
 void Analyser::dipoleMoment()
 {
@@ -169,34 +194,6 @@ double Analyser::electronicPotential(const int& p, const int& q, const rowvec& C
 
     return Vpq;
 }
-
-
-
-void Analyser::atomicPartialCharge()
-{
-    const mat& S = m_solver->overlapMatrix();
-    field<const mat *> densityMatrices = m_solver->densityMatrix();
-    field<mat> PS(densityMatrices.n_elem, 1);
-
-    for(uint i = 0; i < densityMatrices.n_elem; i ++){
-        const mat& P = (*densityMatrices(i));
-        PS(i) = P * S;
-    }
-
-    double id=0.0;
-    for(Atom *atom : m_system->atoms()){
-        double partialCharge = atom->coreCharge();
-
-        for(int j = id; j < id + atom->nContractedGTOs(); j++){
-            for(const mat& PS_i : PS)
-                partialCharge -= PS_i(j,j);
-        }
-
-        atom->setCorePartialCharge(partialCharge);
-        id += atom->nContractedGTOs();
-    }
-}
-
 
 
 void Analyser::calculateChargeDensity()

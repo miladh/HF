@@ -47,7 +47,7 @@ rowvec DipoleIntegral::evaluate()
     D(1) = evaluate(1, m_primitiveA->yPower(), m_primitiveB->yPower(), P(1))
             * S_iA_iB * S_kA_kB;
 
-    D(2) = evaluate(1, m_primitiveA->zPower(), m_primitiveB->zPower(), P(2))
+    D(2) = evaluate(2, m_primitiveA->zPower(), m_primitiveB->zPower(), P(2))
             * S_jA_jB * S_iA_iB;
 
     D *= m_primitiveA->weight() * m_primitiveB->weight();

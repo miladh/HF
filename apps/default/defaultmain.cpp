@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 //    ElectronicSystem *system = new ElectronicSystem();
 //    system->addAtoms(atoms);
 
-    ElectronicSystem *system = setupSystem("H2O");
+    ElectronicSystem *system = setupSystem("CH4");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
