@@ -168,9 +168,9 @@ const mat& HFsolver::normalize(mat &C, const int& HOcoeff)
     return C;
 }
 
-double HFsolver::computeStdDeviation(const vec& fockEnergies, const vec& fockEnergiesOld)
+double HFsolver::computeStdDeviation(const vec& orbitalEnergies, const vec& fockEnergiesOld)
 {
-    return sum(abs(fockEnergies - fockEnergiesOld)) / fockEnergies.n_elem;
+    return sum(abs(orbitalEnergies - fockEnergiesOld)) / orbitalEnergies.n_elem;
 }
 
 void HFsolver::useDIISprocedure(const int nTermsInDIISprocedure,

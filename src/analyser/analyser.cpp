@@ -26,11 +26,12 @@ void Analyser::saveResults()
 void Analyser::saveEnergies()
 {
 
-    field<const vec *> fockEnergies= m_solver->fockEnergies();
+    field<const vec *> energies= m_solver->orbitalEnergies();
+    mat orbitalEnergies = zeros(energies.n_elem, energies.at(0)->n_elem);
 
-    mat orbitalEnergies = zeros(2,fockEnergies.at(0)->n_elem);
-    orbitalEnergies.row(0) = (*fockEnergies(0)).t();
-    orbitalEnergies.row(1) = (*fockEnergies(fockEnergies.n_elem - 1)).t();
+    for(int i = 0; i < signed(energies.n_elem); i++){
+        orbitalEnergies.row(i) = (*energies(i)).t();
+    }
 
     m_outputManager->saveEnergy(m_solver->energy(), orbitalEnergies);
 

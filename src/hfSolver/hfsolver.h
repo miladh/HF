@@ -24,7 +24,7 @@ public:
    virtual field<const mat *> fockMatrix() = 0;
    virtual field<const mat *> densityMatrix()  const= 0;
    virtual field<const mat *> expansionCoefficients()  const= 0;
-   virtual field<const vec *> fockEnergies() const = 0;
+   virtual field<const vec *> orbitalEnergies() const = 0;
 
    const double &energy() const;
    void setupTwoParticleMatrix();
@@ -73,7 +73,7 @@ protected:
    virtual void DIISprocedure() = 0;
 
    const mat &normalize(mat &C, const int &HOcoeff);
-   double computeStdDeviation(const vec &fockEnergies, const vec &fockEnergiesOld);
+   double computeStdDeviation(const vec &orbitalEnergies, const vec &fockEnergiesOld);
 
 private:
    void computeTransformationMatrix();

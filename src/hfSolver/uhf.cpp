@@ -183,11 +183,11 @@ field<const mat *> UHF::expansionCoefficients() const
     return coefficientsMatrices;
 }
 
-field<const vec *> UHF::fockEnergies() const
+field<const vec *> UHF::orbitalEnergies() const
 {
-    field<const vec *> fockEnergies(2,1);
-    fockEnergies(0) = &m_fockEnergyU;
-    fockEnergies(1) = &m_fockEnergyD;
-    return fockEnergies;
+    field<const vec *> orbitalEnergies(2,1);
+    orbitalEnergies(0) = &m_fockEnergyU;
+    orbitalEnergies(1) = &m_fockEnergyD;
+    return orbitalEnergies;
 }
 

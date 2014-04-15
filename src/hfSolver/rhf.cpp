@@ -137,9 +137,9 @@ field<const mat *> RHF::expansionCoefficients() const
     return coefficientsMatrices;
 }
 
-field<const vec *> RHF::fockEnergies() const
+field<const vec *> RHF::orbitalEnergies() const
 {
-    field<const vec *> fockEnergies(1,1);
-    fockEnergies(0) = &m_fockEnergy;
-    return fockEnergies;
+    field<const vec *> orbitalEnergies(1,1);
+    orbitalEnergies(0) = &m_fockEnergy;
+    return orbitalEnergies;
 }

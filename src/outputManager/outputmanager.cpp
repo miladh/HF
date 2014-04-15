@@ -60,20 +60,26 @@ void OutputManager::saveAtoms(vector<Atom *> atoms)
 void OutputManager::saveEnergy(const double& energy, const mat& orbitalEnergies)
 {
 
-    Attribute energyAttribute(m_dataset->createAttribute("energy", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute energyAttribute(m_dataset->createAttribute("energy", PredType::NATIVE_DOUBLE, H5S_SCALAR));
     energyAttribute.write(PredType::NATIVE_DOUBLE, &energy);
 
-    hsize_t dim[2] = {orbitalEnergies.n_cols, 2};
+    hsize_t dim[2] = {orbitalEnergies.n_cols, orbitalEnergies.n_rows};
     DataSpace space(2, dim);
     DataSet dataset(m_output->createDataSet("orbital energies", PredType::NATIVE_DOUBLE, space));
     dataset.write(orbitalEnergies.memptr(), PredType::NATIVE_DOUBLE);
 
+    if(orbitalEnergies.n_rows > 1){
+        string comment = " Col 0 is spin up, col 1 is spin down";
+        StrType vlst(0, H5T_VARIABLE);
+        Attribute attrConfigFilename = dataset.createAttribute("comment", vlst, DataSpace(H5S_SCALAR));
+        attrConfigFilename.write(vlst, comment);
+    }
 }
 
 void OutputManager::saveDipoleMoment(const double& dipoleMoment)
 {
 
-    Attribute energyAttribute(m_dataset->createAttribute("dipole Moment", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute energyAttribute(m_dataset->createAttribute("dipole Moment", PredType::NATIVE_DOUBLE, H5S_SCALAR));
     energyAttribute.write(PredType::NATIVE_DOUBLE, &dipoleMoment);
 
 }
