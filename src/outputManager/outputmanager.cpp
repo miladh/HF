@@ -18,21 +18,25 @@ OutputManager::OutputManager(const int nAtoms):
     m_outputFileName << "/home/milad/kurs/qmd/output_" << m_rank << ".h5";
     m_output = new H5File (m_outputFileName.str(), H5F_ACC_TRUNC);
 
+
+    //---------------------------------------------------------------------------------------------------------
     m_atomCompound = new CompType(sizeof(AtomAttributes));
     m_atomCompound->insertMember( "type", HOFFSET(AtomAttributes, type), PredType::NATIVE_INT);
-    m_atomCompound->insertMember( "basisType", HOFFSET(AtomAttributes, basisType), StrType(PredType::C_S1, 64));
+    m_atomCompound->insertMember( "basis type", HOFFSET(AtomAttributes, basisType), StrType(PredType::C_S1, 64));
     m_atomCompound->insertMember("x", HOFFSET(AtomAttributes, x), PredType::NATIVE_DOUBLE);
     m_atomCompound->insertMember("y", HOFFSET(AtomAttributes, y), PredType::NATIVE_DOUBLE);
     m_atomCompound->insertMember("z", HOFFSET(AtomAttributes, z), PredType::NATIVE_DOUBLE);
-    m_atomCompound->insertMember("partialCharge", HOFFSET(AtomAttributes, corePartialCharge), PredType::NATIVE_DOUBLE);
-    m_atomCompound->insertMember("coreCharge", HOFFSET(AtomAttributes, coreCharge), PredType::NATIVE_DOUBLE);
+    m_atomCompound->insertMember("core charge", HOFFSET(AtomAttributes, coreCharge), PredType::NATIVE_INT);
+    m_atomCompound->insertMember("partial charge", HOFFSET(AtomAttributes, corePartialCharge), PredType::NATIVE_DOUBLE);
 
    hsize_t dim[1];
    dim[0] = nAtoms;
    DataSpace space(1, dim);
    m_dataset = new DataSet(m_output->createDataSet("atoms", *m_atomCompound, space));
-
    m_atomAttributes = new AtomAttributes[nAtoms];
+   //---------------------------------------------------------------------------------------------------------
+
+
 
 }
 
@@ -53,11 +57,16 @@ void OutputManager::saveAtoms(vector<Atom *> atoms)
 
 }
 
-void OutputManager::saveEnergy(const double& energy)
+void OutputManager::saveEnergy(const double& energy, const mat& orbitalEnergies)
 {
 
     Attribute energyAttribute(m_dataset->createAttribute("energy", H5::PredType::NATIVE_DOUBLE, H5S_SCALAR));
     energyAttribute.write(PredType::NATIVE_DOUBLE, &energy);
+
+    hsize_t dim[2] = {orbitalEnergies.n_cols, 2};
+    DataSpace space(2, dim);
+    DataSet dataset(m_output->createDataSet("orbital energies", PredType::NATIVE_DOUBLE, space));
+    dataset.write(orbitalEnergies.memptr(), PredType::NATIVE_DOUBLE);
 
 }
 

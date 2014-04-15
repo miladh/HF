@@ -21,7 +21,7 @@ public:
     OutputManager(const int nAtoms);
 
     void saveAtoms(vector<Atom *> atoms);
-    void saveEnergy(const double &energy);
+    void saveEnergy(const double &energy, const mat &orbitalEnergies);
     void saveDipoleMoment(const double &dipoleMoment);
     void closeOutput();
 
@@ -36,9 +36,10 @@ private:
         double x;
         double y;
         double z;
-        double corePartialCharge;
         int coreCharge;
+        double corePartialCharge;
     };
+
 
 
     H5File *m_output;

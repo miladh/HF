@@ -25,6 +25,7 @@ public:
     void calculateChargeDensity();
     void calculateElectrostaticPotential();
     void dipoleMoment();
+    void saveResults();
 
 
 

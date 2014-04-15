@@ -15,28 +15,25 @@ Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
     m_rank(0),
     m_nProcs(1)
 {
+}
+
+void Analyser::saveResults()
+{
     m_outputManager->saveAtoms(m_system->atoms());
+    m_outputManager->closeOutput();
 }
 
 void Analyser::saveEnergies()
 {
-    if(m_rank == 0){
-        stringstream outputFileName;
-        ofstream outputFile;
-        outputFileName <<"/home/milad/kurs/qmd/energies.txt";
-        outputFile.open (outputFileName.str().c_str());
 
-        field<const vec *> fockEnergies= m_solver->fockEnergies();
+    field<const vec *> fockEnergies= m_solver->fockEnergies();
 
-        outputFile << m_solver->energy() << endl << endl;
-        const vec& E1 = (*fockEnergies(0));
-        const vec& E2 = (*fockEnergies(fockEnergies.n_elem - 1));
+    mat orbitalEnergies = zeros(2,fockEnergies.at(0)->n_elem);
+    orbitalEnergies.row(0) = (*fockEnergies(0)).t();
+    orbitalEnergies.row(1) = (*fockEnergies(fockEnergies.n_elem - 1)).t();
 
-        for(int j=0;  j < signed(E1.n_elem); j++){
-            outputFile << setprecision(10) << E1[j]  << "      "  << E2[j] << endl;
-        }
-        outputFile.close();
-    }
+    m_outputManager->saveEnergy(m_solver->energy(), orbitalEnergies);
+
 }
 
 void Analyser::atomicPartialCharge()
@@ -95,8 +92,7 @@ void Analyser::dipoleMoment()
 
     }
 
-    cout << D << endl;
-    cout << sqrt(dot(D,D)) << endl;
+    m_outputManager->saveDipoleMoment(sqrt(dot(D,D)));
 }
 
 
