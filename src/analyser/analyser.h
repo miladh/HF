@@ -19,9 +19,11 @@ class Analyser
 public:
     Analyser(ElectronicSystem *system, HFsolver *solver);
 
+    void saveEnergies();
     void atomicPartialCharge();
     void calculateChargeDensity();
     void calculateElectrostaticPotential();
+    void dipoleMoment();
 
 
 

@@ -9,6 +9,7 @@ Integrator::Integrator(const int maxAngularMomentum):
     Ecd = new HermiteCoefficients(maxAngularMomentum);
 
     m_overlap = new OverlapIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
+    m_dipole = new DipoleIntegral(Eab->coefficients(), &m_primitiveA, &m_primitiveB);
     m_kinetic = new KineticIntegral(m_overlap, &m_primitiveA, &m_primitiveB);
     m_nuclearAttraction = new NuclearAttractionIntegral(2 * maxAngularMomentum + 1,
                                                         Eab->coefficients(),
@@ -125,6 +126,11 @@ void Integrator::updateElectronRepulsionHermiteCoefficientsGD()
 double Integrator::overlapIntegral()
 {
     return m_overlap->evaluate();
+}
+
+rowvec Integrator::dipoleIntegral()
+{
+    return m_dipole->evaluate();
 }
 
 double Integrator::kineticIntegral()

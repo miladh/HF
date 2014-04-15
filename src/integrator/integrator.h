@@ -9,6 +9,7 @@
 
 #include "overlap/overlapintegral.h"
 #include "kinetic/kineticintegral.h"
+#include "dipole/dipoleintegral.h"
 #include "nuclearAttraction/nuclearattractionintegral.h"
 #include "electronRepulsion/electronrepulsionintegral.h"
 
@@ -45,6 +46,7 @@ public:
     double kineticIntegral();
     double nuclearAttractionIntegral();
     double electronRepulsionIntegral();
+    rowvec dipoleIntegral();
 
    rowvec QDerivativeOverlapIntegral();
    rowvec QDerivativeKineticIntegral();
@@ -80,6 +82,7 @@ private:
 
     OverlapIntegral* m_overlap;
     KineticIntegral* m_kinetic;
+    DipoleIntegral* m_dipole;
     NuclearAttractionIntegral* m_nuclearAttraction;
     ElectronRepulsionIntegral* m_electronRepulsion;
 

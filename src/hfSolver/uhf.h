@@ -17,6 +17,7 @@ public:
     field<const mat *> fockMatrix();
     field<const mat *> densityMatrix() const;
     field<const mat *> expansionCoefficients() const;
+    field<const vec *> fockEnergies() const;
 
 
 private:

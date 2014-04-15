@@ -16,6 +16,62 @@ Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
 {
 }
 
+void Analyser::saveEnergies()
+{
+    if(m_rank==0){
+        stringstream outputFileName;
+        ofstream outputFile;
+        outputFileName <<"/home/milad/kurs/qmd/energies.txt";
+        outputFile.open (outputFileName.str().c_str());
+
+        field<const vec *> fockEnergies= m_solver->fockEnergies();
+
+        outputFile << m_solver->energy() << endl << endl;
+        const vec& E1 = (*fockEnergies(0));
+        const vec& E2 = (*fockEnergies(fockEnergies.n_elem - 1));
+
+        for(int j=0;  j < signed(E1.n_elem); j++){
+            outputFile << setprecision(10) << E1[j]  << "      "  << E2[j] << endl;
+        }
+        outputFile.close();
+    }
+}
+
+
+void Analyser::dipoleMoment()
+{
+    rowvec D ={0,0,0};
+    field<const mat *> densityMatrices = m_solver->densityMatrix();
+    const mat& P = (*densityMatrices(0));
+
+    for(int p = 0; p < m_system->nBasisFunctions(); p++){
+        for(int q = 0; q < m_system->nBasisFunctions(); q++){
+            const ContractedGTO *CGp = m_basisFunctions.at(p);
+            const ContractedGTO *CGq = m_basisFunctions.at(q);
+
+            for(const PrimitiveGTO &Ga : CGp->primitiveGTOs()) {
+                m_integrator->setPrimitiveA(Ga);
+
+                for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
+                    m_integrator->setPrimitiveB(Gb);
+                    m_integrator->updateOverlapHermiteCoefficients();
+
+                    D -= P(p,q) * m_integrator->dipoleIntegral();
+
+                }
+            }
+        }
+    }
+    for(const Atom *atom : m_system->atoms()){
+        m_integrator->setNuclearSourceCharge(atom->corePosition());
+        D +=  atom->coreCharge() * atom->corePosition();
+
+    }
+
+    cout << D << endl;
+    cout << sqrt(dot(D,D)) << endl;
+}
+
 
 void Analyser::calculateElectrostaticPotential()
 {
@@ -72,7 +128,7 @@ void Analyser::calculateElectrostaticPotential()
                         densityCube(j,i,k) -= P(p,p) * electronicPotential(p,p,C);
 
                         for(int q = p+1; q < m_nBasisFunctions; q++){
-                        densityCube(j,i,k) -= 2.0 *  P(p,q) * electronicPotential(p,q,C);
+                            densityCube(j,i,k) -= 2.0 *  P(p,q) * electronicPotential(p,q,C);
 
                         }
                     }
@@ -103,9 +159,10 @@ double Analyser::electronicPotential(const int& p, const int& q, const rowvec& C
 
         for(const PrimitiveGTO &Gb : CGq->primitiveGTOs()) {
             m_integrator->setPrimitiveB(Gb);
-            m_integrator->updateKineticHermiteCoefficients();
+//            m_integrator->updateKineticHermiteCoefficients();
+            m_integrator->updateOverlapHermiteCoefficients();
 
-                Vpq += m_integrator->nuclearAttractionIntegral();
+            Vpq += m_integrator->nuclearAttractionIntegral();
 
         }
     }

@@ -13,9 +13,9 @@ UHF::UHF(ElectronicSystem *system):
     m_fockEnergyU(zeros(m_nBasisFunctions)),
     m_fockEnergyD(zeros(m_nBasisFunctions))
 {
-    m_Pu(0,0) = 0.1;
+    m_Pu(0,1) = 0.1;
     setDampingFactor(0.5);
-    setMaxNumOfIteration(500);
+    setMaxNumOfIteration(200);
 }
 
 
@@ -181,5 +181,13 @@ field<const mat *> UHF::expansionCoefficients() const
     coefficientsMatrices(0) = &m_Cu;
     coefficientsMatrices(1) = &m_Cd;
     return coefficientsMatrices;
+}
+
+field<const vec *> UHF::fockEnergies() const
+{
+    field<const vec *> fockEnergies(2,1);
+    fockEnergies(0) = &m_fockEnergyU;
+    fockEnergies(1) = &m_fockEnergyD;
+    return fockEnergies;
 }
 
