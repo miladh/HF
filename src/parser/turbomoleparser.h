@@ -34,7 +34,11 @@ public:
     int angularMomentum() const;
     void setAngularMomentum(int angularMomentum);
 
+    string basisType() const;
+    void setBasisType(const string &basisType);
+
     vector<ContractedGTO> contractedGTOs() const;
+
 
 
 private:
@@ -45,6 +49,7 @@ private:
     int m_atomCharge;
     double m_atomMass;
     int m_angularMomentum;
+    string m_basisType;
 
     vector<ContractedGTO> m_contractedGTOs;
 

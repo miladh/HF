@@ -2,6 +2,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 LIBS += -llapack -larmadillo -lconfig++ -lboost_regex
+LIBS += -lhdf5 -lhdf5_cpp
 
 COMMON_CXXFLAGS = -std=c++0x
 QMAKE_CXXFLAGS += $$COMMON_CXXFLAGS

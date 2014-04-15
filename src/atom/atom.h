@@ -32,6 +32,9 @@ public:
     const rowvec &coreVelocity() const;
     void setCoreVelocity(const rowvec &coreVelocity);
 
+    const string basisType() const;
+    void setBasisType(const string &basisType);
+
 private:
     int m_atomType;
     int m_nElectrons;
@@ -39,6 +42,7 @@ private:
     int m_angularMomentum;
     double m_coreMass;
     double m_corePartialCharge;
+    string m_basisType;
 
     rowvec m_corePosition;
     rowvec m_coreVelocity;

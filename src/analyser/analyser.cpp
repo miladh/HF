@@ -14,11 +14,12 @@ Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
     m_rank(0),
     m_nProcs(1)
 {
+    m_outputManager.registerAtoms(m_system->atoms());
 }
 
 void Analyser::saveEnergies()
 {
-    if(m_rank==0){
+    if(m_rank == 0){
         stringstream outputFileName;
         ofstream outputFile;
         outputFileName <<"/home/milad/kurs/qmd/energies.txt";

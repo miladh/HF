@@ -7,6 +7,7 @@
 #include <boost/mpi/collectives.hpp>
 #include "../hfSolver/hfsolver.h"
 #include "../system/electronicsystem.h"
+#include "../outputManager/outputmanager.h"
 
 
 using namespace arma;
@@ -31,6 +32,7 @@ private:
     ElectronicSystem* m_system;
     HFsolver* m_solver;
     Integrator* m_integrator;
+    OutputManager m_outputManager;
     vector<const ContractedGTO *> m_basisFunctions;
 
     int m_nBasisFunctions;

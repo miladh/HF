@@ -48,6 +48,7 @@ void TurbomoleParser::loadfile(string filename)
             setAtomType(atomMeta.type);
             setAtomCharge(atomMeta.charge);
             setAtomMass(atomMeta.mass);
+            setBasisType(string(what[2]));
             break;
         }
 
@@ -167,6 +168,16 @@ double TurbomoleParser::normalize(const double& exponent, const rowvec& powers)
 
     return std::pow((2*exponent/M_PI) , 0.75) * sqrt(numerator/denominator);
 }
+string TurbomoleParser::basisType() const
+{
+    return m_basisType;
+}
+
+void TurbomoleParser::setBasisType(const string &basisType)
+{
+    m_basisType = basisType;
+}
+
 
 int TurbomoleParser::angularMomentum() const
 {

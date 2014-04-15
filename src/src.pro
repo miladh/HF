@@ -29,7 +29,8 @@ SOURCES += \
     integrator/kinetic/kineticintegralgd.cpp \
     integrator/nuclearAttraction/nuclearattractionintegralgd.cpp \
     integrator/electronRepulsion/electronrepulsionintegralgd.cpp \
-    integrator/dipole/dipoleintegral.cpp
+    integrator/dipole/dipoleintegral.cpp \
+    outputManager/outputmanager.cpp
 
 HEADERS += \
     primitiveGTO/primitiveGTO.h \
@@ -56,7 +57,8 @@ HEADERS += \
     integrator/kinetic/kineticintegralgd.h \
     integrator/nuclearAttraction/nuclearattractionintegralgd.h \
     integrator/electronRepulsion/electronrepulsionintegralgd.h \
-    integrator/dipole/dipoleintegral.h
+    integrator/dipole/dipoleintegral.h \
+    outputManager/outputmanager.h
 
 
 OTHER_FILES += ../include/hf.h ../install/include/hf.h

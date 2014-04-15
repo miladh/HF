@@ -15,6 +15,7 @@ void Atom::loadBasisFile(string fileName)
     m_atomType   = parser.atomType();
     m_coreCharge = parser.atomCharge();
     m_coreMass   = parser.atomMass();
+    m_basisType  = parser.basisType();
     m_angularMomentum = parser.angularMomentum();
     m_nElectrons = int(m_atomType);
     m_contractedGTOs = parser.contractedGTOs();
@@ -84,6 +85,16 @@ void Atom::setCoreVelocity(const rowvec &coreVelocity)
     m_coreVelocity = coreVelocity;
 }
 
+
+const string Atom::basisType() const
+{
+    return m_basisType;
+}
+
+void Atom::setBasisType(const string &basisType)
+{
+    m_basisType = basisType;
+}
 
 
 void Atom::setCorePartialCharge(const double& corePartialCharge)
