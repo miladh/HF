@@ -5,25 +5,7 @@
 using namespace hf;
 
 
-Analyser::Analyser(ElectronicSystem* system, HFsolver* solver, bool saveResults):
-    m_system(system),
-    m_solver(solver),
-    m_integrator(new Integrator(m_system->maxAngularMomentum())),
-    m_basisFunctions(system->basisFunctions()),
-    m_nBasisFunctions(m_basisFunctions.size()),
-    m_rank(0),
-    m_nProcs(1)
-{
-
-#if USE_MPI
-    m_rank = m_world.rank();
-    m_nProcs = m_world.size();
-#endif
-
-}
-
-Analyser::Analyser(const Config* cfg, ElectronicSystem* system, HFsolver* solver):
-    m_cfg(cfg),
+Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
     m_system(system),
     m_solver(solver),
     m_integrator(new Integrator(m_system->maxAngularMomentum())),
@@ -40,6 +22,12 @@ Analyser::Analyser(const Config* cfg, ElectronicSystem* system, HFsolver* solver
     if(m_rank == 0){
         cout << "Starting analysis......" << endl;
     }
+}
+
+Analyser::Analyser(const Config* cfg, ElectronicSystem* system, HFsolver* solver):
+    Analyser(system, solver)
+{
+    m_cfg = cfg;
 }
 
 

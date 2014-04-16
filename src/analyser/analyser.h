@@ -21,7 +21,7 @@ namespace hf {
 class Analyser
 {
 public:
-    Analyser(ElectronicSystem *system, HFsolver *solver, bool saveResults = true);
+    Analyser(ElectronicSystem *system, HFsolver *solver);
     Analyser(const Config *cfg, ElectronicSystem* system, HFsolver* solver);
 
     void runAnalysis();
