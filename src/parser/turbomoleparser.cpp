@@ -28,7 +28,7 @@ void TurbomoleParser::loadfile(string filename)
     }
 
     //-----------------------------------------------------------------------------------
-    regex typeRegex("\\s*([a-zA-Z]+)\\s*(([0-9])-([0-9]+)([G]))\\s*");
+    regex typeRegex("\\s*([a-zA-Z]+)\\s*(([0-9])-([0-9]+)([G])(\\**))\\s*");
     sregex_iterator type(stringToSearch.begin(), stringToSearch.end(), typeRegex);
     sregex_iterator endType;
 
@@ -44,6 +44,7 @@ void TurbomoleParser::loadfile(string filename)
         }
         smatch what;
         while(regex_search(stringToSearch, what, typeRegex)) {
+            cout << what << endl;
             AtomMeta atomMeta = AtomMeta::getData(string(what[1]));
             setAtomType(atomMeta.type);
             setAtomCharge(atomMeta.charge);
