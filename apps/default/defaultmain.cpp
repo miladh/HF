@@ -105,16 +105,33 @@ int main(int argc, char **argv)
 
     solver->runSolver();
 
-
-    //Analyzer--------------------------------------------------------------------
+    //Analyzer------------------------------------------------------------------------------
     Analyser analyser(&cfg, system,solver);
     analyser.runAnalysis();
+
+    //Save config file-------------------------------------------------------------------------
+    if(world.rank() == 0){
+        string outputFilePath = root["analysisSettings"]["outputFilePath"];
+        stringstream copyCommand;
+        copyCommand << "cp ../../../hf/apps/default/defaultConfig.cfg" << "" << outputFilePath;
+        const char* command = new char[sizeof(copyCommand)];
+        command = (copyCommand.str()).c_str();
+
+        int status = std::system( command );
+        if(!status){
+            cout << "Config file successfully copied!" << endl;
+        }else{
+            cerr << "Config file cannot be copied!" << endl;
+        }
+    }
 
 
     clock_t end = clock();
     if(world.rank()==0){
         cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
     }
+
+
 
     return 0;
 

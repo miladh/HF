@@ -36,7 +36,6 @@ OutputManager::OutputManager(const int nAtoms, const string& outputFilePath):
    //---------------------------------------------------------------------------------------------------------
 
 
-
 }
 
 void OutputManager::saveAtoms(vector<Atom *> atoms)
