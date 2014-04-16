@@ -5,16 +5,91 @@
 using namespace hf;
 
 
-Analyser::Analyser(ElectronicSystem* system, HFsolver* solver):
+Analyser::Analyser(ElectronicSystem* system, HFsolver* solver, bool saveResults):
     m_system(system),
     m_solver(solver),
     m_integrator(new Integrator(m_system->maxAngularMomentum())),
-    m_outputManager(new OutputManager(m_system->nAtoms())),
     m_basisFunctions(system->basisFunctions()),
     m_nBasisFunctions(m_basisFunctions.size()),
     m_rank(0),
     m_nProcs(1)
 {
+
+#if USE_MPI
+    m_rank = m_world.rank();
+    m_nProcs = m_world.size();
+#endif
+
+}
+
+Analyser::Analyser(const Config* cfg, ElectronicSystem* system, HFsolver* solver):
+    m_cfg(cfg),
+    m_system(system),
+    m_solver(solver),
+    m_integrator(new Integrator(m_system->maxAngularMomentum())),
+    m_basisFunctions(system->basisFunctions()),
+    m_nBasisFunctions(m_basisFunctions.size()),
+    m_rank(0),
+    m_nProcs(1)
+{
+
+#if USE_MPI
+    m_rank = m_world.rank();
+    m_nProcs = m_world.size();
+#endif
+    if(m_rank == 0){
+        cout << "Starting analysis......" << endl;
+    }
+}
+
+
+void Analyser::runAnalysis()
+{
+    const Setting & root = m_cfg->getRoot();
+
+    if(int(root["analysisSettings"]["saveResults"])){
+        string outputFilePath = root["analysisSettings"]["outputFilePath"];
+        m_outputManager = new OutputManager(m_system->nAtoms(), outputFilePath);
+
+        if(int(root["analysisSettings"]["saveEnergies"])){
+            saveEnergies();
+            if(m_rank == 0){
+                cout << " - Energies saved!" << endl;
+            }
+        }
+        if(int(root["analysisSettings"]["dipoleMoment"])){
+            computeDipoleMoment();
+            if(m_rank == 0){
+                cout << " - Dipole moment computed!" << endl;
+            }
+        }
+        if(int(root["analysisSettings"]["atomicPartialCharge"])){
+            computeAtomicPartialCharge();
+            if(m_rank == 0){
+                cout << " - Partial charge computed!" << endl;
+            }
+        }
+
+        saveResults();
+    }
+    else if(m_rank == 0){
+        cout << " - No output file will be created!" << endl;
+    }
+
+
+    if(int(root["analysisSettings"]["chargeDensity"])){
+        computeChargeDensity();
+        if(m_rank == 0){
+            cout << " - Charge density computed!" << endl;
+        }
+    }
+    if(int(root["analysisSettings"]["electrostaticPotential"])){
+        computeElectrostaticPotential();
+        if(m_rank == 0){
+            cout << " - Electrostatic potential computed!" << endl;
+        }
+    }
+
 }
 
 void Analyser::saveResults()
@@ -37,7 +112,7 @@ void Analyser::saveEnergies()
 
 }
 
-void Analyser::atomicPartialCharge()
+void Analyser::computeAtomicPartialCharge()
 {
     const mat& S = m_solver->overlapMatrix();
     field<const mat *> densityMatrices = m_solver->densityMatrix();
@@ -63,7 +138,7 @@ void Analyser::atomicPartialCharge()
 }
 
 
-void Analyser::dipoleMoment()
+void Analyser::computeDipoleMoment()
 {
     rowvec D ={0,0,0};
     field<const mat *> densityMatrices = m_solver->densityMatrix();
@@ -97,7 +172,7 @@ void Analyser::dipoleMoment()
 }
 
 
-void Analyser::calculateElectrostaticPotential()
+void Analyser::computeElectrostaticPotential()
 {
     vec x = linspace(-10, 10, 40);
     vec y = linspace(-10, 10, 40);
@@ -109,13 +184,6 @@ void Analyser::calculateElectrostaticPotential()
 
 
     //MPI---------------------------------------------------------------------
-#if USE_MPI
-    boost::mpi::environment env;
-    boost::mpi::communicator world;
-    m_rank = world.rank();
-    m_nProcs = world.size();
-#endif
-
     vector<int> myGridPoints;
     int node = 0;
     int s = 0;
@@ -195,7 +263,7 @@ double Analyser::electronicPotential(const int& p, const int& q, const rowvec& C
 }
 
 
-void Analyser::calculateChargeDensity()
+void Analyser::computeChargeDensity()
 {
     vec x = linspace(-10, 10, 50);
     vec y = linspace(-10, 10, 50);
@@ -206,13 +274,6 @@ void Analyser::calculateChargeDensity()
     field<const mat *> densityMatrices = m_solver->densityMatrix();
 
     //MPI---------------------------------------------------------------------
-#if USE_MPI
-    boost::mpi::environment env;
-    boost::mpi::communicator world;
-    m_rank = world.rank();
-    m_nProcs = world.size();
-#endif
-
     vector<int> myGridPoints;
     int node = 0;
     int s = 0;
@@ -257,9 +318,9 @@ void Analyser::calculateChargeDensity()
     double nElectrons = sumDensity;
 #if USE_MPI
     if(m_rank == 0){
-        boost::mpi::reduce(world, sumDensity, nElectrons, std::plus<double>(), 0);
+        boost::mpi::reduce(m_world, sumDensity, nElectrons, std::plus<double>(), 0);
     }else{
-        boost::mpi::reduce(world, sumDensity, std::plus<double>(), 0);
+        boost::mpi::reduce(m_world, sumDensity, std::plus<double>(), 0);
     }
 #endif
     if(m_rank == 0){

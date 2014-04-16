@@ -18,7 +18,7 @@ namespace hf{
 class OutputManager
 {
 public:
-    OutputManager(const int nAtoms);
+    OutputManager(const int nAtoms, const string &outputFilePath);
 
     void saveAtoms(vector<Atom *> atoms);
     void saveEnergy(const double &energy, const mat &orbitalEnergies);

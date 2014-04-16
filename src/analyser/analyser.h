@@ -5,6 +5,8 @@
 #include <iostream>
 #include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
+#include <libconfig.h++>
+
 #include "../hfSolver/hfsolver.h"
 #include "../system/electronicsystem.h"
 #include "../outputManager/outputmanager.h"
@@ -12,24 +14,28 @@
 
 using namespace arma;
 using namespace std;
+using namespace libconfig;
 
 namespace hf {
 
 class Analyser
 {
 public:
-    Analyser(ElectronicSystem *system, HFsolver *solver);
+    Analyser(ElectronicSystem *system, HFsolver *solver, bool saveResults = true);
+    Analyser(const Config *cfg, ElectronicSystem* system, HFsolver* solver);
 
+    void runAnalysis();
     void saveEnergies();
-    void atomicPartialCharge();
-    void calculateChargeDensity();
-    void calculateElectrostaticPotential();
-    void dipoleMoment();
+    void computeAtomicPartialCharge();
+    void computeChargeDensity();
+    void computeElectrostaticPotential();
+    void computeDipoleMoment();
     void saveResults();
 
 
 
 private:
+    const Config* m_cfg;
     ElectronicSystem* m_system;
     HFsolver* m_solver;
     Integrator* m_integrator;
@@ -39,6 +45,11 @@ private:
     int m_nBasisFunctions;
     int m_rank;
     int m_nProcs;
+
+
+    // MPI-----------------------
+    boost::mpi::communicator m_world;
+    //---------------------------
 
 
     double electronicPotential(const int &p, const int &q, const rowvec &P);

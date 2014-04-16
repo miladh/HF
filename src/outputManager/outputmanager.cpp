@@ -3,7 +3,7 @@
 
 using namespace hf;
 
-OutputManager::OutputManager(const int nAtoms):
+OutputManager::OutputManager(const int nAtoms, const string& outputFilePath):
     m_rank(0),
     m_nProcs(0)
 {
@@ -15,9 +15,8 @@ OutputManager::OutputManager(const int nAtoms):
     m_nProcs = world.size();
 #endif
 
-    m_outputFileName << "/home/milad/kurs/qmd/output_" << m_rank << ".h5";
+    m_outputFileName << outputFilePath << "HFOutput_" << m_rank << ".h5";
     m_output = new H5File (m_outputFileName.str(), H5F_ACC_TRUNC);
-
 
     //---------------------------------------------------------------------------------------------------------
     m_atomCompound = new CompType(sizeof(AtomAttributes));

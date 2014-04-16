@@ -107,30 +107,8 @@ int main(int argc, char **argv)
 
 
     //Analyzer--------------------------------------------------------------------
-    Analyser analyser(system,solver);
-    int saveEnergies = root["analysisSettings"]["saveEnergies"];
-    int dipoleMoment = root["analysisSettings"]["dipoleMoment"];
-    int atomicPartialCharge = root["analysisSettings"]["atomicPartialCharge"];
-    int chargeDensity = root["analysisSettings"]["chargeDensity"];
-    int calculateElectrostaticPotential = root["analysisSettings"]["calculateElectrostaticPotential"];
-
-    if(saveEnergies){
-        analyser.saveEnergies();
-    }
-    if(dipoleMoment){
-        analyser.dipoleMoment();
-    }
-    if(atomicPartialCharge){
-        analyser.atomicPartialCharge();
-    }
-    if(chargeDensity){
-        analyser.calculateChargeDensity();
-    }
-    if(calculateElectrostaticPotential){
-        analyser.calculateElectrostaticPotential();
-    }
-
-    analyser.saveResults();
+    Analyser analyser(&cfg, system,solver);
+    analyser.runAnalysis();
 
 
     clock_t end = clock();

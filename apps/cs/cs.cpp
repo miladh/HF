@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 
         //-------------------------------------------------------------------------------------------------------
         Analyser analyser(&system, solver);
-        analyser.atomicPartialCharge();
+        analyser.computeAtomicPartialCharge();
 
         for(int i = 0; i < nAtoms2; i++) {
             Atom* atom = atomList.at(i);

@@ -44,7 +44,6 @@ void TurbomoleParser::loadfile(string filename)
         }
         smatch what;
         while(regex_search(stringToSearch, what, typeRegex)) {
-            cout << what << endl;
             AtomMeta atomMeta = AtomMeta::getData(string(what[1]));
             setAtomType(atomMeta.type);
             setAtomCharge(atomMeta.charge);
