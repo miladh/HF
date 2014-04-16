@@ -59,10 +59,10 @@ int main(int argc, char **argv)
         atoms.push_back(new Atom(basisFilePath.str(), position));
     }
 
-//    ElectronicSystem *system = new ElectronicSystem();
-//    system->addAtoms(atoms);
+    ElectronicSystem *system = new ElectronicSystem();
+    system->addAtoms(atoms);
 
-    ElectronicSystem *system = setupSystem("H2O");
+//    ElectronicSystem *system = setupSystem("H2O");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
@@ -109,11 +109,13 @@ int main(int argc, char **argv)
     Analyser analyser(&cfg, system,solver);
     analyser.runAnalysis();
 
+
+
     //Save config file-------------------------------------------------------------------------
     if(world.rank() == 0){
         string outputFilePath = root["analysisSettings"]["outputFilePath"];
         stringstream copyCommand;
-        copyCommand << "cp ../../../hf/apps/default/defaultConfig.cfg" << "" << outputFilePath;
+        copyCommand << "cp ../../../hf/apps/default/defaultConfig.cfg" << " " << outputFilePath;
         const char* command = new char[sizeof(copyCommand)];
         command = (copyCommand.str()).c_str();
 
