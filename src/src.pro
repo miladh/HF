@@ -13,7 +13,6 @@ SOURCES += \
     math/hermitecoefficients.cpp \
     hfSolver/hfsolver.cpp \
     math/hermiteintegrals.cpp \
-    bomd/bomd.cpp \
     geometricalDerivative/geometricalderivative.cpp \
     hfSolver/uhf.cpp \
     hfSolver/rhf.cpp \
@@ -40,7 +39,6 @@ HEADERS += \
     math/hermitecoefficients.h \
     hfSolver/hfsolver.h \
     math/hermiteintegrals.h \
-    bomd/bomd.h \
     defines.h \
     geometricalDerivative/geometricalderivative.h \
     hfSolver/uhf.h \

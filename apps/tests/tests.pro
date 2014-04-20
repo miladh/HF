@@ -5,7 +5,6 @@ TARGET = hf_tests
 
 SOURCES += main.cpp \
     BoysFunctionTests/boysTests.cpp \
-    gradientTests/gradientTests.cpp \
     integratorTests/overlapIntegral.cpp \
     integratorTests/kineticIntegral.cpp \
     hfsolverTests/rhfTest.cpp \
