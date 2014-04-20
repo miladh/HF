@@ -10,3 +10,4 @@
 #include "../src/contractedGTO/contractedGTO.h"
 #include "../src/primitiveGTO/primitiveGTO.h"
 #include "../src/parser/turbomoleparser.h"
+#include "../src/geometricalDerivative/geometricalderivative.h"
