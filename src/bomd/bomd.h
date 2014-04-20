@@ -35,11 +35,9 @@ private:
     int m_rank;
 
     double m_dt;
-    double m_dampingFactor;
+    double m_frictionConstant;
 
     mat m_energyGradient;
-    mat m_corePositions;
-    mat m_coreVelocities;
 
     vec m_time;
     vec m_totalEnergy;

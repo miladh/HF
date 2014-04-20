@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     //Create output file
     stringstream outFileName;
-    outFileName << "/home/milad/Dropbox/qmd/parameterization/HFdata/output_" << world.rank() << ".h5";
+    outFileName << "//home/milad/Dropbox/qmd/hartreeFock/hf/DATA/benchmark/H2/dissociation/STO-3G/uhf_" << world.rank() << ".h5";
     H5::H5File outputFile(outFileName.str(), H5F_ACC_TRUNC);
 
 
@@ -174,7 +174,8 @@ int main(int argc, char* argv[])
 
         //Choose method:
         HFsolver* solver;
-        string method = "rhf";
+        string method = "uhf";
+
         if(method == "rhf"){
             solver = new RHF(&system);
         }else if(method == "uhf"){

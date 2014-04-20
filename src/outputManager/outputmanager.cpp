@@ -15,7 +15,7 @@ OutputManager::OutputManager(const int nAtoms, const string& outputFilePath):
     m_nProcs = world.size();
 #endif
 
-    m_outputFileName << outputFilePath << "HFOutput_" << m_rank << ".h5";
+    m_outputFileName << outputFilePath << "/HFOutput_" << m_rank << ".h5";
     m_output = new H5File (m_outputFileName.str(), H5F_ACC_TRUNC);
 
     //---------------------------------------------------------------------------------------------------------

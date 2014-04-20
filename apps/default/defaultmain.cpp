@@ -21,7 +21,8 @@ int main(int argc, char **argv)
 
     boost::mpi::environment env(argc, argv);
     boost::mpi::communicator world;
-    clock_t begin = clock();
+    boost::mpi::timer timer;
+    timer.restart();
 
     //read config file---------------------------------------------------------------
     Config cfg;
@@ -59,10 +60,10 @@ int main(int argc, char **argv)
         atoms.push_back(new Atom(basisFilePath.str(), position));
     }
 
-    ElectronicSystem *system = new ElectronicSystem();
-    system->addAtoms(atoms);
+//    ElectronicSystem *system = new ElectronicSystem();
+//    system->addAtoms(atoms);
 
-//    ElectronicSystem *system = setupSystem("H2O");
+    ElectronicSystem *system = setupSystem("benzeneT");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
@@ -104,7 +105,7 @@ int main(int argc, char **argv)
     }
 
     solver->runSolver();
-
+    double laps = timer.elapsed();
     //Analyzer------------------------------------------------------------------------------
     Analyser analyser(&cfg, system,solver);
     analyser.runAnalysis();
@@ -112,7 +113,7 @@ int main(int argc, char **argv)
 
 
     //Save config file-------------------------------------------------------------------------
-    if(world.rank() == 0){
+    if(world.rank() == 0 && int(root["analysisSettings"]["saveResults"])){
         string outputFilePath = root["analysisSettings"]["outputFilePath"];
         stringstream copyCommand;
         copyCommand << "cp ../../../hf/apps/default/defaultConfig.cfg" << " " << outputFilePath;
@@ -128,9 +129,11 @@ int main(int argc, char **argv)
     }
 
 
-    clock_t end = clock();
     if(world.rank()==0){
-        cout << "Total elapsed time: "<< (double(end - begin))/CLOCKS_PER_SEC << "s" << endl;
+        cout << setprecision(3)
+             << "Total elapsed time:  " <<  timer.elapsed()  << "s" << endl
+             << " - Computation time: " << laps << "s" << endl
+             << " - Analysis time:    " << timer.elapsed() - laps << "s" << endl;
     }
 
 
@@ -241,6 +244,33 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.        , -4.68463073,  R}));
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 , -2.34326023, R}));
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 ,  2.34326023, R}));
+
+    }else if(name =="benzeneT"){
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.000000,0.000000,1.059035}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 0.000000,-1.206008,1.757674}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.000000,-1.207177,3.151591}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.000000,0.000000,3.848575}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.000000,1.207177,3.151591}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.000000,1.206008,1.757674}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.000000,0.000000,-0.021580}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.000000,-2.141639,1.214422}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.000000,-2.143566,3.692995}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.000000,0.000000,4.930150}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.000000,2.143566,3.692995}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.000000,2.141639,1.214422}));
+
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {-1.394063,0.000000,-2.454152}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { -0.697047,1.207238,-2.454628}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {0.697047,1.207238,-2.454628}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {      1.394063,0.000000,-2.454152}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {      0.697047,-1.207238,-2.454628}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {      -0.697047,-1.207238,-2.454628}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-2.475399,0.000000,-2.450322}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-1.238232,2.143565,-2.453676}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {1.238232,2.143565,-2.453676}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {2.475399,0.000000,-2.450322}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {1.238232,-2.143565,-2.453676}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-1.238232,-2.143565,-2.453676}));
 
     }else{
         cerr << "unknown system!" << endl;

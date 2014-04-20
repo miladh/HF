@@ -19,13 +19,14 @@ int main(int argc, char **argv)
     rank = world.rank();
 #endif
 
+
     clock_t begin = clock();
 
     /********************************************************************************/
 
     //options:
     string method = "rhf";
-    string chemicalSystem = "O2";
+    string chemicalSystem = "H2";
 
     if(rank==0){
         cout << "---------------------------BOMD------------------------------"  << endl;
@@ -68,12 +69,14 @@ ElectronicSystem* setupSystem(string name)
     vector<rowvec3> atomsPos;
 
     if(name =="H2"){
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { -1, 0, 0 }));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 1, 0, 0 }));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { -0.5, 0, 0 }));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", { 0.2, 0, 0 }));
+
+    }else if(name =="HCl"){
+        atoms.push_back(new Atom("infiles/turbomole/atom_17_basis_3-21G.tm", { -0.8, 0, 0 }));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {   0.8, 0, 0 }));
 
     }else if(name =="Li2"){
-        atomsPos.push_back({-2.5255, 0.0, 0.0});
-        atomsPos.push_back({ 2.5255, 0.0, 0.0});
         atoms.push_back(new Atom("infiles/turbomole/atom_3_basis_3-21G.tm", {-2.5255, 0.0, 0.0}));
         atoms.push_back(new Atom("infiles/turbomole/atom_3_basis_3-21G.tm", { 2.5255, 0.0, 0.0}));
 
