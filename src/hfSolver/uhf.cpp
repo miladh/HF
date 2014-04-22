@@ -49,8 +49,9 @@ void UHF::advance()
         m_iteration+=1;
         if(m_iteration > m_maxNumOfIteration){
             cerr << "Energy has not converged! " << endl;
-            exit(1);
         }
+        m_energy = 0.0;
+        break;
     }
 
 }
