@@ -35,6 +35,9 @@ public:
     const string basisType() const;
     void setBasisType(const string &basisType);
 
+    bool frozen() const;
+    void freeze(bool frozen);
+
 private:
     int m_atomType;
     int m_nElectrons;
@@ -42,6 +45,7 @@ private:
     int m_angularMomentum;
     double m_coreMass;
     double m_corePartialCharge;
+    bool m_frozen = false;
     string m_basisType;
 
     rowvec m_corePosition;

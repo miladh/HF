@@ -96,6 +96,17 @@ void Atom::setBasisType(const string &basisType)
     m_basisType = basisType;
 }
 
+bool Atom::frozen() const
+{
+    return m_frozen;
+}
+
+void Atom::freeze(bool frozen)
+{
+    m_frozen = frozen;
+}
+
+
 
 void Atom::setCorePartialCharge(const double& corePartialCharge)
 {
