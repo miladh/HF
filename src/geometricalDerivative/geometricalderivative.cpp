@@ -54,8 +54,9 @@ void GeometricalDerivative::calculateEnergyGradient()
     m_gradE  = zeros(m_system->nAtoms(), 3);
 
 
-    for(uint i = 0; i < densityMatrices.n_elem; i ++){
-        const mat& P = (*densityMatrices(i));
+
+    if(densityMatrices.n_elem  == 1) {
+        const mat& P = (*densityMatrices(0));
 
 
         int p,q;
@@ -80,12 +81,8 @@ void GeometricalDerivative::calculateEnergyGradient()
                 }
             }
         }
-    }
 
-
-    for(uint i = 0; i < densityMatrices.n_elem; i ++){
-        const mat& P = (*densityMatrices(i));
-        const mat& F = (*fockMatrices(i));
+        const mat& F = (*fockMatrices(0));
 
         for(int c = 0; c < int(m_gradE.n_rows); c++){
             mat dSx = zeros(m_nBasisFunctions,m_nBasisFunctions);
@@ -113,7 +110,73 @@ void GeometricalDerivative::calculateEnergyGradient()
         }
 
 
+
+
+    }else{
+        const mat& Pu = (*densityMatrices(0));
+        const mat& Pd = (*densityMatrices(1));
+        const mat& Fu = (*fockMatrices(0));
+        const mat& Fd = (*fockMatrices(1));
+
+
+        int p,q;
+        for(pair<int,int>pq: m_myPQIndices){
+            p = pq.first;
+            q = pq.second;
+
+            double Pupq = Pu(p, q);
+            double Pdpq = Pd(p, q);
+
+            mat h = m_system->oneParticleIntegralGD(p,q);
+            for(int c = 0; c < int(m_gradE.n_rows); c++){
+                m_gradE.row(c) +=  (Pupq + Pdpq ) * h.row(c);
+            }
+
+            for (int r = 0; r < m_nBasisFunctions; r++){
+                for (int s = 0; s < m_nBasisFunctions; s++){
+
+                    double Purs = Pu(r, s);
+                    double Pdrs = Pd(r, s);
+
+                    mat J = m_system->twoParticleIntegralGD(p,q,r,s);
+                    mat K = m_system->twoParticleIntegralGD(p,s,r,q);
+
+                    for(int c = 0; c < int(m_gradE.n_rows); c++){
+                        rowvec JMinusK = J.row(c) - K.row(c);
+                        m_gradE.row(c) += 0.5 * JMinusK * (Pupq * Purs + Pdpq * Pdrs)
+                                       +  0.5 * (Pupq * Pdrs + Pdpq * Purs) * J.row(c);
+                    }
+                }
+            }
+        }
+
+
+        for(int c = 0; c < int(m_gradE.n_rows); c++){
+            mat dSx = zeros(m_nBasisFunctions,m_nBasisFunctions);
+            mat dSy = zeros(m_nBasisFunctions,m_nBasisFunctions);
+            mat dSz = zeros(m_nBasisFunctions,m_nBasisFunctions);
+
+            int p,q;
+            for(pair<int,int>pq: m_myPQIndices){
+                p = pq.first;
+                q = pq.second;
+                mat overlapGD = m_system->overlapIntegralGD(p,q);
+                dSx(p,q) += overlapGD(c,0);
+                dSy(p,q) += overlapGD(c,1);
+                dSz(p,q) += overlapGD(c,2);
+            }
+
+            dSx = symmatu(dSx);
+            dSy = symmatu(dSy);
+            dSz = symmatu(dSz);
+
+            m_gradE(c,0) -= trace(Pu*dSx*Pu*Fu) + trace(Pd*dSx*Pd*Fd);
+            m_gradE(c,1) -= trace(Pu*dSy*Pu*Fu) + trace(Pd*dSy*Pd*Fd);
+            m_gradE(c,2) -= trace(Pu*dSz*Pu*Fu) + trace(Pd*dSz*Pd*Fd);
+
+        }
     }
+
 
 #if USE_MPI
     m_totGradE = 0*m_gradE;

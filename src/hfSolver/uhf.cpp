@@ -14,7 +14,7 @@ UHF::UHF(ElectronicSystem *system):
     m_fockEnergyD(zeros(m_nBasisFunctions))
 {
     m_Pu(0,1) = 0.1;
-    setDampingFactor(0.5);
+    setDampingFactor(0.0);
     setMaxNumOfIteration(1e6);
 }
 
