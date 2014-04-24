@@ -32,6 +32,7 @@ protected:
     void calculateEnergy();
     void updateFockMatrix();
     void DIISprocedure();
+    void setInitialDensity(field<mat> density);
 };
 
 }

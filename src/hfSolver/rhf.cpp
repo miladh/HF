@@ -115,6 +115,11 @@ void RHF::DIISprocedure()
 }
 
 
+void RHF::setInitialDensity(field<mat> density)
+{
+    m_P = density(0);
+}
+
 field<const mat *> RHF::fockMatrix()
 {
     updateFockMatrix();

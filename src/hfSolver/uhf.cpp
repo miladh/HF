@@ -14,7 +14,7 @@ UHF::UHF(ElectronicSystem *system):
     m_fockEnergyD(zeros(m_nBasisFunctions))
 {
     m_Pu(0,1) = 0.1;
-    setDampingFactor(0.0);
+    setDampingFactor(0.5);
     setMaxNumOfIteration(1e6);
 }
 
@@ -48,11 +48,14 @@ void UHF::advance()
 
         m_iteration+=1;
         if(m_iteration > m_maxNumOfIteration){
-            cerr << "Energy has not converged! " << endl;
+            if(m_rank == 0){
+                cerr << "Energy has not converged! " << endl;
+            }
+            m_energy = 0.0;
+            break;
         }
-        m_energy = 0.0;
-        break;
     }
+
 
 }
 
@@ -156,6 +159,14 @@ void UHF::DIISprocedure()
                 m_Fd += bd(i) * m_fockMatricesD.at(i);
             }
         }
+    }
+}
+
+void UHF::setInitialDensity(field<mat> density)
+{
+    m_Pu = density(0);
+    if(density.n_elem  == 2){
+        m_Pd = density(1);
     }
 }
 

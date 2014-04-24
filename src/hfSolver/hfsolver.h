@@ -21,12 +21,14 @@ public:
    void runSolver();
 
    const mat& overlapMatrix() const;
+   const double &energy() const;
+
+   virtual void setInitialDensity(field <mat> density) = 0;
    virtual field<const mat *> fockMatrix() = 0;
    virtual field<const mat *> densityMatrix()  const= 0;
    virtual field<const mat *> expansionCoefficients()  const= 0;
    virtual field<const vec *> orbitalEnergies() const = 0;
 
-   const double &energy() const;
    void setupTwoParticleMatrix();
    void setupOneParticleMatrix();
 
