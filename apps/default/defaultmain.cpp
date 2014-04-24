@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 //    ElectronicSystem *system = new ElectronicSystem();
 //    system->addAtoms(atoms);
 
-    ElectronicSystem *system = setupSystem("H2O");
+    ElectronicSystem *system = setupSystem("H2");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
@@ -151,8 +151,8 @@ ElectronicSystem* setupSystem(string name)
     vector<rowvec3> atomsPos;
 
     if(name =="H2"){
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { -0.69, 0, 0 }));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { 0.69, 0, 0 }));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { -2.69, 0, 0 }));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_4-31G.tm", { 2.69, 0, 0 }));
 
     }else if(name =="Li2"){
         atomsPos.push_back({-2.5255, 0.0, 0.0});

@@ -74,6 +74,22 @@ void OutputManager::saveEnergy(const double& energy, const mat& orbitalEnergies)
     }
 }
 
+void OutputManager::saveElectronDensity(const field<cube>& densityCubes)
+{
+    const field<cube>& density = densityCubes;
+    Group* group = new Group( m_output->createGroup( "/electronDensity" ));
+
+     for(int i = 0; i < signed(density.n_elem); i++){
+         hsize_t dim[3] = {density(i).n_cols, density(i).n_rows, density(i).n_slices};
+         DataSpace space(3, dim);
+         stringstream orbital;
+         orbital << "orbital" << setw(4) << setfill('0')  << i;
+         DataSet dataset(group->createDataSet(orbital.str(), PredType::NATIVE_DOUBLE, space));
+         dataset.write(density(i).memptr(), PredType::NATIVE_DOUBLE);
+     }
+}
+
+
 void OutputManager::saveDipoleMoment(const double& dipoleMoment)
 {
 

@@ -23,6 +23,7 @@ public:
     void saveAtoms(vector<Atom *> atoms);
     void saveEnergy(const double &energy, const mat &orbitalEnergies);
     void saveDipoleMoment(const double &dipoleMoment);
+    void saveElectronDensity(const field<cube> &densityCubes);
     void closeOutput();
 
 private:

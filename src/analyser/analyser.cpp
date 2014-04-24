@@ -57,6 +57,12 @@ void Analyser::runAnalysis()
                 cout << " - Partial charge computed!" << endl;
             }
         }
+        if(int(root["analysisSettings"]["chargeDensity"])){
+            computeChargeDensity();
+            if(m_rank == 0){
+                cout << " - charge density computed!" << endl;
+            }
+        }
 
         saveResults();
     }
@@ -64,13 +70,6 @@ void Analyser::runAnalysis()
         cout << " - No output file will be created!" << endl;
     }
 
-
-    if(int(root["analysisSettings"]["chargeDensity"])){
-        computeChargeDensity();
-        if(m_rank == 0){
-            cout << " - Charge density computed!" << endl;
-        }
-    }
     if(int(root["analysisSettings"]["electrostaticPotential"])){
         computeElectrostaticPotential();
         if(m_rank == 0){
@@ -157,6 +156,71 @@ void Analyser::computeDipoleMoment()
     }
 
     m_outputManager->saveDipoleMoment(sqrt(dot(D,D)));
+}
+
+
+void Analyser::computeChargeDensity()
+{
+    vec x = linspace(-10, 10, 50);
+    vec y = linspace(-10, 10, 50);
+    vec z = linspace(-10, 10, 50);
+
+    field<const mat *> expansionCoefficients = m_solver->expansionCoefficients();
+
+    field<cube> densityCubes;
+    densityCubes.set_size(m_nBasisFunctions,expansionCoefficients.n_elem);
+    for(int i = 0; i < signed(m_nBasisFunctions); i++){
+        for(int j = 0; j < signed(expansionCoefficients.n_elem); j++){
+            densityCubes(i,j) = zeros(y.n_elem, x.n_elem, z.n_elem);
+        }
+    }
+
+    //MPI---------------------------------------------------------------------
+    vector<int> myGridPoints;
+    int node = 0;
+    int s = 0;
+    for (int i = 0; i < int(x.n_elem); i++) {
+        if (m_rank == node){
+            myGridPoints.push_back(i);
+        }
+        s++;
+        if(s >= signed(BLOCK_SIZE(node, m_nProcs, x.n_elem))){
+            s = 0;
+            node++;
+        }
+    }
+    //-----------------------------------------------------------------------
+
+    for(uint c = 0; c < expansionCoefficients.n_elem; c++){
+        const mat& C = (*expansionCoefficients(c));
+
+        for(const int i : myGridPoints) {
+            for(int j = 0; j < int(y.n_elem); j++) {
+                for(int k = 0; k < int(z.n_elem); k++) {
+
+                    for(int p = 0; p < m_system->nBasisFunctions(); p++){
+                        double innerProduct = gaussianProduct(p, p, x(i), y(j), z(k));
+
+                        for(int o = 0; o < m_system->nBasisFunctions(); o++){
+                            densityCubes(o,c)(j,i,k) += 2.0 * C(p,o)* C(p,o) * innerProduct ;
+                        }
+
+                        for(int q = p+1; q < m_system->nBasisFunctions(); q++){
+                            innerProduct = gaussianProduct(p, q, x(i), y(j), z(k));
+                            for(int o = 0; o < m_system->nBasisFunctions(); o++){
+                                densityCubes(o,c)(j,i,k) += 4.0 * C(p,o)* C(q,o) * innerProduct ;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    m_outputManager->saveElectronDensity(densityCubes);
+
+//    writeDensityToFile(densityCube, x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
+
 }
 
 
@@ -249,76 +313,6 @@ double Analyser::electronicPotential(const int& p, const int& q, const rowvec& C
 
     return Vpq;
 }
-
-
-void Analyser::computeChargeDensity()
-{
-    vec x = linspace(-10, 10, 50);
-    vec y = linspace(-10, 10, 50);
-    vec z = linspace(-10, 10, 50);
-    double dr = (x(1) - x(0)) * (y(1) - y(0)) * (z(1) - z(0));
-
-    cube densityCube = zeros(y.n_elem, x.n_elem, z.n_elem);
-    field<const mat *> densityMatrices = m_solver->densityMatrix();
-
-    //MPI---------------------------------------------------------------------
-    vector<int> myGridPoints;
-    int node = 0;
-    int s = 0;
-    for (int i = 0; i < int(x.n_elem); i++) {
-        if (m_rank == node){
-            myGridPoints.push_back(i);
-        }
-        s++;
-        if(s >= signed(BLOCK_SIZE(node, m_nProcs, x.n_elem))){
-            s = 0;
-            node++;
-        }
-    }
-    //-----------------------------------------------------------------------
-
-    double sumDensity =0;
-    for(uint p = 0; p < densityMatrices.n_elem; p++){
-        const mat& P = (*densityMatrices(p));
-
-        for(const int i : myGridPoints) {
-            for(int j = 0; j < int(y.n_elem); j++) {
-                for(int k = 0; k < int(z.n_elem); k++) {
-
-                    for(int p = 0; p < m_system->nBasisFunctions(); p++){
-                        double innerProduct = gaussianProduct(p, p, x(i), y(j), z(k));
-                        sumDensity += P(p,p) * innerProduct * dr;
-                        densityCube(j,i,k) += P(p,p) * innerProduct;
-
-                        for(int q = p+1; q < m_system->nBasisFunctions(); q++){
-                            innerProduct = gaussianProduct(p, q, x(i), y(j), z(k));
-                            sumDensity += 2.0 * P(p,q) * innerProduct * dr;
-                            densityCube(j,i,k) += 2.0 * P(p,q) * innerProduct ;
-
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-
-    double nElectrons = sumDensity;
-#if USE_MPI
-    if(m_rank == 0){
-        boost::mpi::reduce(m_world, sumDensity, nElectrons, std::plus<double>(), 0);
-    }else{
-        boost::mpi::reduce(m_world, sumDensity, std::plus<double>(), 0);
-    }
-#endif
-    if(m_rank == 0){
-        cout << "Integrated number of electrons: " << nElectrons << endl;
-    }
-
-    writeDensityToFile(densityCube, x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
-
-}
-
 
 double Analyser::gaussianProduct(const int& p, const int& q,
                                  const double &x, const double &y, const double &z)
