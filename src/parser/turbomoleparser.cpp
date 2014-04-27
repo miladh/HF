@@ -47,12 +47,14 @@ void TurbomoleParser::loadfile(string filename)
             AtomMeta atomMeta = AtomMeta::getData(string(what[1]));
             setAtomType(atomMeta.type);
             setAtomCharge(atomMeta.charge);
+            setNElectrons(atomMeta.nElectrons);
             setAtomMass(atomMeta.mass);
             setBasisType(string(what[2]));
             break;
         }
 
     }
+
 
 
     //-----------------------------------------------------------------------------------
@@ -207,6 +209,16 @@ int TurbomoleParser::atomCharge() const
 void TurbomoleParser::setAtomCharge(int atomCharge)
 {
     m_atomCharge = atomCharge;
+}
+
+int TurbomoleParser::nElectrons() const
+{
+    return m_nElectrons;
+}
+
+void TurbomoleParser::setNElectrons(int nElectrons)
+{
+    m_nElectrons = nElectrons;
 }
 
 

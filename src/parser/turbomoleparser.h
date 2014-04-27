@@ -28,6 +28,9 @@ public:
     int atomCharge() const;
     void setAtomCharge(int atomCharge);
 
+    int nElectrons() const;
+    void setNElectrons(int nElectrons);
+
     double atomMass() const;
     void setAtomMass(double atomMass);
 
@@ -47,6 +50,7 @@ private:
 
     int m_atomType;
     int m_atomCharge;
+    int m_nElectrons;
     double m_atomMass;
     int m_angularMomentum;
     string m_basisType;

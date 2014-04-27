@@ -17,7 +17,7 @@ void Atom::loadBasisFile(string fileName)
     m_coreMass   = parser.atomMass();
     m_basisType  = parser.basisType();
     m_angularMomentum = parser.angularMomentum();
-    m_nElectrons = int(m_atomType);
+    m_nElectrons = parser.nElectrons();
     m_contractedGTOs = parser.contractedGTOs();
 }
 
