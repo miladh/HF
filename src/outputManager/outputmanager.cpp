@@ -49,6 +49,7 @@ void OutputManager::saveAtoms(vector<Atom *> atoms)
 
     for(int i = 0; i < signed(atoms.size()); i++) {
         Atom* atom = atoms.at(i);
+        cout << atom->basisType() << endl;
         strcpy(m_atomAttributes[i].basisType, atom->basisType().c_str());
         m_atomAttributes[i].type = atom->atomType();
         m_atomAttributes[i].x = atom->corePosition()(0);

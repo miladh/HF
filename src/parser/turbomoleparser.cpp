@@ -49,7 +49,8 @@ void TurbomoleParser::loadfile(string filename)
             setAtomCharge(atomMeta.charge);
             setNElectrons(atomMeta.nElectrons);
             setAtomMass(atomMeta.mass);
-            setBasisType(string(what[2]));
+            cout << what << endl;
+            setBasisType(string(what[3]));
             break;
         }
 
