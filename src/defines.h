@@ -139,6 +139,8 @@ public:
         atom.type = 108;   atom.charge = 108;   atom.mass = 277;       atoms["Hs"] =  atom;
         atom.type = 109;   atom.charge = 109;   atom.mass = 268;       atoms["Mt"] =  atom;
 
+        atom.type = 1;   atom.charge = 1;   atom.mass = 1.0079;        atoms["H+"] =  atom;
+
 
 
         if(atoms.find(symbol) != atoms.end())

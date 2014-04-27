@@ -2,9 +2,11 @@
 #define OUTPUTMANAGER_H
 
 #include <iostream>
+#include <iomanip>
 #include <armadillo>
 #include <boost/mpi.hpp>
 #include <H5Cpp.h>
+#include <libconfig.h++>
 
 #include "../atom/atom.h"
 
@@ -12,13 +14,15 @@
 using namespace arma;
 using namespace std;
 using namespace H5;
+using namespace libconfig;
+
 
 namespace hf{
 
 class OutputManager
 {
 public:
-    OutputManager(const int nAtoms, const string &outputFilePath);
+    OutputManager(const Config *cfg, const int nAtoms);
 
     void saveAtoms(vector<Atom *> atoms);
     void saveEnergy(const double &energy, const mat &orbitalEnergies);
@@ -27,6 +31,7 @@ public:
     void closeOutput();
 
 private:
+    const Config* m_cfg;
     int m_rank;
     int m_nProcs;
     stringstream m_outputFileName;
@@ -40,8 +45,6 @@ private:
         int coreCharge;
         double corePartialCharge;
     };
-
-
 
     H5File *m_output;
     CompType *m_atomCompound;

@@ -36,8 +36,7 @@ void Analyser::runAnalysis()
     const Setting & root = m_cfg->getRoot();
 
     if(int(root["analysisSettings"]["saveResults"])){
-        string outputFilePath = root["analysisSettings"]["outputFilePath"];
-        m_outputManager = new OutputManager(m_system->nAtoms(), outputFilePath);
+        m_outputManager = new OutputManager(m_cfg, m_system->nAtoms());
 
         if(int(root["analysisSettings"]["saveEnergies"])){
             saveEnergies();
@@ -161,14 +160,19 @@ void Analyser::computeDipoleMoment()
 
 void Analyser::computeChargeDensity()
 {
-    vec x = linspace(-10, 10, 50);
-    vec y = linspace(-10, 10, 50);
-    vec z = linspace(-10, 10, 50);
+    const Setting & root = m_cfg->getRoot();
+    int    nGridPoints  = root["analysisSettings"]["densitySettings"]["nGridPoints"];
+    double minGridPoint = root["analysisSettings"]["densitySettings"]["minGridPoint"];
+    double maxGridPoint = root["analysisSettings"]["densitySettings"]["maxGridPoint"];
+
+    vec x = linspace(minGridPoint, maxGridPoint, nGridPoints);
+    vec y = linspace(minGridPoint, maxGridPoint, nGridPoints);
+    vec z = linspace(minGridPoint, maxGridPoint, nGridPoints);
 
     field<const mat *> expansionCoefficients = m_solver->expansionCoefficients();
 
     field<cube> densityCubes;
-    densityCubes.set_size(m_nBasisFunctions,expansionCoefficients.n_elem);
+    densityCubes.set_size(m_nBasisFunctions, expansionCoefficients.n_elem);
     for(int i = 0; i < signed(m_nBasisFunctions); i++){
         for(int j = 0; j < signed(expansionCoefficients.n_elem); j++){
             densityCubes(i,j) = zeros(y.n_elem, x.n_elem, z.n_elem);

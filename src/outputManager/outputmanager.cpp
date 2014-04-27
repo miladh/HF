@@ -3,7 +3,8 @@
 
 using namespace hf;
 
-OutputManager::OutputManager(const int nAtoms, const string& outputFilePath):
+OutputManager::OutputManager(const Config* cfg, const int nAtoms):
+    m_cfg(cfg),
     m_rank(0),
     m_nProcs(0)
 {
@@ -15,8 +16,15 @@ OutputManager::OutputManager(const int nAtoms, const string& outputFilePath):
     m_nProcs = world.size();
 #endif
 
+    const Setting & root = m_cfg->getRoot();
+    string outputFilePath = root["analysisSettings"]["outputFilePath"];
     m_outputFileName << outputFilePath << "/HFOutput_" << m_rank << ".h5";
     m_output = new H5File (m_outputFileName.str(), H5F_ACC_TRUNC);
+
+
+    Group rootGroup = m_output->openGroup("/");
+    Attribute nAtoms_a(rootGroup.createAttribute("nAtoms", PredType::NATIVE_INT, H5S_SCALAR));
+    nAtoms_a.write(PredType::NATIVE_INT, &nAtoms);
 
     //---------------------------------------------------------------------------------------------------------
     m_atomCompound = new CompType(sizeof(AtomAttributes));
@@ -34,8 +42,6 @@ OutputManager::OutputManager(const int nAtoms, const string& outputFilePath):
    m_dataset = new DataSet(m_output->createDataSet("atoms", *m_atomCompound, space));
    m_atomAttributes = new AtomAttributes[nAtoms];
    //---------------------------------------------------------------------------------------------------------
-
-
 }
 
 void OutputManager::saveAtoms(vector<Atom *> atoms)
@@ -52,6 +58,7 @@ void OutputManager::saveAtoms(vector<Atom *> atoms)
         m_atomAttributes[i].corePartialCharge = atom->corePartialCharge();
         m_dataset->write(m_atomAttributes, *m_atomCompound);
     }
+
 
 }
 
@@ -75,18 +82,51 @@ void OutputManager::saveEnergy(const double& energy, const mat& orbitalEnergies)
 }
 
 void OutputManager::saveElectronDensity(const field<cube>& densityCubes)
-{
+{    
     const field<cube>& density = densityCubes;
-    Group* group = new Group( m_output->createGroup( "/electronDensity" ));
+    Group electronDensities( m_output->createGroup( "/electronDensity" ));
 
-     for(int i = 0; i < signed(density.n_elem); i++){
-         hsize_t dim[3] = {density(i).n_cols, density(i).n_rows, density(i).n_slices};
-         DataSpace space(3, dim);
-         stringstream orbital;
-         orbital << "orbital" << setw(4) << setfill('0')  << i;
-         DataSet dataset(group->createDataSet(orbital.str(), PredType::NATIVE_DOUBLE, space));
-         dataset.write(density(i).memptr(), PredType::NATIVE_DOUBLE);
-     }
+    const Setting & root = m_cfg->getRoot();
+    int    nGridPoints  = root["analysisSettings"]["densitySettings"]["nGridPoints"];
+    double minGridPoint = root["analysisSettings"]["densitySettings"]["minGridPoint"];
+    double maxGridPoint = root["analysisSettings"]["densitySettings"]["maxGridPoint"];
+
+    Attribute nXPoints(electronDensities.createAttribute("nXPoints", PredType::NATIVE_INT, H5S_SCALAR));
+    Attribute xMin(electronDensities.createAttribute("xMin", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute xMax(electronDensities.createAttribute("xMax", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+
+    nXPoints.write(PredType::NATIVE_INT, &nGridPoints);
+    xMin.write(PredType::NATIVE_DOUBLE, &minGridPoint);
+    xMax.write(PredType::NATIVE_DOUBLE, &maxGridPoint);
+
+    Attribute nYPoints(electronDensities.createAttribute("nYPoints", PredType::NATIVE_INT, H5S_SCALAR));
+    Attribute yMin(electronDensities.createAttribute("yMin", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute yMax(electronDensities.createAttribute("yMax", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+
+    nYPoints.write(PredType::NATIVE_INT, &nGridPoints);
+    yMin.write(PredType::NATIVE_DOUBLE, &minGridPoint);
+    yMax.write(PredType::NATIVE_DOUBLE, &maxGridPoint);
+
+    Attribute nZPoints(electronDensities.createAttribute("nZPoints", PredType::NATIVE_INT, H5S_SCALAR));
+    Attribute zMin(electronDensities.createAttribute("zMin", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute zMax(electronDensities.createAttribute("zMax", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+
+    nZPoints.write(PredType::NATIVE_INT, &nGridPoints);
+    zMin.write(PredType::NATIVE_DOUBLE, &minGridPoint);
+    zMax.write(PredType::NATIVE_DOUBLE, &maxGridPoint);
+
+    int k = 0;
+    for(int j = 0; j < signed(density.n_cols); j++){
+        for(int i = 0; i < signed(density.n_rows); i++){
+            hsize_t dim[3] = {density(i,j).n_cols, density(i,j).n_rows, density(i,j).n_slices};
+            DataSpace space(3, dim);
+            stringstream orbital;
+            orbital << "orbital" << setw(4) << setfill('0')  << k;
+            DataSet dataset(electronDensities.createDataSet(orbital.str(), PredType::NATIVE_DOUBLE, space));
+            dataset.write(density(i,j).memptr(), PredType::NATIVE_DOUBLE);
+            k++;
+        }
+    }
 }
 
 
