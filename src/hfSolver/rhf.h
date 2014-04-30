@@ -19,6 +19,7 @@ public:
     field<const mat *> densityMatrix() const;
     field<const mat *> expansionCoefficients() const;
     field<const vec *> orbitalEnergies() const;
+    void setInitialDensity(field<mat> density);
 
 private:
     mat m_F, m_C, m_P;
@@ -32,7 +33,6 @@ protected:
     void calculateEnergy();
     void updateFockMatrix();
     void DIISprocedure();
-    void setInitialDensity(field<mat> density);
 };
 
 }
