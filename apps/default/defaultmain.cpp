@@ -9,7 +9,6 @@ using namespace std;
 using namespace libconfig;
 using namespace hf;
 
-
 enum solverMethod {
     rhf, uhf
 };
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
     ElectronicSystem *system = new ElectronicSystem();
     system->addAtoms(atoms);
 
-//    ElectronicSystem *system = setupSystem("CH3");
+//    ElectronicSystem *system = setupSystem("benzene");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
@@ -216,6 +215,16 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_16_basis_3-21Gd.tm",  {-FeS*cos((180.0-SFeS) *M_PI/180.0),
                                                                                 FeS*sin((180.0-SFeS) *M_PI/180.0), 0.0}));
 
+    }else if(name =="B2H6"){
+        atoms.push_back(new Atom("infiles/turbomole/atom_35_basis_STO-3G.tm", {4.15523001913855,	-2.62734596571781,	-2.1668423433}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_35_basis_STO-3G.tm", {-1.58249411094126,	-2.71417845917264,	-1.5931496711}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {1.32268313023405,	-0.488422131801799,	-0.463250906}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {1.26964420979805,	-4.596418355359,	-3.131788174}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {-4.18664215946605,	-4.97783286330769,	-2.7807851776}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {-4.55222698082542,	-1.23494785798249,	-0.3039594963}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {7.50426593053485,	-0.843550494551715,	-1.3734189282}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {7.27201346643206,	-5.02418270176317,	-4.0695587434}));
+
     }else if(name =="H3O"){
         atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", {0. ,0., 0.12144702}));
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {0.,1.759450169,-0.32385935}));
@@ -244,19 +253,19 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 ,  2.34326023,  0.}));
 
 
-        double R = 6.666953288;
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 0.        ,  2.63805748, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 2.28467872,  1.31902874, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 2.28467872, -1.31902874, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 0.        , -2.63805748, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {-2.28467872, -1.31902874, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {-2.28467872,  1.31902874, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.         ,  4.68463073, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 4.0572417 ,  2.34326023, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 4.0572417 , -2.34326023, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.        , -4.68463073,  R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 , -2.34326023, R}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 ,  2.34326023, R}));
+//        double R = 6.666953288;
+//        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 0.        ,  2.63805748, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 2.28467872,  1.31902874, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 2.28467872, -1.31902874, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", { 0.        , -2.63805748, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {-2.28467872, -1.31902874, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_3-21G.tm", {-2.28467872,  1.31902874, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.         ,  4.68463073, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 4.0572417 ,  2.34326023, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", { 4.0572417 , -2.34326023, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {0.        , -4.68463073,  R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 , -2.34326023, R}));
+//        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_3-21G.tm", {-4.0572417 ,  2.34326023, R}));
 
     }else if(name =="benzeneT"){
         double R = 0.0;

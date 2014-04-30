@@ -28,7 +28,7 @@ void TurbomoleParser::loadfile(string filename)
     }
 
     //-----------------------------------------------------------------------------------
-    regex typeRegex("\\s*([a-zA-Z]+(\\+*))\\s*(([a-zA-Z]*)([0-9]*)-([0-9]+)([G])(\\**))\\s*");
+    regex typeRegex("\\s*([a-zA-Z]+(\\+*\\-*))\\s*(([a-zA-Z]*)([0-9]*)-([0-9]+)([G])(\\**))\\s*");
     sregex_iterator type(stringToSearch.begin(), stringToSearch.end(), typeRegex);
     sregex_iterator endType;
 
@@ -49,7 +49,6 @@ void TurbomoleParser::loadfile(string filename)
             setAtomCharge(atomMeta.charge);
             setNElectrons(atomMeta.nElectrons);
             setAtomMass(atomMeta.mass);
-            cout << what << endl;
             setBasisType(string(what[3]));
             break;
         }

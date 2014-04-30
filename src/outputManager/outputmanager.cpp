@@ -49,7 +49,6 @@ void OutputManager::saveAtoms(vector<Atom *> atoms)
 
     for(int i = 0; i < signed(atoms.size()); i++) {
         Atom* atom = atoms.at(i);
-        cout << atom->basisType() << endl;
         strcpy(m_atomAttributes[i].basisType, atom->basisType().c_str());
         m_atomAttributes[i].type = atom->atomType();
         m_atomAttributes[i].x = atom->corePosition()(0);
@@ -80,6 +79,46 @@ void OutputManager::saveEnergy(const double& energy, const mat& orbitalEnergies)
         Attribute attrConfigFilename = dataset.createAttribute("comment", vlst, DataSpace(H5S_SCALAR));
         attrConfigFilename.write(vlst, comment);
     }
+}
+
+void OutputManager::saveElectrostaticPotential(const cube& densityCube)
+{
+    Group electrostaticPotential( m_output->createGroup( "/electrostaticPotential" ));
+
+    const Setting & root = m_cfg->getRoot();
+    int    nGridPoints  = root["analysisSettings"]["densitySettings"]["nGridPoints"];
+    double minGridPoint = root["analysisSettings"]["densitySettings"]["minGridPoint"];
+    double maxGridPoint = root["analysisSettings"]["densitySettings"]["maxGridPoint"];
+
+    Attribute nXPoints(electrostaticPotential.createAttribute("nXPoints", PredType::NATIVE_INT, H5S_SCALAR));
+    Attribute xMin(electrostaticPotential.createAttribute("xMin", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute xMax(electrostaticPotential.createAttribute("xMax", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+
+    nXPoints.write(PredType::NATIVE_INT, &nGridPoints);
+    xMin.write(PredType::NATIVE_DOUBLE, &minGridPoint);
+    xMax.write(PredType::NATIVE_DOUBLE, &maxGridPoint);
+
+    Attribute nYPoints(electrostaticPotential.createAttribute("nYPoints", PredType::NATIVE_INT, H5S_SCALAR));
+    Attribute yMin(electrostaticPotential.createAttribute("yMin", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute yMax(electrostaticPotential.createAttribute("yMax", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+
+    nYPoints.write(PredType::NATIVE_INT, &nGridPoints);
+    yMin.write(PredType::NATIVE_DOUBLE, &minGridPoint);
+    yMax.write(PredType::NATIVE_DOUBLE, &maxGridPoint);
+
+    Attribute nZPoints(electrostaticPotential.createAttribute("nZPoints", PredType::NATIVE_INT, H5S_SCALAR));
+    Attribute zMin(electrostaticPotential.createAttribute("zMin", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+    Attribute zMax(electrostaticPotential.createAttribute("zMax", PredType::NATIVE_DOUBLE, H5S_SCALAR));
+
+    nZPoints.write(PredType::NATIVE_INT, &nGridPoints);
+    zMin.write(PredType::NATIVE_DOUBLE, &minGridPoint);
+    zMax.write(PredType::NATIVE_DOUBLE, &maxGridPoint);
+
+    hsize_t dim[3] = {densityCube.n_cols, densityCube.n_rows, densityCube.n_slices};
+    DataSpace space(3, dim);
+    DataSet dataset(electrostaticPotential.createDataSet("Ep", PredType::NATIVE_DOUBLE, space));
+    dataset.write(densityCube.memptr(), PredType::NATIVE_DOUBLE);
+
 }
 
 void OutputManager::saveElectronDensity(const field<cube>& densityCubes)

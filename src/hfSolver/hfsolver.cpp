@@ -22,7 +22,6 @@ HFsolver::HFsolver(ElectronicSystem *system):
     }
 
 
-
     // MPI----------------------------------------------------------------------
 #if USE_MPI
     m_rank   = m_world.rank();

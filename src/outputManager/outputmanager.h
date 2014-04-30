@@ -28,6 +28,7 @@ public:
     void saveEnergy(const double &energy, const mat &orbitalEnergies);
     void saveDipoleMoment(const double &dipoleMoment);
     void saveElectronDensity(const field<cube> &densityCubes);
+    void saveElectrostaticPotential(const cube &densityCubes);
     void closeOutput();
 
 private:

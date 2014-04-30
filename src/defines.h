@@ -141,6 +141,7 @@ public:
         atom.type = 109;	   atom.charge = 109;	   atom.nElectrons = 109;	   atom.mass = 268;	       atoms["Mt"] =  atom;
 
         atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 0;	   atom.mass = 1.0079;	        atoms["H+"] =  atom;
+        atom.type = 6;	   atom.charge = 6;	   atom.nElectrons = 7;	   atom.mass = 12.0107;	       atoms["C-"] =  atom;
 
 
 

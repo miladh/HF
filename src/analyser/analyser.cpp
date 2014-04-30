@@ -62,20 +62,18 @@ void Analyser::runAnalysis()
                 cout << " - charge density computed!" << endl;
             }
         }
+        if(int(root["analysisSettings"]["electrostaticPotential"])){
+            computeElectrostaticPotential();
+            if(m_rank == 0){
+                cout << " - Electrostatic potential computed!" << endl;
+            }
+        }
 
         saveResults();
     }
     else if(m_rank == 0){
         cout << " - No output file will be created!" << endl;
     }
-
-    if(int(root["analysisSettings"]["electrostaticPotential"])){
-        computeElectrostaticPotential();
-        if(m_rank == 0){
-            cout << " - Electrostatic potential computed!" << endl;
-        }
-    }
-
 }
 
 void Analyser::saveResults()
@@ -230,9 +228,14 @@ void Analyser::computeChargeDensity()
 
 void Analyser::computeElectrostaticPotential()
 {
-    vec x = linspace(-10, 10, 40);
-    vec y = linspace(-10, 10, 40);
-    vec z = linspace(-10, 10, 40);
+    const Setting & root = m_cfg->getRoot();
+    int    nGridPoints  = root["analysisSettings"]["densitySettings"]["nGridPoints"];
+    double minGridPoint = root["analysisSettings"]["densitySettings"]["minGridPoint"];
+    double maxGridPoint = root["analysisSettings"]["densitySettings"]["maxGridPoint"];
+
+    vec x = linspace(minGridPoint, maxGridPoint, nGridPoints);
+    vec y = linspace(minGridPoint, maxGridPoint, nGridPoints);
+    vec z = linspace(minGridPoint, maxGridPoint, nGridPoints);
 
     cube densityCube = zeros(y.n_elem, x.n_elem, z.n_elem);
     field<const mat *> densityMatrices = m_solver->densityMatrix();
@@ -259,7 +262,6 @@ void Analyser::computeElectrostaticPotential()
         const mat& P = (*densityMatrices(d));
 
         for(const int i : myGridPoints) {
-            cout << m_rank << "   " << x(i) << endl;
             for(int j = 0; j < int(y.n_elem); j++) {
                 for(int k = 0; k < int(z.n_elem); k++) {
 
@@ -289,7 +291,8 @@ void Analyser::computeElectrostaticPotential()
         }
     }
 
-    writeDensityToFile(densityCube, x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
+    m_outputManager->saveElectrostaticPotential(densityCube);
+//    writeDensityToFile(densityCube, x.min(),x.max(),y.min(),y.max(),z.min(),z.max());
 
 }
 
