@@ -64,19 +64,19 @@ void GeometricalDerivative::calculateEnergyGradient()
             p = pq.first;
             q = pq.second;
 
-            mat h = m_system->oneParticleIntegralGD(p,q);
+            mat h_GD = m_system->oneParticleIntegralGD(p,q);
             for(int c = 0; c < int(m_gradE.n_rows); c++){
-                m_gradE.row(c) += P(p, q) * h.row(c);
+                m_gradE.row(c) += P(p, q) * h_GD.row(c);
             }
 
             for (int r = 0; r < m_nBasisFunctions; r++){
                 for (int s = 0; s < m_nBasisFunctions; s++){
 
-                    mat J = m_system->twoParticleIntegralGD(p,q,r,s);
-                    mat K = m_system->twoParticleIntegralGD(p,s,r,q);
+                    mat J_GD = m_system->twoParticleIntegralGD(p,q,r,s);
+                    mat K_GD = m_system->twoParticleIntegralGD(p,s,r,q);
 
                     for(int c = 0; c < int(m_gradE.n_rows); c++){
-                        m_gradE.row(c) += 0.5*P(p,q)*P(s,r)*(J.row(c) - 0.5 * K.row(c));
+                        m_gradE.row(c) += 0.5*P(p,q)*P(s,r)*(J_GD.row(c) - 0.5 * K_GD.row(c));
                     }
                 }
             }

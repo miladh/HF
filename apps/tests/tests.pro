@@ -10,5 +10,6 @@ SOURCES += main.cpp \
     hfsolverTests/rhfTest.cpp \
     hfsolverTests/uhfTest.cpp \
     integratorTests/electronRepulsionIntegral.cpp \
-    integratorTests/nuclearAttractionIntegral.cpp
+    integratorTests/nuclearAttractionIntegral.cpp \
+    geometricDerivatives/gdTests.cpp
 

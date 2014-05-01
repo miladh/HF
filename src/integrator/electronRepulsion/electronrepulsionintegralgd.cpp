@@ -137,9 +137,9 @@ rowvec ElectronRepulsionIntegralGD::QcdDerivative()
                         for(int m = 0; m < mMax; m++){
 
                             rowvec3 dEklm = zeros<rowvec>(3);
-                            dEklm(0) = m_dEcd_dQcd->at(0)(iC, iD, t) * m_Ecd->at(1)(jC, jD, u) * m_Ecd->at(2)(kC, kD, v);
-                            dEklm(1) = m_Ecd->at(0)(iC, iD, t) * m_dEcd_dQcd->at(1)(jC, jD, u) * m_Ecd->at(2)(kC, kD, v);
-                            dEklm(2) = m_Ecd->at(0)(iC, iD, t) * m_Ecd->at(1)(jC, jD, u) * m_dEcd_dQcd->at(2)(kC, kD, v);
+                            dEklm(0) = m_dEcd_dQcd->at(0)(iC, iD, k) * m_Ecd->at(1)(jC, jD, l) * m_Ecd->at(2)(kC, kD, m);
+                            dEklm(1) = m_Ecd->at(0)(iC, iD, k) * m_dEcd_dQcd->at(1)(jC, jD, l) * m_Ecd->at(2)(kC, kD, m);
+                            dEklm(2) = m_Ecd->at(0)(iC, iD, k) * m_Ecd->at(1)(jC, jD, l) * m_dEcd_dQcd->at(2)(kC, kD, m);
 
                             dGdQcd(0) += dEklm(0) * Etuv * m_R->R(0,t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));;
                             dGdQcd(1) += dEklm(1) * Etuv * m_R->R(0,t+k,u+l,v+m) * (1 - 2* ((k+l+m)%2));;

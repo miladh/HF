@@ -12,9 +12,9 @@ int main(int argc, char **argv)
     boost::mpi::environment env(argc, argv);
 #endif
     int result = 0;
-    bool slowTests = 1;
-    bool slowTests_UHF = 1;
-    bool gradient = 1;
+    bool slowTests = 0;
+    bool slowTests_UHF = 0;
+    bool GD = 1;
 
     UnitTest::TestReporterStdout reporter;
     UnitTest::TestRunner runner(reporter);
@@ -29,8 +29,8 @@ int main(int argc, char **argv)
         result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "SLOWTESTS_UHF", UnitTest::True(), 0);
     }
 
-    if(gradient){
-        result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "GRADIENT", UnitTest::True(), 0);
+    if(GD){
+        result += runner.RunTestsIf(UnitTest::Test::GetTestList(), "GD", UnitTest::True(), 0);
 
     }
 
