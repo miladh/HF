@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     //Create output file
     stringstream outFileName;
-    outFileName << "//home/milad/Dropbox/qmd/hartreeFock/hf/DATA/benchmark/H2/dissociation/STO-3G/uhf_" << world.rank() << ".h5";
+    outFileName << "/home/milad/kurs/qmd/tmpData/uhf_" << world.rank() << ".h5";
     H5::H5File outputFile(outFileName.str(), H5F_ACC_TRUNC);
 
 
