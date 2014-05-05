@@ -12,8 +12,8 @@ int main(int argc, char **argv)
     boost::mpi::environment env(argc, argv);
 #endif
     int result = 0;
-    bool slowTests = 0;
-    bool slowTests_UHF = 0;
+    bool slowTests = 1;
+    bool slowTests_UHF = 1;
     bool GD = 1;
 
     UnitTest::TestReporterStdout reporter;

@@ -103,10 +103,7 @@ int main(int argc, char **argv)
         cout << "method:    " << method << endl;
     }
 
-//    solver->runSolver();
-    GeometricalDerivative* m_GD = new GeometricalDerivative(system, solver);
-    mat gradE = m_GD->energyGradient();
-
+    solver->runSolver();
     double laps = timer.elapsed();
 
 
