@@ -40,7 +40,14 @@ void ElectronRepulsionIntegralGD::updateHermiteIntegrals()
     double alpha = p*q/(p+q);
     rowvec PQ = (a*A + b*B)/p - (c*C + d*D)/q;
 
-    m_R->updateR(PQ, alpha);
+    m_tMax = m_primitiveA->xPower() + m_primitiveB->xPower() + 1;
+    m_uMax = m_primitiveA->yPower() + m_primitiveB->yPower() + 1;
+    m_vMax = m_primitiveA->zPower() + m_primitiveB->zPower() + 1;
+    m_kMax = m_primitiveC->xPower() + m_primitiveD->xPower() + 1;
+    m_lMax = m_primitiveC->yPower() + m_primitiveD->yPower() + 1;
+    m_mMax = m_primitiveC->zPower() + m_primitiveD->zPower() + 1;
+    m_R->updateR(PQ, alpha,
+                 m_tMax + m_kMax - 1, m_uMax + m_lMax - 1, m_vMax + m_mMax - 1);
 
 }
 
@@ -61,26 +68,18 @@ rowvec ElectronRepulsionIntegralGD::QabDerivative()
     int jD = m_primitiveD->yPower();
     int kD = m_primitiveD->zPower();
 
-
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
-    int kMax = iC + iD + 1;
-    int lMax = jC + jD + 1;
-    int mMax = kC + kD + 1;
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
+    for(int t = 0; t < m_tMax; t++){
+        for(int u = 0; u < m_uMax; u++){
+            for(int v = 0; v < m_vMax; v++){
 
                 rowvec3 dEtuv = zeros<rowvec>(3);
                 dEtuv(0) = m_dEab_dQab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
                 dEtuv(1) = m_Eab->at(0)(iA, iB, t) * m_dEab_dQab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
                 dEtuv(2) = m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_dEab_dQab->at(2)(kA, kB, v);
 
-                for(int k = 0; k < kMax; k++){
-                    for(int l = 0; l < lMax; l++){
-                        for(int m = 0; m < mMax; m++){
+                for(int k = 0; k < m_kMax; k++){
+                    for(int l = 0; l < m_lMax; l++){
+                        for(int m = 0; m < m_mMax; m++){
 
                             double Eklm= m_Ecd->at(0)(iC, iD, k) * m_Ecd->at(1)(jC, jD, l) * m_Ecd->at(2)(kC, kD, m);
 
@@ -118,23 +117,15 @@ rowvec ElectronRepulsionIntegralGD::QcdDerivative()
     int jD = m_primitiveD->yPower();
     int kD = m_primitiveD->zPower();
 
-
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
-    int kMax = iC + iD + 1;
-    int lMax = jC + jD + 1;
-    int mMax = kC + kD + 1;
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
+    for(int t = 0; t < m_tMax; t++){
+        for(int u = 0; u < m_uMax; u++){
+            for(int v = 0; v < m_vMax; v++){
 
                 double Etuv= m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
 
-                for(int k = 0; k < kMax; k++){
-                    for(int l = 0; l < lMax; l++){
-                        for(int m = 0; m < mMax; m++){
+                for(int k = 0; k < m_kMax; k++){
+                    for(int l = 0; l < m_lMax; l++){
+                        for(int m = 0; m < m_mMax; m++){
 
                             rowvec3 dEklm = zeros<rowvec>(3);
                             dEklm(0) = m_dEcd_dQcd->at(0)(iC, iD, k) * m_Ecd->at(1)(jC, jD, l) * m_Ecd->at(2)(kC, kD, m);
@@ -178,22 +169,15 @@ rowvec ElectronRepulsionIntegralGD::PabDerivative()
     int jD = m_primitiveD->yPower();
     int kD = m_primitiveD->zPower();
 
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
-    int kMax = iC + iD + 1;
-    int lMax = jC + jD + 1;
-    int mMax = kC + kD + 1;
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
+    for(int t = 0; t < m_tMax; t++){
+        for(int u = 0; u < m_uMax; u++){
+            for(int v = 0; v < m_vMax; v++){
 
                 double Etuv= m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
 
-                for(int k = 0; k < kMax; k++){
-                    for(int l = 0; l < lMax; l++){
-                        for(int m = 0; m < mMax; m++){
+                for(int k = 0; k < m_kMax; k++){
+                    for(int l = 0; l < m_lMax; l++){
+                        for(int m = 0; m < m_mMax; m++){
 
                             double Eklm= m_Ecd->at(0)(iC, iD, k) * m_Ecd->at(1)(jC, jD, l) * m_Ecd->at(2)(kC, kD, m);
 
@@ -232,24 +216,15 @@ rowvec ElectronRepulsionIntegralGD::PcdDerivative()
     int jD = m_primitiveD->yPower();
     int kD = m_primitiveD->zPower();
 
-
-
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
-    int kMax = iC + iD + 1;
-    int lMax = jC + jD + 1;
-    int mMax = kC + kD + 1;
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
+    for(int t = 0; t < m_tMax; t++){
+        for(int u = 0; u < m_uMax; u++){
+            for(int v = 0; v < m_vMax; v++){
 
                 double Etuv= m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v);
 
-                for(int k = 0; k < kMax; k++){
-                    for(int l = 0; l < lMax; l++){
-                        for(int m = 0; m < mMax; m++){
+                for(int k = 0; k < m_kMax; k++){
+                    for(int l = 0; l < m_lMax; l++){
+                        for(int m = 0; m < m_mMax; m++){
 
                             double Eklm= m_Ecd->at(0)(iC, iD, k) * m_Ecd->at(1)(jC, jD, l) * m_Ecd->at(2)(kC, kD, m);
 

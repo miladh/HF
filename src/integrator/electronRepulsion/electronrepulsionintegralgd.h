@@ -44,6 +44,13 @@ private:
     const PrimitiveGTO* m_primitiveC;
     const PrimitiveGTO* m_primitiveD;
 
+    int m_tMax;
+    int m_uMax;
+    int m_vMax;
+    int m_kMax;
+    int m_lMax;
+    int m_mMax;
+
 };
 
 }

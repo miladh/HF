@@ -59,10 +59,10 @@ int main(int argc, char **argv)
         atoms.push_back(new Atom(basisFilePath.str(), position));
     }
 
-    ElectronicSystem *system = new ElectronicSystem();
-    system->addAtoms(atoms);
+//    ElectronicSystem *system = new ElectronicSystem();
+//    system->addAtoms(atoms);
 
-//    ElectronicSystem *system = setupSystem("benzene");
+    ElectronicSystem *system = setupSystem("H2O");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
@@ -103,8 +103,13 @@ int main(int argc, char **argv)
         cout << "method:    " << method << endl;
     }
 
-    solver->runSolver();
+//    solver->runSolver();
+    GeometricalDerivative* m_GD = new GeometricalDerivative(system, solver);
+    mat gradE = m_GD->energyGradient();
+
     double laps = timer.elapsed();
+
+
     //Analyzer------------------------------------------------------------------------------
     Analyser analyser(&cfg, system,solver);
     analyser.runAnalysis();
@@ -165,9 +170,9 @@ ElectronicSystem* setupSystem(string name)
 
     }else if(name =="H2O"){
         double D = 1.797;
-        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_6-31Gds.tm", { 0.0, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", {D, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31G.tm", { -D*cos((180-104.45) *M_PI/180.0),
+        atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_STO-3G.tm", { 0.0, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", {D, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_STO-3G.tm", { -D*cos((180-104.45) *M_PI/180.0),
                                                                               D*sin((180-104.45) *M_PI/180.0), 0.0}));
     }else if(name =="CO2"){
         atoms.push_back(new Atom("infiles/turbomole/atom_8_basis_3-21G.tm", {-2.185, 0.0, 0.0}));

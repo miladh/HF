@@ -36,8 +36,8 @@ SUITE(GD){
 
 //        //Initializing the system
 //        vector<Atom *> atoms;
-//        atoms.push_back( new Atom("infiles/turbomole/atom_7_basis_STO-3G.tm", {-0.5, 0.0, 0.0}));
-//        atoms.push_back( new Atom("infiles/turbomole/atom_7_basis_STO-3G.tm", { 0.5, 0.0, 0.0}));
+//        atoms.push_back( new Atom("infiles/turbomole/atom_6_basis_6-31Gds.tm", {-0.5, 0.0, 0.0}));
+//        atoms.push_back( new Atom("infiles/turbomole/atom_6_basis_6-31Gds.tm", { 0.5, 0.0, 0.0}));
 
 //        ElectronicSystem *system = new ElectronicSystem ();
 //        system->addAtoms(atoms);
@@ -50,7 +50,7 @@ SUITE(GD){
 //        GeometricalDerivative* m_GD = new GeometricalDerivative(system, solver);
 
 //        //Domain
-//        vec bondLength = linspace(2.0, 2.2, 20);
+//        vec bondLength = linspace(2.0, 2.2, 1);
 //        vec energies = 0*bondLength;
 //        vec gradients = 0*bondLength;
 
