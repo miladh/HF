@@ -28,7 +28,6 @@ public:
     void updateHermiteIntegrals();
     rowvec QDerivative();
     rowvec PDerivative();
-    rowvec CDerivative();
 
 private:
     HermiteIntegrals* m_R;
@@ -37,6 +36,11 @@ private:
     const PrimitiveGTO* m_primitiveA;
     const PrimitiveGTO* m_primitiveB;
     const rowvec* m_sourceCharge;
+    double m_p;
+    int m_tMax;
+    int m_uMax;
+    int m_vMax;
+
 };
 
 }

@@ -16,7 +16,6 @@ class HermiteIntegrals
 public:
     HermiteIntegrals(const int highestOrder);
 
-    void updateR(const rowvec &PQ, const double &alpha);
     void updateR(const rowvec &PQ, const double &alpha,
                  const int tMax, const int uMax, const int vMax);
 

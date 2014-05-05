@@ -29,14 +29,14 @@ Integrator::Integrator(const int maxAngularMomentum):
 
     m_overlapGD = new OverlapIntegralGD(m_overlap, Eab->QDerivativeCoefficients());
     m_kineticGD = new KineticIntegralGD(m_kinetic, m_overlapGD);
-    m_nuclearAttractionGD = new NuclearAttractionIntegralGD(2 * (maxAngularMomentum+1) + 1,
+    m_nuclearAttractionGD = new NuclearAttractionIntegralGD(2 * maxAngularMomentum + 2,
                                                         Eab->coefficients(),
                                                         Eab->QDerivativeCoefficients(),
                                                         &m_primitiveA,
                                                         &m_primitiveB,
                                                         &m_nuclearSourceCharge);
 
-    m_electronRepulsionGD = new ElectronRepulsionIntegralGD(4 * (maxAngularMomentum+1) + 1,
+    m_electronRepulsionGD = new ElectronRepulsionIntegralGD(4 * maxAngularMomentum + 3,
                                                             Eab->coefficients(),
                                                             Ecd->coefficients(),
                                                             Eab->QDerivativeCoefficients(),
@@ -177,11 +177,6 @@ rowvec Integrator::PDerivativeNuclearAttractionIntegral()
 {
 
     return m_nuclearAttractionGD->PDerivative();
-}
-
-rowvec Integrator::CDerivativeNuclearAttractionIntegral()
-{
-    return m_nuclearAttractionGD->CDerivative();
 }
 
 

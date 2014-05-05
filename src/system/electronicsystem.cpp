@@ -269,8 +269,7 @@ mat ElectronicSystem::oneParticleIntegralGD(const int& q, const int& p)
                 dhpq.row(coreA) -= (a_ab * PDerivative + QDerivative) * m_atoms.at(i)->coreCharge() ;
                 dhpq.row(coreB) -= (b_ab * PDerivative - QDerivative) * m_atoms.at(i)->coreCharge() ;
 
-                dhpq.row(i) +=m_atoms.at(i)->coreCharge()
-                        * integrator->CDerivativeNuclearAttractionIntegral();
+                dhpq.row(i) += m_atoms.at(i)->coreCharge() * PDerivative;
 
             }
 

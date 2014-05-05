@@ -27,10 +27,14 @@ void NuclearAttractionIntegralGD::updateHermiteIntegrals()
     const double &a  = m_primitiveA->exponent();
     const double &b  = m_primitiveB->exponent();
 
-    double p = a + b;
-    rowvec PC = (a*A + b*B)/p - C;
+    m_p = a + b;
+    rowvec PC = (a*A + b*B)/m_p - C;
 
-    m_R->updateR(PC,p);
+    m_tMax = m_primitiveA->xPower() + m_primitiveB->xPower() + 1;
+    m_uMax = m_primitiveA->yPower() + m_primitiveB->yPower() + 1;
+    m_vMax = m_primitiveA->zPower() + m_primitiveB->zPower() + 1;
+
+    m_R->updateR(PC, m_p, m_tMax, m_uMax, m_vMax);
 }
 
 
@@ -38,10 +42,6 @@ void NuclearAttractionIntegralGD::updateHermiteIntegrals()
 rowvec NuclearAttractionIntegralGD::QDerivative()
 {
     rowvec dVdQ = zeros<rowvec>(3);
-    const double &a  = m_primitiveA->exponent();
-    const double &b  = m_primitiveB->exponent();
-
-    double p = a + b;
 
     int iA = m_primitiveA->xPower();
     int jA = m_primitiveA->yPower();
@@ -50,13 +50,10 @@ rowvec NuclearAttractionIntegralGD::QDerivative()
     int jB = m_primitiveB->yPower();
     int kB = m_primitiveB->zPower();
 
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
 
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
+    for(int t = 0; t < m_tMax; t++){
+        for(int u = 0; u < m_uMax; u++){
+            for(int v = 0; v < m_vMax; v++){
                 dVdQ(0) += m_dEab_dQab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u)  * m_Eab->at(2)(kA, kB, v) * m_R->R(0, t,u,v);
                 dVdQ(1) += m_Eab->at(0)(iA, iB, t)  * m_dEab_dQab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t,u,v);
                 dVdQ(2) += m_Eab->at(0)(iA, iB, t)  * m_Eab->at(1)(jA, jB, u)  * m_dEab_dQab->at(2)(kA, kB, v) * m_R->R(0,t,u,v);
@@ -65,16 +62,12 @@ rowvec NuclearAttractionIntegralGD::QDerivative()
     }
 
 
-    return 2. * M_PI / p * dVdQ * m_primitiveA->weight() * m_primitiveB->weight();
+    return 2. * M_PI / m_p * dVdQ * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
 rowvec NuclearAttractionIntegralGD::PDerivative()
 {
     rowvec dVdP = zeros<rowvec>(3);
-    const double &a  = m_primitiveA->exponent();
-    const double &b  = m_primitiveB->exponent();
-
-    double p = a + b;
 
     int iA = m_primitiveA->xPower();
     int jA = m_primitiveA->yPower();
@@ -84,13 +77,9 @@ rowvec NuclearAttractionIntegralGD::PDerivative()
     int kB = m_primitiveB->zPower();
 
 
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
+    for(int t = 0; t < m_tMax; t++){
+        for(int u = 0; u < m_uMax; u++){
+            for(int v = 0; v < m_vMax; v++){
                 dVdP(0) += m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t+1,u,v);
                 dVdP(1) += m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t,u+1,v);
                 dVdP(2) += m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t,u,v+1);
@@ -98,41 +87,8 @@ rowvec NuclearAttractionIntegralGD::PDerivative()
         }
     }
 
-    return 2. * M_PI / p * dVdP * m_primitiveA->weight() * m_primitiveB->weight();
+    return 2. * M_PI / m_p * dVdP * m_primitiveA->weight() * m_primitiveB->weight();
 }
 
-rowvec NuclearAttractionIntegralGD::CDerivative()
-{
-    rowvec dVdC = zeros<rowvec>(3);
-    const double &a  = m_primitiveA->exponent();
-    const double &b  = m_primitiveB->exponent();
-
-    double p = a + b;
-
-    int iA = m_primitiveA->xPower();
-    int jA = m_primitiveA->yPower();
-    int kA = m_primitiveA->zPower();
-    int iB = m_primitiveB->xPower();
-    int jB = m_primitiveB->yPower();
-    int kB = m_primitiveB->zPower();
-
-
-    int tMax = iA + iB + 1;
-    int uMax = jA + jB + 1;
-    int vMax = kA + kB + 1;
-
-
-    for(int t = 0; t < tMax; t++){
-        for(int u = 0; u < uMax; u++){
-            for(int v = 0; v < vMax; v++){
-                dVdC(0) += m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t+1,u,v);
-                dVdC(1) += m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t,u+1,v);
-                dVdC(2) += m_Eab->at(0)(iA, iB, t) * m_Eab->at(1)(jA, jB, u) * m_Eab->at(2)(kA, kB, v) * m_R->R(0,t,u,v+1);
-            }
-        }
-    }
-
-    return 2. * M_PI / p * dVdC * m_primitiveA->weight() * m_primitiveB->weight();
-}
 
 

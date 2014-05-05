@@ -53,7 +53,6 @@ public:
 
    rowvec QDerivativeNuclearAttractionIntegral();
    rowvec PDerivativeNuclearAttractionIntegral();
-   rowvec CDerivativeNuclearAttractionIntegral();
 
    rowvec QabDerivativeElectronRepulsionIntegral();
    rowvec PabDerivativeElectronRepulsionIntegral();
