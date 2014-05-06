@@ -106,6 +106,17 @@ void Atom::freeze(bool frozen)
     m_frozen = frozen;
 }
 
+const rowvec &Atom::coreAcceleration() const
+{
+    return m_coreAcceleration;
+}
+
+void Atom::setCoreAcceleration(const rowvec &coreAcceleration)
+{
+    m_coreAcceleration = coreAcceleration;
+}
+
+
 
 
 void Atom::setCorePartialCharge(const double& corePartialCharge)

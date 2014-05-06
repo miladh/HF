@@ -35,8 +35,12 @@ public:
     const string basisType() const;
     void setBasisType(const string &basisType);
 
+    rowvec coreAcceleration() const;
+    void setCoreAcceleration(const rowvec &coreAcceleration);
+
     bool frozen() const;
     void freeze(bool frozen);
+
 
 private:
     int m_atomType;
@@ -50,6 +54,7 @@ private:
 
     rowvec m_corePosition;
     rowvec m_coreVelocity;
+    rowvec m_coreAcceleration;
     vector<ContractedGTO> m_contractedGTOs;
 
     void loadBasisFile(string fileName);
