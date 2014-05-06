@@ -106,14 +106,14 @@ void Atom::freeze(bool frozen)
     m_frozen = frozen;
 }
 
-const rowvec &Atom::coreAcceleration() const
+const rowvec &Atom::force() const
 {
-    return m_coreAcceleration;
+    return m_force;
 }
 
-void Atom::setCoreAcceleration(const rowvec &coreAcceleration)
+void Atom::addForce(const rowvec &force)
 {
-    m_coreAcceleration = coreAcceleration;
+    m_force = force;
 }
 
 

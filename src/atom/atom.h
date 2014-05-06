@@ -35,8 +35,8 @@ public:
     const string basisType() const;
     void setBasisType(const string &basisType);
 
-    const rowvec& coreAcceleration() const;
-    void setCoreAcceleration(const rowvec &coreAcceleration);
+    const rowvec& force() const;
+    void addForce(const rowvec &coreAcceleration);
 
     bool frozen() const;
     void freeze(bool frozen);
@@ -54,7 +54,7 @@ private:
 
     rowvec m_corePosition;
     rowvec m_coreVelocity;
-    rowvec m_coreAcceleration;
+    rowvec m_force;
     vector<ContractedGTO> m_contractedGTOs;
 
     void loadBasisFile(string fileName);
