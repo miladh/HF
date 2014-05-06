@@ -117,8 +117,6 @@ void Atom::setCoreAcceleration(const rowvec &coreAcceleration)
 }
 
 
-
-
 void Atom::setCorePartialCharge(const double& corePartialCharge)
 {
     m_corePartialCharge = corePartialCharge;

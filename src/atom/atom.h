@@ -35,7 +35,7 @@ public:
     const string basisType() const;
     void setBasisType(const string &basisType);
 
-    rowvec coreAcceleration() const;
+    const rowvec& coreAcceleration() const;
     void setCoreAcceleration(const rowvec &coreAcceleration);
 
     bool frozen() const;
