@@ -27,6 +27,7 @@ public:
     const int &nSpinDownElectrons() const;
     const int &nBasisFunctions();
     const int &maxAngularMomentum() const;
+    void setNSpinUpAndDownElectrons(const int nSpinUpElectrons, const int nSpinDownElectrons);
 
     double nuclearPotential();
     double overlapIntegral(const int &p, const int &q);

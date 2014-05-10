@@ -39,6 +39,16 @@ void ElectronicSystem::addAtoms(vector<Atom*> atoms)
  *                                  System properties functions
  *
  * ******************************************************************************************/
+void ElectronicSystem::setNSpinUpAndDownElectrons(const int nSpinUpElectrons, const int nSpinDownElectrons)
+{
+    m_nSpinUpElectrons   = nSpinUpElectrons;
+    m_nSpinDownElectrons =  nSpinDownElectrons;
+
+    if(m_nSpinDownElectrons + m_nSpinUpElectrons !=m_nElectrons){
+        throw logic_error("Number of electrons not conserved in system!");
+    }
+}
+
 const int& ElectronicSystem::nElectrons() const
 {
     return m_nElectrons;
