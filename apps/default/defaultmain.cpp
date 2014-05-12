@@ -59,10 +59,10 @@ int main(int argc, char **argv)
         atoms.push_back(new Atom(basisFilePath.str(), position));
     }
 
-//    ElectronicSystem *system = new ElectronicSystem();
-//    system->addAtoms(atoms);
+    ElectronicSystem *system = new ElectronicSystem();
+    system->addAtoms(atoms);
 
-    ElectronicSystem *system = setupSystem("H2");
+//    ElectronicSystem *system = setupSystem("H2");
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
