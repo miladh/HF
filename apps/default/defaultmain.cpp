@@ -81,6 +81,8 @@ int main(int argc, char **argv)
         break;
     }
 
+
+
     int maxNumOfIteration = root["solverSettings"]["maxNumOfIteration"];
     double dampingFactor = root["solverSettings"]["dampingFactor"];
 
