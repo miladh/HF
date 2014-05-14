@@ -62,7 +62,14 @@ int main(int argc, char **argv)
     ElectronicSystem *system = new ElectronicSystem();
     system->addAtoms(atoms);
 
-//    ElectronicSystem *system = setupSystem("H2");
+    int nSpinUpElectrons = root["chemicalSystem"]["nSpinUpElectrons"];
+    int nSpinDownElectrons = root["chemicalSystem"]["nSpinDownElectrons"];
+    if(nSpinUpElectrons!=0 && nSpinDownElectrons!=0){
+        system->setNSpinUpAndDownElectrons(nSpinUpElectrons,nSpinDownElectrons);
+    }
+//    ElectronicSystem *system = setupSystem("CH4");
+
+
 
     //setup solver--------------------------------------------------------------------
     int solverMethod = root["solverSettings"]["method"];
@@ -80,7 +87,6 @@ int main(int argc, char **argv)
         solver = new UHF(system);
         break;
     }
-
 
 
     int maxNumOfIteration = root["solverSettings"]["maxNumOfIteration"];
@@ -145,9 +151,6 @@ int main(int argc, char **argv)
 
 }
 
-
-
-
 ElectronicSystem* setupSystem(string name)
 {
     vector<Atom *> atoms;
@@ -183,11 +186,13 @@ ElectronicSystem* setupSystem(string name)
         atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_6-31Gd.tm", {0.0, 0.0, 0.0}));
 
     }else if(name =="CH4"){
-        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_6-31Gd.tm", {0.0, 0.0, 0.0}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {2.043/sqrt(3), 2.043/sqrt(3), 2.043/sqrt(3)}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {-2.043/sqrt(3), -2.043/sqrt(3), 2.043/sqrt(3)}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {2.043/sqrt(3), -2.043/sqrt(3), -2.043/sqrt(3)}));
-        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31Gds.tm", {-2.043/sqrt(3), 2.043/sqrt(3), -2.043/sqrt(3)}));
+        double D = 2.048;
+        atoms.push_back(new Atom("infiles/turbomole/atom_6_basis_6-31ppGds.tm", {0.0, 0.0, 0.0}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31ppGds.tm", {D/sqrt(3), D/sqrt(3), D/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31ppGds.tm", {-D/sqrt(3), -D/sqrt(3), D/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31ppGds.tm", {D/sqrt(3), -D/sqrt(3), -D/sqrt(3)}));
+        atoms.push_back(new Atom("infiles/turbomole/atom_1_basis_6-31ppGds.tm", {-D/sqrt(3), D/sqrt(3), -D/sqrt(3)}));
+
 
     }else if(name =="SiO4"){
         double D = 4.9;

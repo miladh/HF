@@ -140,8 +140,10 @@ public:
         atom.type = 108;	   atom.charge = 108;	   atom.nElectrons = 108;	   atom.mass = 277;	       atoms["Hs"] =  atom;
         atom.type = 109;	   atom.charge = 109;	   atom.nElectrons = 109;	   atom.mass = 268;	       atoms["Mt"] =  atom;
 
-        atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 0;	   atom.mass = 1.0079;	        atoms["H+"] =  atom;
-        atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 2;	   atom.mass = 1.0079;	        atoms["H-"] =  atom;
+        atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 0;	   atom.mass = 1.0079;	       atoms["H+"] =  atom;
+        atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 2;	   atom.mass = 1.0079;	       atoms["H-"] =  atom;
+        atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 1;	   atom.mass = 2.01410178;	   atoms["D"] =  atom;
+        atom.type = 1;	   atom.charge = 1;	   atom.nElectrons = 2;	   atom.mass = 2.01410178;	   atoms["D-"] =  atom;
         atom.type = 6;	   atom.charge = 6;	   atom.nElectrons = 7;	   atom.mass = 12.0107;	       atoms["C-"] =  atom;
 
 

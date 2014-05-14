@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     //Create output file
     stringstream outFileName;
-    outFileName << "/home/milad/kurs/qmd/tmpData/uhf_" << world.rank() << ".h5";
+    outFileName << "/home/milad/kurs/qmd/benchmark/reactions/transition/STO-3G/cs/cs_" << world.rank() << ".h5";
     H5::H5File outputFile(outFileName.str(), H5F_ACC_TRUNC);
 
 
@@ -122,12 +122,14 @@ int main(int argc, char* argv[])
 
 
     struct AtomMetaData {
-        int    type;
+        int  type;
+        char ion[64];
         char basisName[64];
     };
     H5::StrType string_type(H5::PredType::C_S1, 64);
     H5::CompType atomMetaCompound( sizeof(AtomMetaData) );
     atomMetaCompound.insertMember( "type", HOFFSET(AtomMetaData, type), H5::PredType::NATIVE_INT);
+    atomMetaCompound.insertMember( "ion", HOFFSET(AtomMetaData, ion), string_type);
     atomMetaCompound.insertMember( "basisName", HOFFSET(AtomMetaData, basisName), string_type);
 
 
@@ -165,7 +167,7 @@ int main(int argc, char* argv[])
         vector<Atom *> atomList;
         for(int i = 0; i < nAtoms2; i++) {
             stringstream basisFile;
-            basisFile << "infiles/turbomole/atom_" << atomMetaData[i].type
+            basisFile << "infiles/turbomole/atom_" << atomMetaData[i].type << atomMetaData[i].ion
                       << "_basis_" << atomMetaData[i].basisName << ".tm";
             atomList.push_back(new Atom(basisFile.str(), { atoms[i].x, atoms[i].y, atoms[i].z}));
         }
