@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
             stringstream basisFile;
             basisFile << "infiles/turbomole/atom_" << atomMetaData[i].type << atomMetaData[i].ion
                       << "_basis_" << atomMetaData[i].basisName << ".tm";
+            cout << basisFile.str()<< endl;
             atomList.push_back(new Atom(basisFile.str(), { atoms[i].x, atoms[i].y, atoms[i].z}));
         }
         system.addAtoms(atomList);
@@ -186,11 +187,16 @@ int main(int argc, char* argv[])
             cerr << "unknown method!" << endl;
             exit(0);
         }
+
+        int nTerms = 3;
+        int iterationLimit = 20;
+        solver->useDIISprocedure(nTerms,iterationLimit);
+
         solver->runSolver();
 
         //-------------------------------------------------------------------------------------------------------
-        Analyser analyser(&system, solver);
-        analyser.computeAtomicPartialCharge();
+//        Analyser analyser(&system, solver);
+//        analyser.computeAtomicPartialCharge();
 
         for(int i = 0; i < nAtoms2; i++) {
             Atom* atom = atomList.at(i);

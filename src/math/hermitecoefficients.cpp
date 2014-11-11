@@ -99,8 +99,8 @@ void HermiteCoefficients::updateE(const PrimitiveGTO &primitiveA, const Primitiv
 
         // p = previous, n = next
         // E(t,i,j) = 1 / (2*p) * E(t-1,i-1,j) + XPA * E(t,i-1,j) + (t + 1)*E(t+1,i-1,j)
-        for(int iA = 1; iA < iAmax(cor); iA++) {
-            for(int iB = 0; iB < iBmax(cor); iB++) {
+        for(int iB = 0; iB < iBmax(cor); iB++) {
+            for(int iA = 1; iA < iAmax(cor); iA++) {
                 for(int t = 0; t < tmax(cor); t++) {
 
                     int iAp = iA - 1;

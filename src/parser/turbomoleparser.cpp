@@ -92,6 +92,7 @@ void TurbomoleParser::loadfile(string filename)
                 contractedGTO.addPrimitive(primitiveGTO);
             }
 
+
             m_contractedGTOs.push_back(contractedGTO);
         }
 

@@ -107,26 +107,26 @@ void HFsolver::setupTwoParticleMatrix()
          << end - begin << "s" << endl;
 
 
-    begin = m_timer.elapsed();
-    for (int p = 0; p < m_nBasisFunctions; p++) {
-        for(int q = p; q < m_nBasisFunctions; q++){
+begin = m_timer.elapsed();
+for (int p = 0; p < m_nBasisFunctions; p++) {
+    for(int q = p; q < m_nBasisFunctions; q++){
 #if USE_MPI
-            boost::mpi::broadcast(m_world, m_Q(p,q).memptr(), m_Q(p,q).n_elem, m_pqIndicesToProcsMap(p,q));
+        boost::mpi::broadcast(m_world, m_Q(p,q).memptr(), m_Q(p,q).n_elem, m_pqIndicesToProcsMap(p,q));
 #endif
-            for (int r = 0; r < m_nBasisFunctions; r++) {
-                for(int s = r; s < m_nBasisFunctions; s++){
-                    double Qpqrs = m_Q(p,q)(r,s);
-                    m_Q(p,q)(s,r) = Qpqrs;
-                    m_Q(q,p)(r,s) = Qpqrs;
-                    m_Q(q,p)(s,r) = Qpqrs;
-                    m_Q(r,s)(p,q) = Qpqrs;
-                    m_Q(r,s)(q,p) = Qpqrs;
-                    m_Q(s,r)(p,q) = Qpqrs;
-                    m_Q(s,r)(q,p) = Qpqrs;
-                }
+        for (int r = 0; r < m_nBasisFunctions; r++) {
+            for(int s = r; s < m_nBasisFunctions; s++){
+                double Qpqrs = m_Q(p,q)(r,s);
+                m_Q(p,q)(s,r) = Qpqrs;
+                m_Q(q,p)(r,s) = Qpqrs;
+                m_Q(q,p)(s,r) = Qpqrs;
+                m_Q(r,s)(p,q) = Qpqrs;
+                m_Q(r,s)(q,p) = Qpqrs;
+                m_Q(s,r)(p,q) = Qpqrs;
+                m_Q(s,r)(q,p) = Qpqrs;
             }
         }
     }
+}
 
     end = m_timer.elapsed();
     if(m_rank == 0){
