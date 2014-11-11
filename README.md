@@ -6,7 +6,7 @@ An implementation of the Hartree-Fock method for atoms and molecules, based on M
 To compile the following libraries are needed:
 - Armadillo
 - Libconfig
-- HDf5
+- HDF5
 - Boost
 
 Editing of the code is best done using [QtCreator](http://qt-project.org/downloads).
