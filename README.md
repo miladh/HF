@@ -11,13 +11,25 @@ Example of config file:
 #-------------------------------
 chemicalSystem =
 {
-    name = "CH5";
+    name = "H2O";
 
     atoms =
     (
         {
-        basis = "atom_1_anion_basis_6-31ppGds.tm";
-        position = [0.        ,  0.        ,  -2.79679446];
+        basis = "atom_8_basis_STO-3G.tm";
+        position = [0.0, 0.0, 0.0];
+        velocity = [0.        ,  0.        ,  0.0];
+        }
+        ,
+        {
+        basis = "atom_1_basis_STO-3G.tm";
+        position = [1.797, 0.0, 0.0];
+        velocity = [0.        ,  0.        ,  0.0];
+        }
+        ,
+        {
+        basis = "atom_1_basis_STO-3G.tm";
+        position = [-0.448, -1.740, 0.0];
         velocity = [0.        ,  0.        ,  0.0];
         }
     )
@@ -29,7 +41,7 @@ solverSettings =
 {
     # 0 = "Restricted HF"
     # 1 = "Unrestricted HF"
-    method =0;
+    method = 0;
 
     maxNumOfIteration = 10000;
     dampingFactor     = 0.5;
@@ -55,12 +67,12 @@ solverSettings =
 analysisSettings=
 {
     saveResults = 1;
-    outputFilePath = "/"
+    outputFilePath = "/home/milad/kurs/qmd/"
 
     saveEnergies = 1;
     dipoleMoment = 1;
     atomicPartialCharge = 1;
-    chargeDensity = 1;
+    chargeDensity = 0;
     electrostaticPotential = 0;
 
 
