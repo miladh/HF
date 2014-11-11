@@ -1,7 +1,15 @@
 HF
 ====
-An implementation of the Hartree-Fock method.
-Editing of the code is best done using QtCreator.
+An implementation of the Hartree-Fock method for atoms and molecules, based on McMurchie-Davidson scheme using Gaussian basis functions. The input basis files read by the code are in the Turbomole format. These files are taken from the website [Basis Set Exchange](https://bse.pnl.gov/bse/portal)
+
+
+To compile the following libraries are needed:
+- Armadillo
+- Libconfig
+- HDf5
+- Boost
+
+Editing of the code is best done using [QtCreator](http://qt-project.org/downloads).
 
 Example of config file:
 ```
@@ -12,27 +20,25 @@ Example of config file:
 chemicalSystem =
 {
     name = "H2O";
-
     atoms =
     (
         {
         basis = "atom_8_basis_STO-3G.tm";
         position = [0.0, 0.0, 0.0];
-        velocity = [0.        ,  0.        ,  0.0];
         }
         ,
         {
         basis = "atom_1_basis_STO-3G.tm";
         position = [1.797, 0.0, 0.0];
-        velocity = [0.        ,  0.        ,  0.0];
         }
         ,
         {
         basis = "atom_1_basis_STO-3G.tm";
         position = [-0.448, -1.740, 0.0];
-        velocity = [0.        ,  0.        ,  0.0];
         }
     )
+    
+    # Optional (if both are set to zero, there will be equal number of each spin):
     nSpinUpElectrons = 0;
     nSpinDownElectrons = 0;
 }
@@ -61,20 +67,19 @@ solverSettings =
 
 };
 
-
-
-
 analysisSettings=
 {
+    # 0 = "off"
+    # 1 = "on"
+    
     saveResults = 1;
-    outputFilePath = "/home/milad/kurs/qmd/"
+    outputFilePath = "/"
 
     saveEnergies = 1;
     dipoleMoment = 1;
     atomicPartialCharge = 1;
     chargeDensity = 0;
     electrostaticPotential = 0;
-
 
     densitySettings=
     {
