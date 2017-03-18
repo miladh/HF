@@ -1,6 +1,7 @@
 [![Project Status: Inactive - The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](http://www.repostatus.org/badges/latest/inactive.svg)](http://www.repostatus.org/#inactive) 
 
 The project has reached a stable, usable state but is no longer being actively developed.
+
 HF
 ====
 An implementation of the Hartree-Fock method for atoms and molecules, based on McMurchie-Davidson scheme using Gaussian basis functions. The input basis files read by the code are in the Turbomole format. These files are taken from the website [Basis Set Exchange](https://bse.pnl.gov/bse/portal)
